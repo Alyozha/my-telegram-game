@@ -56,7 +56,7 @@
             touch-action: pan-y;
         }
         
-        /* Затемнение фона для лучшей видимости */
+        /* Затемнение фона */
         .game-area::before {
             content: '';
             position: absolute;
@@ -74,10 +74,10 @@
             z-index: 2;
         }
         
-        /* ВАШ ПАКЕТ С ИЗОБРАЖЕНИЕМ */
+        /* ПАКЕТ С ИЗОБРАЖЕНИЕМ */
         .burger-bag {
             position: absolute;
-            bottom: 15px;
+            bottom: 10px;
             width: 110px;
             height: 110px;
             background: none;
@@ -95,14 +95,22 @@
             filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
         }
         
-        /* ПАДАЮЩИЕ ПРЕДМЕТЫ */
+        /* ===== ЕДА - ЭМОДЗИ, НЕ КАРТИНКИ ===== */
         .falling-item {
             position: absolute;
             display: flex;
             justify-content: center;
             align-items: center;
+            font-size: 52px;
             width: 70px !important;
             height: 70px !important;
+            text-shadow: 
+                -3px -3px 0 white,
+                3px -3px 0 white,
+                -3px 3px 0 white,
+                3px 3px 0 white,
+                0 0 10px rgba(0,0,0,0.5);
+            filter: drop-shadow(0 8px 6px rgba(0,0,0,0.3));
             z-index: 5;
             transition: transform 0.1s ease-out;
             will-change: top, transform;
@@ -112,79 +120,56 @@
         }
         
         .falling-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
+            display: none; /* НИКАКИХ КАРТИНОК */
         }
         
         .falling-item.bomb-item {
-            font-size: 56px;
             text-shadow: 
                 -4px -4px 0 #ff6b6b,
                 4px -4px 0 #ff6b6b,
                 -4px 4px 0 #ff6b6b,
                 4px 4px 0 #ff6b6b,
                 0 0 15px rgba(255,0,0,0.5);
+            font-size: 56px;
         }
         
-        .falling-item.bomb-item img {
-            display: none;
-        }
-        
-        /* ===== КНОПКИ УПРАВЛЕНИЯ - ИСПРАВЛЕНО ===== */
+        /* ===== КНОПКИ - 50x50, БЕЗ ФОНА, ТОЛЬКО ИКОНКИ ===== */
         .game-buttons {
             position: absolute;
             top: 15px;
             right: 15px;
             display: flex;
-            gap: 12px;
+            gap: 15px;
             z-index: 100;
         }
         
         .game-btn {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(4px);
-            border: 2px solid rgba(255, 255, 255, 0.25);
+            width: 50px;
+            height: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.2s ease;
             touch-action: manipulation;
             padding: 0;
-            overflow: hidden;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+            background: none !important;     /* БЕЗ ФОНА */
+            border: none !important;         /* БЕЗ РАМКИ */
+            box-shadow: none !important;     /* БЕЗ ТЕНИ */
+            backdrop-filter: none !important;
         }
         
         .game-btn:active {
-            transform: scale(0.9);
-            background: rgba(30, 41, 59, 0.9);
-            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(0.85);
         }
         
-        /* ИКОНКИ - ОРИГИНАЛЬНЫЕ ЦВЕТА, БЕЗ ФИЛЬТРОВ */
         .btn-icon {
-            width: 28px;
-            height: 28px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
             display: block;
             background: transparent;
-            /* НИКАКИХ ФИЛЬТРОВ - оригинальные цвета PNG */
-            filter: none;
-            transition: transform 0.2s ease;
-        }
-        
-        .game-btn:active .btn-icon {
-            transform: scale(0.9);
-        }
-        
-        /* Специально для иконок - никаких изменений цветов */
-        .pause-icon, .play-icon, .reset-icon {
-            filter: none !important;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3)); /* Только тень */
         }
         
         /* СЧЁТЧИКИ */
@@ -192,14 +177,14 @@
             position: absolute;
             top: 15px;
             left: 15px;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(5px);
-            padding: 12px 18px;
+            padding: 10px 16px;
             border-radius: 30px;
-            border: 2px solid #334155;
+            border: 2px solid rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
             z-index: 100;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
@@ -207,23 +192,22 @@
         .score-display {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-size: 1.3rem;
             font-weight: bold;
-            color: #ffffff !important;
+            color: #ffffff;
             text-shadow: 0 0 5px rgba(255,255,255,0.3);
         }
         
         .hearts-container {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
         
         .heart {
-            font-size: 1.8rem;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            will-change: transform, opacity;
+            font-size: 1.6rem;
+            transition: all 0.3s ease;
         }
         
         .heart.full {
@@ -238,7 +222,7 @@
         }
         
         .heart-lost {
-            animation: heartBreak 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            animation: heartBreak 0.5s ease forwards;
         }
         
         @keyframes heartBreak {
@@ -264,13 +248,11 @@
             align-items: center;
             font-size: 48px;
             color: white;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 0 8px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.3s ease;
             z-index: 200;
-            touch-action: manipulation;
             text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            -webkit-tap-highlight-color: transparent;
         }
         
         .start-btn-large span {
@@ -281,7 +263,6 @@
         
         .start-btn-large:active {
             transform: translate(-50%, -50%) scale(0.95);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), 0 0 0 12px rgba(16, 185, 129, 0.2);
         }
         
         .start-btn-large.hidden {
@@ -318,7 +299,6 @@
             color: #ef4444;
             margin-bottom: 20px;
             text-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
-            animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
         .game-over p {
@@ -336,18 +316,16 @@
             border-radius: 50px;
             border: none;
             cursor: pointer;
-            box-shadow: 0 10px 0 #075985, 0 10px 30px rgba(14, 165, 233, 0.5);
-            transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 0 #075985;
+            transition: all 0.1s ease;
             display: flex;
             align-items: center;
             gap: 10px;
-            will-change: transform, box-shadow;
-            -webkit-tap-highlight-color: transparent;
         }
         
         .restart-btn:active {
             transform: translateY(5px);
-            box-shadow: 0 5px 0 #075985, 0 10px 30px rgba(14, 165, 233, 0.5);
+            box-shadow: 0 5px 0 #075985;
         }
         
         .item-collected {
@@ -359,7 +337,6 @@
             z-index: 50;
             animation: floatUp 0.8s ease-out forwards;
             text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            will-change: transform, opacity;
         }
         
         @keyframes floatUp {
@@ -374,7 +351,7 @@
         }
         
         .caught-item {
-            animation: caughtAnimation 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            animation: caughtAnimation 0.25s ease forwards;
         }
         
         @keyframes missedAnimation {
@@ -394,8 +371,7 @@
             background: rgba(245, 158, 11, 0.4);
             pointer-events: none;
             z-index: 20;
-            animation: touchPulse 0.5s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
-            will-change: transform, opacity;
+            animation: touchPulse 0.5s ease-out forwards;
         }
         
         @keyframes touchPulse {
@@ -410,26 +386,27 @@
                 bottom: 15px;
             }
             .falling-item {
+                font-size: 46px;
                 width: 60px !important;
                 height: 60px !important;
             }
             .game-stats-overlay {
-                padding: 8px 12px;
+                padding: 8px 14px;
                 gap: 12px;
             }
             .heart {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
             }
             .score-display {
                 font-size: 1.1rem;
             }
             .game-btn {
-                width: 44px;
-                height: 44px;
+                width: 45px;
+                height: 45px;
             }
             .btn-icon {
-                width: 24px;
-                height: 24px;
+                width: 45px;
+                height: 45px;
             }
         }
     </style>
@@ -440,7 +417,7 @@
             <!-- СЧЁТЧИКИ -->
             <div class="game-stats-overlay">
                 <div class="score-display">
-                    <span class="stat-icon">🍔</span>
+                    <span>🍔</span>
                     <span id="scoreDisplay">0</span>
                 </div>
                 
@@ -451,7 +428,7 @@
                 </div>
             </div>
             
-            <!-- ===== КНОПКИ УПРАВЛЕНИЯ - ИСПРАВЛЕНО ===== -->
+            <!-- ===== КНОПКИ - 50x50 БЕЗ ФОНА ===== -->
             <div class="game-buttons">
                 <!-- КНОПКА ПАУЗЫ/ПЛЕЙ -->
                 <div class="game-btn" id="pauseBtn">
@@ -470,9 +447,9 @@
                 <span>СТАРТ</span>
             </div>
             
-            <!-- ВАШ ПАКЕТ -->
+            <!-- ПАКЕТ -->
             <div class="burger-bag" id="burgerBag">
-                <img src="images/bag.png" alt="Пакет для еды" id="bagImage">
+                <img src="images/bag.png" alt="Пакет" id="bagImage">
             </div>
             
             <!-- ЭКРАН ОКОНЧАНИЯ ИГРЫ -->
@@ -487,7 +464,7 @@
     </div>
 
     <script>
-        // Активация Telegram Web App если есть
+        // Telegram Web App
         if (window.Telegram && Telegram.WebApp) {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
@@ -497,7 +474,7 @@
         const gameArea = document.getElementById('gameArea');
         const burgerBag = document.getElementById('burgerBag');
         
-        // Элементы интерфейса
+        // Интерфейс
         const scoreDisplay = document.getElementById('scoreDisplay');
         const heart1 = document.getElementById('heart1');
         const heart2 = document.getElementById('heart2');
@@ -511,9 +488,21 @@
         const gameOverScreen = document.getElementById('gameOver');
         const finalScoreElement = document.getElementById('finalScore');
         
-        // Иконки внутри кнопок
+        // Иконки
         const pauseIcon = document.querySelector('.pause-icon');
         const playIcon = document.querySelector('.play-icon');
+        
+        // ===== ЕДА - ТОЛЬКО ЭМОДЗИ =====
+        const foodItems = [
+            { emoji: '🍔', points: 10 },
+            { emoji: '🍟', points: 15 },
+            { emoji: '🌭', points: 20 },
+            { emoji: '🍕', points: 25 },
+            { emoji: '🥙', points: 30 }
+        ];
+        
+        const bombEmoji = '💣';
+        const bagSpeedMultiplier = 3.2;
         
         // Игровые переменные
         let score = 0;
@@ -525,61 +514,41 @@
         let bagPosition = gameArea.offsetWidth / 2 - burgerBag.offsetWidth / 2;
         let isTouching = false;
         let fallingItems = new Map();
+        let densityLevel = 1;
         
-        // ПЛАВНОЕ ДВИЖЕНИЕ
-        let targetPosition = bagPosition;
-        let currentPosition = bagPosition;
-        let animationFrameId = null;
-        
-        // НАСТРОЙКИ ИГРЫ
-        const foodItems = [
-            { image: 'images/food/burger.png', points: 10, emoji: '🍔' },
-            { emoji: '🍟', points: 15 },
-            { emoji: '🌭', points: 20 },
-            { image: 'images/food/pizza.png', points: 25, emoji: '🍕' },
-            { image: 'images/food/wrap.png', points: 30, emoji: '🥙' }
-        ];
-        
-        const bombEmoji = '💣';
-        const bagSpeedMultiplier = 3.2;
-        
+        // Настройки прогрессии
         const BASE_SPAWN_INTERVAL = 3600;
         const SPAWN_REDUCTION_FACTOR = 0.12;
         const DENSITY_SCORE_STEP = 100;
         const SPEED_SCORE_STEP = 200;
         
-        let densityLevel = 1;
+        // Плавное движение
+        let targetPosition = bagPosition;
+        let currentPosition = bagPosition;
+        let animationFrameId = null;
+        const SMOOTHING_FACTOR = 0.22;
         
-        // Установка начальной позиции пакета
         function updateBagPosition() {
             targetPosition = Math.max(0, Math.min(targetPosition, gameArea.offsetWidth - burgerBag.offsetWidth));
             currentPosition = targetPosition;
             burgerBag.style.left = `${currentPosition}px`;
         }
-        
         updateBagPosition();
-        
-        // ПЛАВНОЕ ДВИЖЕНИЕ
-        const SMOOTHING_FACTOR = 0.22;
         
         function smoothMove() {
             if (!gameRunning || gamePaused) {
                 animationFrameId = requestAnimationFrame(smoothMove);
                 return;
             }
-            
             const diff = targetPosition - currentPosition;
-            
             if (Math.abs(diff) < 0.1) {
                 currentPosition = targetPosition;
             } else {
                 currentPosition += diff * SMOOTHING_FACTOR;
             }
-            
             burgerBag.style.left = `${currentPosition}px`;
             animationFrameId = requestAnimationFrame(smoothMove);
         }
-        
         smoothMove();
         
         function updateUI() {
@@ -591,13 +560,10 @@
             heart1.className = 'heart';
             heart2.className = 'heart';
             heart3.className = 'heart';
-            
             if (lives >= 1) heart1.className = 'heart full';
             else heart1.className = 'heart empty';
-            
             if (lives >= 2) heart2.className = 'heart full';
             else heart2.className = 'heart empty';
-            
             if (lives >= 3) heart3.className = 'heart full';
             else heart3.className = 'heart empty';
         }
@@ -605,13 +571,11 @@
         function getCurrentSpawnRate() {
             densityLevel = Math.floor(score / DENSITY_SCORE_STEP) + 1;
             const reduction = 1 - (densityLevel - 1) * SPAWN_REDUCTION_FACTOR;
-            const interval = Math.max(400, BASE_SPAWN_INTERVAL * reduction);
-            return Math.round(interval);
+            return Math.round(Math.max(400, BASE_SPAWN_INTERVAL * reduction));
         }
         
         function getCurrentFallSpeed() {
-            const speedLevel = Math.floor(score / SPEED_SCORE_STEP);
-            return 2.5 + speedLevel * 0.3;
+            return 2.5 + Math.floor(score / SPEED_SCORE_STEP) * 0.3;
         }
         
         function checkCollision(itemRect) {
@@ -634,6 +598,7 @@
                     itemTop > bagBottom - 5);
         }
         
+        // ===== СОЗДАНИЕ ЕДЫ - ТОЛЬКО ЭМОДЗИ =====
         function createFallingItem() {
             if (!gameRunning || gamePaused) return;
             
@@ -648,7 +613,6 @@
                 item.textContent = bombEmoji;
                 item.classList.add('bomb-item');
                 item.style.fontSize = '56px';
-                
                 itemData = {
                     type: 'bomb',
                     points: -1,
@@ -657,27 +621,14 @@
                 };
             } else {
                 const foodItem = foodItems[Math.floor(Math.random() * foodItems.length)];
-                
-                const img = document.createElement('img');
-                img.src = foodItem.image;
-                img.alt = 'Food';
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'contain';
-                img.style.display = 'block';
-                
-                item.innerHTML = '';
-                item.appendChild(img);
-                item.style.fontSize = '0';
-                item.style.background = 'none';
-                item.style.textShadow = 'none';
-                
+                item.textContent = foodItem.emoji; // ТОЛЬКО ЭМОДЗИ!
+                item.style.fontSize = '52px';
                 itemData = {
                     type: 'food',
                     points: foodItem.points,
                     element: item,
                     id: 'food-' + Date.now() + '-' + Math.random(),
-                    image: foodItem.image
+                    emoji: foodItem.emoji
                 };
             }
             
@@ -686,6 +637,8 @@
             item.style.display = 'flex';
             item.style.alignItems = 'center';
             item.style.justifyContent = 'center';
+            item.style.background = 'none';
+            item.style.textShadow = '-3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, 0 0 10px rgba(0,0,0,0.5)';
             
             const maxLeft = gameArea.offsetWidth - 80;
             const leftPosition = Math.max(0, Math.floor(Math.random() * maxLeft));
@@ -737,11 +690,8 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: itemRect.top - gameAreaRect.top
                         });
-                        
                         burgerBag.style.transform = 'scale(0.95)';
-                        setTimeout(() => {
-                            burgerBag.style.transform = 'scale(1)';
-                        }, 200);
+                        setTimeout(() => burgerBag.style.transform = 'scale(1)', 200);
                     } else {
                         score += itemData.points;
                         showMessage(`+${itemData.points}`, '#ffffff', {
@@ -750,28 +700,22 @@
                         });
                         
                         burgerBag.style.transform = 'translateY(-5px)';
-                        setTimeout(() => {
-                            burgerBag.style.transform = 'translateY(0)';
-                        }, 200);
+                        setTimeout(() => burgerBag.style.transform = 'translateY(0)', 200);
                         
-                        const newDensityLevel = Math.floor(score / DENSITY_SCORE_STEP) + 1;
-                        if (newDensityLevel > densityLevel) {
-                            densityLevel = newDensityLevel;
+                        if (Math.floor(score / DENSITY_SCORE_STEP) + 1 > densityLevel) {
+                            densityLevel = Math.floor(score / DENSITY_SCORE_STEP) + 1;
                             updateSpawnInterval();
                         }
                     }
                     
                     updateUI();
-                    
                     itemData.element.classList.add('caught-item');
-                    
                     setTimeout(() => {
                         if (itemData.element.parentNode) {
                             itemData.element.remove();
+                            fallingItems.delete(id);
                         }
-                        fallingItems.delete(id);
                     }, 250);
-                    
                     continue;
                 }
                 
@@ -784,42 +728,34 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: gameAreaHeight - 80
                         });
-                        
                         itemData.element.classList.add('missed-item');
-                        
                         setTimeout(() => {
                             if (itemData.element.parentNode) {
                                 itemData.element.remove();
+                                fallingItems.delete(id);
                             }
-                            fallingItems.delete(id);
                         }, 500);
                     } else if (itemData.type === 'bomb') {
                         if (itemData.element.parentNode) {
                             itemData.element.remove();
+                            fallingItems.delete(id);
                         }
-                        fallingItems.delete(id);
                     }
                 }
             }
             
-            if (lives <= 0) {
-                endGame();
-            }
+            if (lives <= 0) endGame();
         }
         
         function updateSpawnInterval() {
             clearInterval(itemInterval);
-            const spawnRate = getCurrentSpawnRate();
             itemInterval = setInterval(() => {
-                if (gameRunning && !gamePaused) {
-                    createFallingItem();
-                }
-            }, spawnRate);
+                if (gameRunning && !gamePaused) createFallingItem();
+            }, getCurrentSpawnRate());
         }
         
         function loseLife() {
             lives = Math.max(0, lives - 1);
-            
             if (lives === 2) {
                 heart3.classList.add('heart-lost');
                 setTimeout(() => heart3.className = 'heart empty', 300);
@@ -830,10 +766,8 @@
                 heart1.classList.add('heart-lost');
                 setTimeout(() => heart1.className = 'heart empty', 300);
             }
-            
             burgerBag.style.transform = 'scale(0.9)';
             setTimeout(() => burgerBag.style.transform = 'scale(1)', 400);
-            
             updateUI();
         }
         
@@ -844,12 +778,8 @@
             message.style.color = color;
             message.style.left = `${position.left}px`;
             message.style.top = `${position.top}px`;
-            
             gameArea.appendChild(message);
-            
-            setTimeout(() => {
-                if (message.parentNode) message.remove();
-            }, 800);
+            setTimeout(() => { if (message.parentNode) message.remove(); }, 800);
         }
         
         function createTouchFeedback(x, y) {
@@ -857,46 +787,30 @@
             feedback.classList.add('touch-feedback');
             feedback.style.left = `${x - 40}px`;
             feedback.style.top = `${y - 40}px`;
-            
             gameArea.appendChild(feedback);
             setTimeout(() => { if (feedback.parentNode) feedback.remove(); }, 500);
         }
         
-        // ===== ИСПРАВЛЕННЫЕ ФУНКЦИИ УПРАВЛЕНИЯ =====
-        
+        // ===== УПРАВЛЕНИЕ =====
         function startGame(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             if (gameRunning) return;
-            
             resetGame();
-            
             gameRunning = true;
             gamePaused = false;
             startBtn.classList.add('hidden');
-            
-            // Показываем иконку паузы, скрываем play
             if (pauseIcon) pauseIcon.style.display = 'block';
             if (playIcon) playIcon.style.display = 'none';
-            
-            const initialSpawnRate = getCurrentSpawnRate();
-            itemInterval = setInterval(() => {
-                if (gameRunning && !gamePaused) createFallingItem();
-            }, initialSpawnRate);
-            
+            updateSpawnInterval();
             gameInterval = setInterval(() => {
                 if (gameRunning && !gamePaused) updateFallingItems();
             }, 16);
-            
-            return false;
         }
         
         function pauseGame(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             if (!gameRunning) return;
-            
             gamePaused = !gamePaused;
-            
-            // Меняем иконки Pause/Play
             if (gamePaused) {
                 if (pauseIcon) pauseIcon.style.display = 'none';
                 if (playIcon) playIcon.style.display = 'block';
@@ -912,15 +826,11 @@
         
         function resetGame(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
-            
             clearInterval(gameInterval);
             clearInterval(itemInterval);
-            gameInterval = null;
-            itemInterval = null;
-            
             fallingItems.clear();
-            const items = document.querySelectorAll('.falling-item, .item-collected, .touch-feedback, .missed-item, .caught-item');
-            items.forEach(item => { if (item.parentNode) item.remove(); });
+            document.querySelectorAll('.falling-item, .item-collected, .touch-feedback, .missed-item, .caught-item')
+                .forEach(item => { if (item.parentNode) item.remove(); });
             
             score = 0;
             lives = 3;
@@ -929,8 +839,6 @@
             gamePaused = false;
             
             startBtn.classList.remove('hidden');
-            
-            // Сбрасываем иконки
             if (pauseIcon) pauseIcon.style.display = 'block';
             if (playIcon) playIcon.style.display = 'none';
             
@@ -944,7 +852,6 @@
             heart3.className = 'heart full';
             
             gameOverScreen.style.display = 'none';
-            
             updateUI();
         }
         
@@ -952,36 +859,31 @@
             gameRunning = false;
             clearInterval(gameInterval);
             clearInterval(itemInterval);
-            
             finalScoreElement.textContent = score;
             gameOverScreen.style.display = 'flex';
         }
         
         function moveBag(direction) {
             if (!gameRunning || gamePaused) return;
-            
             const bagWidth = burgerBag.offsetWidth;
             const gameAreaWidth = gameArea.offsetWidth;
             const moveAmount = 45 * bagSpeedMultiplier;
-            
             if (direction === 'left') {
                 targetPosition = Math.max(0, targetPosition - moveAmount);
-            } else if (direction === 'right') {
+            } else {
                 targetPosition = Math.min(gameAreaWidth - bagWidth, targetPosition + moveAmount);
             }
         }
         
-        // Сенсорное управление
+        // ===== СОБЫТИЯ =====
         function handleTouchStart(e) {
             e.preventDefault();
             if (!gameRunning || gamePaused) return;
-            
             isTouching = true;
             const touch = e.touches[0];
             const gameAreaRect = gameArea.getBoundingClientRect();
             const touchX = touch.clientX - gameAreaRect.left;
             const bagWidth = burgerBag.offsetWidth;
-            
             targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
             createTouchFeedback(touchX, touch.clientY - gameAreaRect.top);
         }
@@ -989,12 +891,10 @@
         function handleTouchMove(e) {
             e.preventDefault();
             if (!gameRunning || gamePaused || !isTouching) return;
-            
             const touch = e.touches[0];
             const gameAreaRect = gameArea.getBoundingClientRect();
             const touchX = touch.clientX - gameAreaRect.left;
             const bagWidth = burgerBag.offsetWidth;
-            
             targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
         }
         
@@ -1008,37 +908,20 @@
         gameArea.addEventListener('touchend', handleTouchEnd);
         gameArea.addEventListener('touchcancel', handleTouchEnd);
         
-        // Клавиатурное управление
         document.addEventListener('keydown', (e) => {
             if (!gameRunning || gamePaused) return;
             if (e.key === 'ArrowLeft' || e.key === 'a') moveBag('left');
             else if (e.key === 'ArrowRight' || e.key === 'd') moveBag('right');
         });
         
-        // Обработчики событий для кнопок
         startBtn.addEventListener('click', startGame);
-        startBtn.addEventListener('touchstart', function(e) { 
-            e.preventDefault(); 
-            startGame(e); 
-        }, { passive: false });
-        
+        startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(e); }, { passive: false });
         pauseBtn.addEventListener('click', pauseGame);
-        pauseBtn.addEventListener('touchstart', function(e) { 
-            e.preventDefault(); 
-            pauseGame(e); 
-        }, { passive: false });
-        
+        pauseBtn.addEventListener('touchstart', (e) => { e.preventDefault(); pauseGame(e); }, { passive: false });
         resetBtn.addEventListener('click', resetGame);
-        resetBtn.addEventListener('touchstart', function(e) { 
-            e.preventDefault(); 
-            resetGame(e); 
-        }, { passive: false });
-        
+        resetBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(e); }, { passive: false });
         restartBtn.addEventListener('click', resetGame);
-        restartBtn.addEventListener('touchstart', function(e) { 
-            e.preventDefault(); 
-            resetGame(e); 
-        }, { passive: false });
+        restartBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(e); }, { passive: false });
         
         updateUI();
         
