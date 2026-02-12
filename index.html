@@ -56,7 +56,6 @@
             touch-action: pan-y;
         }
         
-        /* Затемнение фона */
         .game-area::before {
             content: '';
             position: absolute;
@@ -74,7 +73,6 @@
             z-index: 2;
         }
         
-        /* ПАКЕТ С ИЗОБРАЖЕНИЕМ */
         .burger-bag {
             position: absolute;
             bottom: 10px;
@@ -95,7 +93,7 @@
             filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
         }
         
-        /* ===== ЕДА - ЭМОДЗИ, НЕ КАРТИНКИ ===== */
+        /* ===== ЕДА - ЭМОДЗИ С ОБВОДКОЙ ===== */
         .falling-item {
             position: absolute;
             display: flex;
@@ -104,13 +102,6 @@
             font-size: 52px;
             width: 70px !important;
             height: 70px !important;
-            text-shadow: 
-                -3px -3px 0 white,
-                3px -3px 0 white,
-                -3px 3px 0 white,
-                3px 3px 0 white,
-                0 0 10px rgba(0,0,0,0.5);
-            filter: drop-shadow(0 8px 6px rgba(0,0,0,0.3));
             z-index: 5;
             transition: transform 0.1s ease-out;
             will-change: top, transform;
@@ -119,21 +110,33 @@
             box-shadow: none;
         }
         
-        .falling-item img {
-            display: none; /* НИКАКИХ КАРТИНОК */
+        /* БЕЛАЯ ОБВОДКА ДЛЯ ЕДЫ */
+        .falling-item:not(.bomb-item) {
+            text-shadow: 
+                -3px -3px 0 white,
+                3px -3px 0 white,
+                -3px 3px 0 white,
+                3px 3px 0 white,
+                0 0 10px rgba(0,0,0,0.5);
         }
         
+        /* КРАСНАЯ ОБВОДКА ДЛЯ БОМБ - УСИЛЕННАЯ */
         .falling-item.bomb-item {
             text-shadow: 
-                -4px -4px 0 #ff6b6b,
-                4px -4px 0 #ff6b6b,
-                -4px 4px 0 #ff6b6b,
-                4px 4px 0 #ff6b6b,
-                0 0 15px rgba(255,0,0,0.5);
+                -4px -4px 0 #ff0000,
+                4px -4px 0 #ff0000,
+                -4px 4px 0 #ff0000,
+                4px 4px 0 #ff0000,
+                0 0 15px rgba(255, 0, 0, 0.7) !important;
             font-size: 56px;
+            color: #000;
         }
         
-        /* ===== КНОПКИ - 50x50, БЕЗ ФОНА, ТОЛЬКО ИКОНКИ ===== */
+        .falling-item img {
+            display: none;
+        }
+        
+        /* ===== КНОПКИ - 50x50 БЕЗ ФОНА ===== */
         .game-buttons {
             position: absolute;
             top: 15px;
@@ -153,9 +156,9 @@
             transition: transform 0.2s ease;
             touch-action: manipulation;
             padding: 0;
-            background: none !important;     /* БЕЗ ФОНА */
-            border: none !important;         /* БЕЗ РАМКИ */
-            box-shadow: none !important;     /* БЕЗ ТЕНИ */
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
             backdrop-filter: none !important;
         }
         
@@ -169,10 +172,9 @@
             object-fit: contain;
             display: block;
             background: transparent;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3)); /* Только тень */
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
         }
         
-        /* СЧЁТЧИКИ */
         .game-stats-overlay {
             position: absolute;
             top: 15px;
@@ -231,7 +233,6 @@
             100% { transform: scale(0.8); color: #475569; opacity: 0.3; }
         }
         
-        /* БОЛЬШАЯ КНОПКА СТАРТ */
         .start-btn-large {
             position: absolute;
             top: 50%;
@@ -269,7 +270,6 @@
             display: none;
         }
         
-        /* ЭКРАН ОКОНЧАНИЯ ИГРЫ */
         .game-over {
             position: absolute;
             top: 0;
@@ -390,6 +390,9 @@
                 width: 60px !important;
                 height: 60px !important;
             }
+            .falling-item.bomb-item {
+                font-size: 50px;
+            }
             .game-stats-overlay {
                 padding: 8px 14px;
                 gap: 12px;
@@ -414,7 +417,6 @@
 <body>
     <div class="container">
         <div class="game-area" id="gameArea">
-            <!-- СЧЁТЧИКИ -->
             <div class="game-stats-overlay">
                 <div class="score-display">
                     <span>🍔</span>
@@ -428,31 +430,25 @@
                 </div>
             </div>
             
-            <!-- ===== КНОПКИ - 50x50 БЕЗ ФОНА ===== -->
             <div class="game-buttons">
-                <!-- КНОПКА ПАУЗЫ/ПЛЕЙ -->
                 <div class="game-btn" id="pauseBtn">
                     <img src="images/icons/pause.png" alt="Пауза" class="btn-icon pause-icon">
                     <img src="images/icons/play.png" alt="Продолжить" class="btn-icon play-icon" style="display: none;">
                 </div>
-                <!-- КНОПКА СБРОСА -->
                 <div class="game-btn" id="resetBtn">
                     <img src="images/icons/reset.png" alt="Сброс" class="btn-icon reset-icon">
                 </div>
             </div>
             
-            <!-- БОЛЬШАЯ КНОПКА СТАРТ -->
             <div class="start-btn-large" id="startBtn">
                 🍔
                 <span>СТАРТ</span>
             </div>
             
-            <!-- ПАКЕТ -->
             <div class="burger-bag" id="burgerBag">
                 <img src="images/bag.png" alt="Пакет" id="bagImage">
             </div>
             
-            <!-- ЭКРАН ОКОНЧАНИЯ ИГРЫ -->
             <div class="game-over" id="gameOver">
                 <h2>GAME OVER</h2>
                 <p>🍔 <span id="finalScore">0</span> 🍟</p>
@@ -464,23 +460,17 @@
     </div>
 
     <script>
-        // Telegram Web App
         if (window.Telegram && Telegram.WebApp) {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
         }
 
-        // Элементы DOM
         const gameArea = document.getElementById('gameArea');
         const burgerBag = document.getElementById('burgerBag');
-        
-        // Интерфейс
         const scoreDisplay = document.getElementById('scoreDisplay');
         const heart1 = document.getElementById('heart1');
         const heart2 = document.getElementById('heart2');
         const heart3 = document.getElementById('heart3');
-        
-        // Кнопки
         const startBtn = document.getElementById('startBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const resetBtn = document.getElementById('resetBtn');
@@ -488,7 +478,6 @@
         const gameOverScreen = document.getElementById('gameOver');
         const finalScoreElement = document.getElementById('finalScore');
         
-        // Иконки
         const pauseIcon = document.querySelector('.pause-icon');
         const playIcon = document.querySelector('.play-icon');
         
@@ -504,7 +493,6 @@
         const bombEmoji = '💣';
         const bagSpeedMultiplier = 3.2;
         
-        // Игровые переменные
         let score = 0;
         let lives = 3;
         let gameRunning = false;
@@ -516,13 +504,11 @@
         let fallingItems = new Map();
         let densityLevel = 1;
         
-        // Настройки прогрессии
         const BASE_SPAWN_INTERVAL = 3600;
         const SPAWN_REDUCTION_FACTOR = 0.12;
         const DENSITY_SCORE_STEP = 100;
         const SPEED_SCORE_STEP = 200;
         
-        // Плавное движение
         let targetPosition = bagPosition;
         let currentPosition = bagPosition;
         let animationFrameId = null;
@@ -598,7 +584,6 @@
                     itemTop > bagBottom - 5);
         }
         
-        // ===== СОЗДАНИЕ ЕДЫ - ТОЛЬКО ЭМОДЗИ =====
         function createFallingItem() {
             if (!gameRunning || gamePaused) return;
             
@@ -621,7 +606,7 @@
                 };
             } else {
                 const foodItem = foodItems[Math.floor(Math.random() * foodItems.length)];
-                item.textContent = foodItem.emoji; // ТОЛЬКО ЭМОДЗИ!
+                item.textContent = foodItem.emoji;
                 item.style.fontSize = '52px';
                 itemData = {
                     type: 'food',
@@ -638,7 +623,6 @@
             item.style.alignItems = 'center';
             item.style.justifyContent = 'center';
             item.style.background = 'none';
-            item.style.textShadow = '-3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, 0 0 10px rgba(0,0,0,0.5)';
             
             const maxLeft = gameArea.offsetWidth - 80;
             const leftPosition = Math.max(0, Math.floor(Math.random() * maxLeft));
@@ -791,7 +775,6 @@
             setTimeout(() => { if (feedback.parentNode) feedback.remove(); }, 500);
         }
         
-        // ===== УПРАВЛЕНИЕ =====
         function startGame(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             if (gameRunning) return;
@@ -875,7 +858,6 @@
             }
         }
         
-        // ===== СОБЫТИЯ =====
         function handleTouchStart(e) {
             e.preventDefault();
             if (!gameRunning || gamePaused) return;
