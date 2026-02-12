@@ -278,6 +278,7 @@
             touch-action: manipulation;
             text-shadow: 0 2px 5px rgba(0,0,0,0.5);
             will-change: transform, box-shadow;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .start-btn-large span {
@@ -295,7 +296,7 @@
             display: none;
         }
         
-        /* СЧЁТЧИКИ ПРЯМО НА ИГРОВОМ ПОЛЕ - ТОЛЬКО ОЧКИ И СЕРДЕЧКИ */
+        /* СЧЁТЧИКИ ПРЯМО НА ИГРОВОМ ПОЛЕ */
         .game-stats-overlay {
             position: absolute;
             top: 15px;
@@ -312,14 +313,15 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         
-        /* СЧЁТЧИК ОЧКОВ */
+        /* СЧЁТЧИК ОЧКОВ - ТЕПЕРЬ БЕЛЫЙ! */
         .score-display {
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 1.3rem;
             font-weight: bold;
-            color: #10b981;
+            color: #ffffff !important; /* БЕЛЫЙ цвет */
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
         }
         
         /* СЕРДЕЧКИ ЗДОРОВЬЯ */
@@ -419,6 +421,7 @@
             align-items: center;
             gap: 10px;
             will-change: transform, box-shadow;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .restart-btn:active {
@@ -428,7 +431,7 @@
         
         .item-collected {
             position: absolute;
-            color: #10b981;
+            color: #ffffff;
             font-weight: bold;
             font-size: 1.5rem;
             pointer-events: none;
@@ -485,7 +488,24 @@
             .falling-item { font-size: 46px; width: 70px !important; height: 70px !important; }
             .game-stats-overlay { padding: 8px 12px; gap: 12px; }
             .heart { font-size: 1.5rem; }
-            .score-display { font-size: 1.1rem; }
+            .score-display { font-size: 1.1rem; color: #ffffff !important; }
+        }
+
+        /* ИСПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНОВ - ПРАВИЛЬНАЯ ОБРАБОТКА НАЖАТИЙ */
+        .start-btn-large {
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* УБИРАЕМ ЗЕЛЕНЫЙ ЦВЕТ СЧЕТА */
+        .score-value {
+            color: #ffffff !important;
+        }
+        
+        #scoreDisplay {
+            color: #ffffff !important;
         }
     </style>
 </head>
@@ -496,7 +516,7 @@
             <div class="game-stats-overlay">
                 <div class="score-display">
                     <span class="stat-icon">🍔</span>
-                    <span id="scoreDisplay">0</span>
+                    <span id="scoreDisplay" class="score-value">0</span>
                 </div>
                 
                 <!-- ТРИ СЕРДЕЧКА ЗДОРОВЬЯ -->
@@ -545,6 +565,12 @@
     </div>
 
     <script>
+        // Активация Telegram Web App если есть
+        if (window.Telegram && Telegram.WebApp) {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+        }
+
         // Элементы DOM
         const gameArea = document.getElementById('gameArea');
         const burgerBag = document.getElementById('burgerBag');
@@ -555,9 +581,6 @@
         const heart1 = document.getElementById('heart1');
         const heart2 = document.getElementById('heart2');
         const heart3 = document.getElementById('heart3');
-        
-        // ИНДИКАТОР ПЛОТНОСТИ - УДАЛЕН ИЗ JS
-        // Удалены все ссылки на densityFill, densityText и т.д.
         
         // Кнопки
         const startBtn = document.getElementById('startBtn');
@@ -596,16 +619,12 @@
         const bagSpeedMultiplier = 3.2;
         
         // ⚡ НАСТРОЙКИ ПРОГРЕССИИ
-        const BASE_SPAWN_INTERVAL = 3600; // 3.6 секунды
+        const BASE_SPAWN_INTERVAL = 3600;
         const SPAWN_REDUCTION_FACTOR = 0.12;
-        
-        // ⚡ ПЛОТНОСТЬ РАСТЁТ КАЖДЫЕ 100 ОЧКОВ (скрыто)
         const DENSITY_SCORE_STEP = 100;
-        
-        // ⚡ СКОРОСТЬ РАСТЁТ КАЖДЫЕ 200 ОЧКОВ
         const SPEED_SCORE_STEP = 200;
         
-        // ⚡ УРОВЕНЬ ПЛОТНОСТИ (используется для расчётов, но не показывается)
+        // ⚡ УРОВЕНЬ ПЛОТНОСТИ
         let densityLevel = 1;
         
         // Установка начальной позиции пакета
@@ -640,7 +659,7 @@
         
         smoothMove();
         
-        // Обновление UI - ТОЛЬКО ОЧКИ И СЕРДЕЧКИ
+        // Обновление UI
         function updateUI() {
             scoreDisplay.textContent = score;
             updateHearts();
@@ -648,12 +667,10 @@
         
         // ОБНОВЛЕНИЕ СЕРДЕЧЕК
         function updateHearts() {
-            // Сбрасываем все сердечки
             heart1.className = 'heart';
             heart2.className = 'heart';
             heart3.className = 'heart';
             
-            // Устанавливаем полные сердечки в зависимости от количества жизней
             if (lives >= 1) {
                 heart1.className = 'heart full';
             } else {
@@ -673,12 +690,9 @@
             }
         }
         
-        // ПОЛУЧАЕМ ТЕКУЩУЮ СКОРОСТЬ СОЗДАНИЯ ПРЕДМЕТОВ (ПЛОТНОСТЬ)
+        // ПОЛУЧАЕМ ТЕКУЩУЮ СКОРОСТЬ СОЗДАНИЯ ПРЕДМЕТОВ
         function getCurrentSpawnRate() {
-            // Плотность растёт каждые 100 очков
             densityLevel = Math.floor(score / DENSITY_SCORE_STEP) + 1;
-            
-            // Расчёт интервала
             const reduction = 1 - (densityLevel - 1) * SPAWN_REDUCTION_FACTOR;
             const interval = Math.max(400, BASE_SPAWN_INTERVAL * reduction);
             return Math.round(interval);
@@ -686,7 +700,6 @@
         
         // ПОЛУЧАЕМ ТЕКУЩУЮ СКОРОСТЬ ПАДЕНИЯ
         function getCurrentFallSpeed() {
-            // Скорость растёт каждые 200 очков
             const speedLevel = Math.floor(score / SPEED_SCORE_STEP);
             return 2.5 + speedLevel * 0.3;
         }
@@ -812,7 +825,7 @@
                         }, 200);
                     } else {
                         score += itemData.points;
-                        showMessage(`+${itemData.points}`, '#10b981', {
+                        showMessage(`+${itemData.points}`, '#ffffff', {
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: itemRect.top - gameAreaRect.top
                         });
@@ -824,11 +837,9 @@
                             burgerBag.style.transform = 'translateY(0)';
                         }, 200);
                         
-                        // Проверяем изменение плотности (каждые 100 очков)
                         const newDensityLevel = Math.floor(score / DENSITY_SCORE_STEP) + 1;
                         if (newDensityLevel > densityLevel) {
                             densityLevel = newDensityLevel;
-                            // Сообщение скрыто - не показываем
                             updateSpawnInterval();
                         }
                     }
@@ -890,11 +901,10 @@
             }, spawnRate);
         }
         
-        // Потеря жизни - ОДНО СЕРДЕЧКО УБИРАЕТСЯ
+        // Потеря жизни
         function loseLife() {
             lives = Math.max(0, lives - 1);
             
-            // Анимация потери сердечка
             if (lives === 2) {
                 heart3.classList.add('heart-lost');
                 setTimeout(() => {
@@ -954,14 +964,31 @@
             }, 500);
         }
         
-        function startGame() {
-            if (gameRunning) return;
+        // ИСПРАВЛЕННАЯ ФУНКЦИЯ СТАРТА - ДЛЯ ТЕЛЕФОНОВ
+        function startGame(e) {
+            // Предотвращаем стандартное поведение
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             
+            // Запускаем игру
+            if (gameRunning) {
+                return;
+            }
+            
+            // Сбрасываем игру перед стартом
             resetGame();
             
+            // Устанавливаем флаги
             gameRunning = true;
             gamePaused = false;
-            startBtn.classList.add('hidden');
+            
+            // Скрываем кнопку старт
+            if (startBtn) {
+                startBtn.classList.add('hidden');
+            }
+            
             bagLogo.textContent = '🍔';
             
             // Запускаем создание предметов
@@ -977,9 +1004,16 @@
                     updateFallingItems();
                 }
             }, 16);
+            
+            console.log('Игра запущена!');
+            return false;
         }
         
-        function pauseGame() {
+        function pauseGame(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             if (!gameRunning) return;
             
             gamePaused = !gamePaused;
@@ -996,7 +1030,12 @@
             }
         }
         
-        function resetGame() {
+        function resetGame(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
             clearInterval(gameInterval);
             clearInterval(itemInterval);
             gameInterval = null;
@@ -1010,7 +1049,6 @@
                 }
             });
             
-            // СБРАСЫВАЕМ ВСЁ НА НАЧАЛЬНЫЕ ЗНАЧЕНИЯ
             score = 0;
             lives = 3;
             densityLevel = 1;
@@ -1026,7 +1064,6 @@
             burgerBag.style.transform = 'scale(1)';
             bagLogo.textContent = '🍔';
             
-            // Сбрасываем сердечки
             heart1.className = 'heart full';
             heart2.className = 'heart full';
             heart3.className = 'heart full';
@@ -1100,18 +1137,37 @@
         gameArea.addEventListener('touchend', handleTouchEnd);
         gameArea.addEventListener('touchcancel', handleTouchEnd);
         
-        // Клавиатурное управление (для ПК)
+        // Клавиатурное управление
         document.addEventListener('keydown', (e) => {
             if (!gameRunning || gamePaused) return;
             if (e.key === 'ArrowLeft' || e.key === 'a') moveBag('left');
             else if (e.key === 'ArrowRight' || e.key === 'd') moveBag('right');
         });
         
-        // Обработчики кнопок
+        // ИСПРАВЛЕННЫЕ ОБРАБОТЧИКИ ДЛЯ ТЕЛЕФОНОВ
         startBtn.addEventListener('click', startGame);
+        startBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            startGame(e);
+        }, { passive: false });
+        
         pauseBtn.addEventListener('click', pauseGame);
+        pauseBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            pauseGame(e);
+        }, { passive: false });
+        
         resetBtn.addEventListener('click', resetGame);
+        resetBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            resetGame(e);
+        }, { passive: false });
+        
         restartBtn.addEventListener('click', resetGame);
+        restartBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            resetGame(e);
+        }, { passive: false });
         
         updateUI();
         
