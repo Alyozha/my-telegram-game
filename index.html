@@ -110,7 +110,6 @@
             background: none !important;
             border: none !important;
             box-shadow: none !important;
-            filter: none !important; /* УБРАНА ТЕНЬ */
         }
         
         .nav-btn:active, .game-btn:active, .sound-btn:active {
@@ -123,7 +122,9 @@
             object-fit: contain;
             display: block;
             background: transparent;
-            filter: none !important; /* УБРАНА ТЕНЬ */
+            /* ПОЛНОСТЬЮ УБРАНА ТЕНЬ */
+            filter: none;
+            -webkit-filter: none;
         }
         
         /* ===== СЧЁТЧИК ЖИЗНЕЙ ===== */
@@ -203,10 +204,10 @@
             letter-spacing: 2px;
         }
         
-        /* ===== ПАКЕТ - ОПУЩЕН В 2 РАЗА НИЖЕ ===== */
+        /* ===== ПАКЕТ - ОПУЩЕН НИЖЕ ===== */
         .burger-bag {
             position: absolute;
-            bottom: 15px; /* ИСПРАВЛЕНО: было 30px, стало 15px (в 2 раза ближе к краю) */
+            bottom: 15px;
             width: 107px;
             height: 107px;
             background: none;
@@ -221,7 +222,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2)); /* УМЕНЬШЕНА ТЕНЬ */
+            filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2));
         }
         
         /* ===== ЕДА - ЭМОДЗИ С ОБВОДКОЙ ===== */
@@ -520,7 +521,6 @@
             background: none !important;
             border: none !important;
             box-shadow: none !important;
-            filter: none !important; /* УБРАНА ТЕНЬ */
             z-index: 1100;
         }
         
@@ -534,7 +534,8 @@
             object-fit: contain;
             display: block;
             background: transparent;
-            filter: none !important; /* УБРАНА ТЕНЬ */
+            filter: none;
+            -webkit-filter: none;
         }
         
         @keyframes fadeIn {
@@ -777,7 +778,7 @@
                 <span>СТАРТ</span>
             </div>
             
-            <!-- ПАКЕТ - ОПУЩЕН НИЖЕ -->
+            <!-- ПАКЕТ -->
             <div class="burger-bag" id="burgerBag">
                 <img src="images/bag.png" alt="Пакет" id="bagImage">
             </div>
@@ -920,19 +921,21 @@
     </div>
 
     <script>
-        // ===== ПРОВЕРКА ЭЛЕМЕНТОВ =====
-        function getElementOrThrow(id, elementName) {
-            const el = document.getElementById(id);
-            if (!el) {
-                console.warn(`Предупреждение: Элемент '${id}' не найден.`);
-            }
-            return el;
+        // ===== ИСПРАВЛЕНИЕ 1: Правильная инициализация =====
+        window.addEventListener('DOMContentLoaded', function() {
+            initGame();
+        });
+
+        function initGame() {
+            initBagPosition();
+            smoothMove();
+            updateUI();
         }
 
         // ===== ЗВУКИ И МУЗЫКА =====
         let successSound, failSound, bgMusic;
-        let lastSuccessTime = 0;
-        const MIN_TIME_BETWEEN_SOUNDS = 50; // 50мс между звуками
+        let isSoundOn = true;
+        let isMusicPlaying = false;
         
         try {
             successSound = new Audio('sounds/success.mp3');
@@ -944,42 +947,45 @@
             bgMusic.volume = 0.2;
             bgMusic.loop = true;
             
-            // Предзагрузка
+            // ИСПРАВЛЕНИЕ 2: Предзагрузка звуков
             successSound.load();
             failSound.load();
             bgMusic.load();
         } catch (e) {
             console.warn('Ошибка загрузки звуков:', e);
-            // Заглушки
+            // Заглушки для звуков
             successSound = { play: function() {}, pause: function() {}, volume: 0.3, currentTime: 0, load: function() {} };
             failSound = { play: function() {}, pause: function() {}, volume: 0.35, currentTime: 0, load: function() {} };
             bgMusic = { play: function() {}, pause: function() {}, volume: 0.2, currentTime: 0, loop: true, load: function() {} };
         }
         
-        let isSoundOn = true;
-        let isMusicPlaying = false;
+        // ===== ЭЛЕМЕНТЫ DOM С ПРОВЕРКОЙ =====
+        function getElement(id) {
+            const el = document.getElementById(id);
+            if (!el) console.warn(`Элемент '${id}' не найден`);
+            return el;
+        }
         
-        // ===== ЭЛЕМЕНТЫ DOM =====
-        const gameArea = getElementOrThrow('gameArea', 'игровая область');
-        const burgerBag = getElementOrThrow('burgerBag', 'пакет');
-        const scoreDisplay = getElementOrThrow('scoreDisplay', 'счет');
-        const heart1 = getElementOrThrow('heart1', 'сердце 1');
-        const heart2 = getElementOrThrow('heart2', 'сердце 2');
-        const heart3 = getElementOrThrow('heart3', 'сердце 3');
-        const startBtn = getElementOrThrow('startBtn', 'кнопка старт');
-        const pauseBtn = getElementOrThrow('pauseBtn', 'кнопка паузы');
-        const soundToggleBtn = getElementOrThrow('soundToggleBtn', 'кнопка звука');
-        const soundOnIcon = getElementOrThrow('soundOnIcon', 'иконка звука вкл');
-        const soundOffIcon = getElementOrThrow('soundOffIcon', 'иконка звука выкл');
-        const restartBtn = getElementOrThrow('restartBtn', 'кнопка рестарт');
-        const gameOverScreen = getElementOrThrow('gameOver', 'экран окончания');
-        const finalScoreElement = getElementOrThrow('finalScore', 'финальный счет');
-        const shopBtn = getElementOrThrow('shopBtn', 'кнопка магазина');
-        const infoBtn = getElementOrThrow('infoBtn', 'кнопка информации');
-        const infoBackBtn = getElementOrThrow('infoBackBtn', 'кнопка назад из информации');
-        const shopBackBtn = getElementOrThrow('shopBackBtn', 'кнопка назад из магазина');
-        const infoPanel = getElementOrThrow('infoPanel', 'панель информации');
-        const shopPanel = getElementOrThrow('shopPanel', 'панель магазина');
+        const gameArea = getElement('gameArea');
+        const burgerBag = getElement('burgerBag');
+        const scoreDisplay = getElement('scoreDisplay');
+        const heart1 = getElement('heart1');
+        const heart2 = getElement('heart2');
+        const heart3 = getElement('heart3');
+        const startBtn = getElement('startBtn');
+        const pauseBtn = getElement('pauseBtn');
+        const soundToggleBtn = getElement('soundToggleBtn');
+        const soundOnIcon = getElement('soundOnIcon');
+        const soundOffIcon = getElement('soundOffIcon');
+        const restartBtn = getElement('restartBtn');
+        const gameOverScreen = getElement('gameOver');
+        const finalScoreElement = getElement('finalScore');
+        const shopBtn = getElement('shopBtn');
+        const infoBtn = getElement('infoBtn');
+        const infoBackBtn = getElement('infoBackBtn');
+        const shopBackBtn = getElement('shopBackBtn');
+        const infoPanel = getElement('infoPanel');
+        const shopPanel = getElement('shopPanel');
         
         // Иконки
         const pauseIcon = document.querySelector('.pause-icon');
@@ -1020,7 +1026,10 @@
         
         // ===== ФУНКЦИИ УПРАВЛЕНИЯ ЗВУКОМ =====
         function toggleSound(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             
             isSoundOn = !isSoundOn;
             
@@ -1043,46 +1052,43 @@
             }
         }
         
-        // ИСПРАВЛЕНИЕ 1: Звук удачи срабатывает на КАЖДУЮ поимку
+        // ИСПРАВЛЕНИЕ 3: Звук удачи на КАЖДУЮ поимку
         function playSuccess() {
             if (!isSoundOn || !gameRunning || gamePaused || !successSound) return;
             
             try {
-                // Сбрасываем текущее время и играем
-                successSound.currentTime = 0;
-                successSound.play().catch(e => {
-                    // Игнорируем ошибки автополитики
-                });
+                // ИСПРАВЛЕНИЕ 4: Создаем новый Audio для каждого звука
+                const sound = new Audio('sounds/success.mp3');
+                sound.volume = 0.3;
+                sound.play().catch(e => {});
             } catch (e) {}
         }
         
-        // ИСПРАВЛЕНИЕ 2: Звук неудачи срабатывает на КАЖДУЮ потерю жизни
+        // ИСПРАВЛЕНИЕ 5: Звук неудачи на КАЖДУЮ потерю жизни
         function playFail() {
             if (!isSoundOn || !gameRunning || gamePaused || !failSound) return;
             
             try {
-                // Сбрасываем текущее время и играем
-                failSound.currentTime = 0;
-                failSound.play().catch(e => {});
+                // Создаем новый Audio для каждого звука
+                const sound = new Audio('sounds/fail.mp3');
+                sound.volume = 0.35;
+                sound.play().catch(e => {});
             } catch (e) {}
         }
         
         // ===== ФУНКЦИИ ИГРЫ =====
         function initBagPosition() {
             if (burgerBag && gameArea) {
-                bagPosition = (gameArea.offsetWidth / 2) - (burgerBag.offsetWidth / 2);
-                targetPosition = bagPosition;
-                currentPosition = bagPosition;
-                burgerBag.style.left = `${currentPosition}px`;
+                const bagWidth = burgerBag.offsetWidth;
+                const gameWidth = gameArea.offsetWidth;
+                
+                if (bagWidth > 0 && gameWidth > 0) {
+                    bagPosition = (gameWidth / 2) - (bagWidth / 2);
+                    targetPosition = bagPosition;
+                    currentPosition = bagPosition;
+                    burgerBag.style.left = `${currentPosition}px`;
+                }
             }
-        }
-        
-        function updateBagPosition() {
-            if (!burgerBag || !gameArea) return;
-            const maxLeft = gameArea.offsetWidth - burgerBag.offsetWidth;
-            targetPosition = Math.max(0, Math.min(targetPosition, maxLeft));
-            currentPosition = targetPosition;
-            burgerBag.style.left = `${currentPosition}px`;
         }
         
         function smoothMove() {
@@ -1091,22 +1097,20 @@
                 return;
             }
             
-            if (!gameRunning || gamePaused) {
-                animationFrameId = requestAnimationFrame(smoothMove);
-                return;
+            if (gameRunning && !gamePaused) {
+                const maxLeft = gameArea.offsetWidth - burgerBag.offsetWidth;
+                targetPosition = Math.max(0, Math.min(targetPosition, maxLeft));
+                
+                const diff = targetPosition - currentPosition;
+                if (Math.abs(diff) < 0.1) {
+                    currentPosition = targetPosition;
+                } else {
+                    currentPosition += diff * SMOOTHING_FACTOR;
+                }
+                
+                burgerBag.style.left = `${currentPosition}px`;
             }
             
-            const maxLeft = gameArea.offsetWidth - burgerBag.offsetWidth;
-            targetPosition = Math.max(0, Math.min(targetPosition, maxLeft));
-            
-            const diff = targetPosition - currentPosition;
-            if (Math.abs(diff) < 0.1) {
-                currentPosition = targetPosition;
-            } else {
-                currentPosition += diff * SMOOTHING_FACTOR;
-            }
-            
-            burgerBag.style.left = `${currentPosition}px`;
             animationFrameId = requestAnimationFrame(smoothMove);
         }
         
@@ -1253,7 +1257,7 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: itemRect.top - gameAreaRect.top
                         });
-                        playFail(); // ИСПРАВЛЕНО: звук при ловле бомбы
+                        playFail(); // Звук при ловле бомбы
                         
                         if (burgerBag) {
                             burgerBag.style.transform = 'scale(0.95)';
@@ -1265,7 +1269,7 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: itemRect.top - gameAreaRect.top
                         });
-                        playSuccess(); // ИСПРАВЛЕНО: звук при каждой поимке
+                        playSuccess(); // Звук при каждой поимке
                         
                         if (burgerBag) {
                             burgerBag.style.transform = 'translateY(-5px)';
@@ -1296,7 +1300,7 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: gameAreaHeight - 80
                         });
-                        playFail(); // ИСПРАВЛЕНО: звук при пропуске еды
+                        playFail(); // Звук при пропуске еды
                         
                         if (itemData.element) {
                             itemData.element.classList.add('missed-item');
@@ -1372,7 +1376,10 @@
         
         // ===== УПРАВЛЕНИЕ ИГРОЙ =====
         function startGame(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (gameRunning) return;
             
             resetGame();
@@ -1401,7 +1408,10 @@
         }
         
         function pauseGame(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (!gameRunning) return;
             
             gamePaused = !gamePaused;
@@ -1428,7 +1438,10 @@
         }
         
         function resetGame(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             
             if (gameInterval) clearInterval(gameInterval);
             if (itemInterval) clearInterval(itemInterval);
@@ -1509,7 +1522,10 @@
         
         // ===== НАВИГАЦИЯ =====
         function openInfo(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (gameRunning && !gamePaused) {
                 pauseGame(e);
             }
@@ -1518,7 +1534,10 @@
         }
         
         function openShop(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (gameRunning && !gamePaused) {
                 pauseGame(e);
             }
@@ -1527,12 +1546,18 @@
         }
         
         function closeInfo(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (infoPanel) infoPanel.classList.remove('active');
         }
         
         function closeShop(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (shopPanel) shopPanel.classList.remove('active');
         }
         
@@ -1570,14 +1595,7 @@
             isTouching = false;
         }
         
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
-        window.addEventListener('load', function() {
-            initBagPosition();
-            smoothMove();
-            updateUI();
-        });
-        
-        // Добавляем обработчики событий
+        // ===== ДОБАВЛЕНИЕ ОБРАБОТЧИКОВ =====
         if (gameArea) {
             gameArea.addEventListener('touchstart', handleTouchStart, { passive: false });
             gameArea.addEventListener('touchmove', handleTouchMove, { passive: false });
