@@ -55,7 +55,7 @@
             padding: 0;
             border: none;
             outline: none;
-            touch-action: none; /* ИСПРАВЛЕНО: было pan-y, теперь none для лучшего контроля */
+            touch-action: none;
         }
         
         /* Затемнение фона */
@@ -96,7 +96,7 @@
             pointer-events: auto;
         }
         
-        /* КНОПКИ 50x50 БЕЗ ФОНА */
+        /* КНОПКИ 50x50 БЕЗ ФОНА И ТЕНИ */
         .nav-btn, .game-btn, .sound-btn {
             width: 50px;
             height: 50px;
@@ -110,6 +110,7 @@
             background: none !important;
             border: none !important;
             box-shadow: none !important;
+            filter: none !important; /* УБРАНА ТЕНЬ */
         }
         
         .nav-btn:active, .game-btn:active, .sound-btn:active {
@@ -122,7 +123,7 @@
             object-fit: contain;
             display: block;
             background: transparent;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+            filter: none !important; /* УБРАНА ТЕНЬ */
         }
         
         /* ===== СЧЁТЧИК ЖИЗНЕЙ ===== */
@@ -202,10 +203,10 @@
             letter-spacing: 2px;
         }
         
-        /* ===== ПАКЕТ - УМЕНЬШЕН В 1.5 РАЗА ===== */
+        /* ===== ПАКЕТ - ОПУЩЕН В 2 РАЗА НИЖЕ ===== */
         .burger-bag {
             position: absolute;
-            bottom: 30px;
+            bottom: 15px; /* ИСПРАВЛЕНО: было 30px, стало 15px (в 2 раза ближе к краю) */
             width: 107px;
             height: 107px;
             background: none;
@@ -220,7 +221,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
+            filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2)); /* УМЕНЬШЕНА ТЕНЬ */
         }
         
         /* ===== ЕДА - ЭМОДЗИ С ОБВОДКОЙ ===== */
@@ -519,6 +520,7 @@
             background: none !important;
             border: none !important;
             box-shadow: none !important;
+            filter: none !important; /* УБРАНА ТЕНЬ */
             z-index: 1100;
         }
         
@@ -532,7 +534,7 @@
             object-fit: contain;
             display: block;
             background: transparent;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+            filter: none !important; /* УБРАНА ТЕНЬ */
         }
         
         @keyframes fadeIn {
@@ -651,7 +653,7 @@
         /* Адаптация под горизонтальный экран */
         @media (orientation: landscape) {
             .burger-bag {
-                bottom: 20px;
+                bottom: 15px;
                 width: 100px;
                 height: 100px;
             }
@@ -705,6 +707,7 @@
             .burger-bag {
                 width: 90px;
                 height: 90px;
+                bottom: 15px;
             }
             
             .nav-btn, .game-btn, .sound-btn, .back-btn {
@@ -774,7 +777,7 @@
                 <span>СТАРТ</span>
             </div>
             
-            <!-- ПАКЕТ -->
+            <!-- ПАКЕТ - ОПУЩЕН НИЖЕ -->
             <div class="burger-bag" id="burgerBag">
                 <img src="images/bag.png" alt="Пакет" id="bagImage">
             </div>
@@ -917,18 +920,19 @@
     </div>
 
     <script>
-        // ===== ИСПРАВЛЕНИЕ 1: Проверка существования элементов =====
+        // ===== ПРОВЕРКА ЭЛЕМЕНТОВ =====
         function getElementOrThrow(id, elementName) {
             const el = document.getElementById(id);
             if (!el) {
-                console.warn(`Предупреждение: Элемент '${id}' не найден. Функционал '${elementName}' может работать некорректно.`);
+                console.warn(`Предупреждение: Элемент '${id}' не найден.`);
             }
             return el;
         }
 
         // ===== ЗВУКИ И МУЗЫКА =====
-        // ИСПРАВЛЕНИЕ 2: Проверка загрузки звуков
         let successSound, failSound, bgMusic;
+        let lastSuccessTime = 0;
+        const MIN_TIME_BETWEEN_SOUNDS = 50; // 50мс между звуками
         
         try {
             successSound = new Audio('sounds/success.mp3');
@@ -940,22 +944,22 @@
             bgMusic.volume = 0.2;
             bgMusic.loop = true;
             
-            // ИСПРАВЛЕНИЕ 3: Предзагрузка звуков
+            // Предзагрузка
             successSound.load();
             failSound.load();
             bgMusic.load();
         } catch (e) {
             console.warn('Ошибка загрузки звуков:', e);
-            // Создаем заглушки, чтобы не ломать игру
-            successSound = { play: function() {}, pause: function() {}, volume: 0.3, currentTime: 0 };
-            failSound = { play: function() {}, pause: function() {}, volume: 0.35, currentTime: 0 };
-            bgMusic = { play: function() {}, pause: function() {}, volume: 0.2, currentTime: 0, loop: true };
+            // Заглушки
+            successSound = { play: function() {}, pause: function() {}, volume: 0.3, currentTime: 0, load: function() {} };
+            failSound = { play: function() {}, pause: function() {}, volume: 0.35, currentTime: 0, load: function() {} };
+            bgMusic = { play: function() {}, pause: function() {}, volume: 0.2, currentTime: 0, loop: true, load: function() {} };
         }
         
         let isSoundOn = true;
         let isMusicPlaying = false;
         
-        // ===== ЭЛЕМЕНТЫ DOM С ПРОВЕРКОЙ =====
+        // ===== ЭЛЕМЕНТЫ DOM =====
         const gameArea = getElementOrThrow('gameArea', 'игровая область');
         const burgerBag = getElementOrThrow('burgerBag', 'пакет');
         const scoreDisplay = getElementOrThrow('scoreDisplay', 'счет');
@@ -977,7 +981,7 @@
         const infoPanel = getElementOrThrow('infoPanel', 'панель информации');
         const shopPanel = getElementOrThrow('shopPanel', 'панель магазина');
         
-        // ИКОНКИ - с проверкой на существование
+        // Иконки
         const pauseIcon = document.querySelector('.pause-icon');
         const playIcon = document.querySelector('.play-icon');
         
@@ -1003,14 +1007,14 @@
         let isTouching = false;
         let fallingItems = new Map();
         
-        // ИСПРАВЛЕНИЕ 4: Инициализация позиции пакета после загрузки
+        // Позиция пакета
         let bagPosition = 0;
         let targetPosition = 0;
         let currentPosition = 0;
         let animationFrameId = null;
         const SMOOTHING_FACTOR = 0.25;
         
-        // НАСТРОЙКИ ПРОГРЕССИИ
+        // Настройки прогрессии
         const BASE_SPAWN_INTERVAL = 2200;
         const SPEED_SCORE_STEP = 200;
         
@@ -1039,22 +1043,28 @@
             }
         }
         
+        // ИСПРАВЛЕНИЕ 1: Звук удачи срабатывает на КАЖДУЮ поимку
         function playSuccess() {
-            if (isSoundOn && gameRunning && !gamePaused && successSound) {
-                try {
-                    successSound.currentTime = 0;
-                    successSound.play().catch(e => {});
-                } catch (e) {}
-            }
+            if (!isSoundOn || !gameRunning || gamePaused || !successSound) return;
+            
+            try {
+                // Сбрасываем текущее время и играем
+                successSound.currentTime = 0;
+                successSound.play().catch(e => {
+                    // Игнорируем ошибки автополитики
+                });
+            } catch (e) {}
         }
         
+        // ИСПРАВЛЕНИЕ 2: Звук неудачи срабатывает на КАЖДУЮ потерю жизни
         function playFail() {
-            if (isSoundOn && gameRunning && !gamePaused && failSound) {
-                try {
-                    failSound.currentTime = 0;
-                    failSound.play().catch(e => {});
-                } catch (e) {}
-            }
+            if (!isSoundOn || !gameRunning || gamePaused || !failSound) return;
+            
+            try {
+                // Сбрасываем текущее время и играем
+                failSound.currentTime = 0;
+                failSound.play().catch(e => {});
+            } catch (e) {}
         }
         
         // ===== ФУНКЦИИ ИГРЫ =====
@@ -1076,12 +1086,12 @@
         }
         
         function smoothMove() {
-            if (!gameRunning || gamePaused || !burgerBag) {
+            if (!burgerBag || !gameArea) {
                 animationFrameId = requestAnimationFrame(smoothMove);
                 return;
             }
             
-            if (!burgerBag || !gameArea) {
+            if (!gameRunning || gamePaused) {
                 animationFrameId = requestAnimationFrame(smoothMove);
                 return;
             }
@@ -1243,7 +1253,8 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: itemRect.top - gameAreaRect.top
                         });
-                        playFail();
+                        playFail(); // ИСПРАВЛЕНО: звук при ловле бомбы
+                        
                         if (burgerBag) {
                             burgerBag.style.transform = 'scale(0.95)';
                             setTimeout(() => { if (burgerBag) burgerBag.style.transform = 'scale(1)'; }, 200);
@@ -1254,7 +1265,7 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: itemRect.top - gameAreaRect.top
                         });
-                        playSuccess();
+                        playSuccess(); // ИСПРАВЛЕНО: звук при каждой поимке
                         
                         if (burgerBag) {
                             burgerBag.style.transform = 'translateY(-5px)';
@@ -1263,6 +1274,7 @@
                     }
                     
                     updateUI();
+                    
                     if (itemData.element) {
                         itemData.element.classList.add('caught-item');
                         setTimeout(() => {
@@ -1284,7 +1296,8 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: gameAreaHeight - 80
                         });
-                        playFail();
+                        playFail(); // ИСПРАВЛЕНО: звук при пропуске еды
+                        
                         if (itemData.element) {
                             itemData.element.classList.add('missed-item');
                             setTimeout(() => {
@@ -1564,7 +1577,7 @@
             updateUI();
         });
         
-        // Добавляем обработчики событий с проверкой
+        // Добавляем обработчики событий
         if (gameArea) {
             gameArea.addEventListener('touchstart', handleTouchStart, { passive: false });
             gameArea.addEventListener('touchmove', handleTouchMove, { passive: false });
