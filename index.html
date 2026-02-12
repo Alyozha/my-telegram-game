@@ -37,63 +37,49 @@
             justify-content: center;
         }
         
-        /* ===== ФОН ИГРЫ ===== */
-.game-area {
-    position: relative;
-    width: 100%;
-    height: 85vh;
-    min-height: 550px;
-    max-height: 850px;
-    
-    /* ВАШ ФОН */
-    background-image: url('images/background.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: #0f172a;
-    
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-    margin-bottom: 0;
-    border: 2px solid #334155;
-    touch-action: pan-y;
-}
-
-/* Затемнение фона */
-.game-area::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    pointer-events: none;
-    z-index: 1;
-}
-
-/* Чтобы элементы были поверх затемнения */
-.game-area > * {
-    position: relative;
-    z-index: 2;
-}
-
-/* Адаптация для маленьких экранов */
-@media (max-width: 380px) {
-    .game-area {
-        min-height: 500px;
-        background-image: url('images/background.png');
-        background-size: cover;
-    }
-}
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 85vh;
+            min-height: 550px;
+            max-height: 850px;
+            background-image: url('images/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #0f172a;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            margin-bottom: 0;
+            border: 2px solid #334155;
+            touch-action: pan-y;
+        }
+        
+        /* Затемнение фона для лучшей видимости */
+        .game-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .game-area > * {
+            position: relative;
+            z-index: 2;
+        }
         
         /* ВАШ ПАКЕТ С ИЗОБРАЖЕНИЕМ */
         .burger-bag {
             position: absolute;
-            bottom: 10px;
-            width: 110px;
-            height: 110px;
+            bottom: 20px;
+            width: 160px;
+            height: 160px;
             background: none;
             border: none;
             box-shadow: none;
@@ -109,113 +95,99 @@
             filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
         }
         
+        /* ПАДАЮЩИЕ ПРЕДМЕТЫ */
         .falling-item {
             position: absolute;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 52px;
             width: 70px !important;
             height: 70px !important;
-            text-shadow: 
-                -3px -3px 0 white,
-                3px -3px 0 white,
-                -3px 3px 0 white,
-                3px 3px 0 white,
-                0 0 10px rgba(0,0,0,0.5);
-            filter: drop-shadow(0 8px 6px rgba(0,0,0,0.3));
             z-index: 5;
-            transition: transform 0.1s ease-out, filter 0.2s ease;
+            transition: transform 0.1s ease-out;
+            will-change: top, transform;
             background: none !important;
-            will-change: top;
+            border: none;
+            box-shadow: none;
+        }
+        
+        .falling-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
         }
         
         .falling-item.bomb-item {
+            font-size: 56px;
             text-shadow: 
                 -4px -4px 0 #ff6b6b,
                 4px -4px 0 #ff6b6b,
                 -4px 4px 0 #ff6b6b,
                 4px 4px 0 #ff6b6b,
                 0 0 15px rgba(255,0,0,0.5);
-            font-size: 56px;
         }
         
-        /* КНОПКИ НА ИГРОВОМ ПОЛЕ */
+        .falling-item.bomb-item img {
+            display: none;
+        }
+        
+        /* ===== КНОПКИ УПРАВЛЕНИЯ - ИСПРАВЛЕНО ===== */
         .game-buttons {
             position: absolute;
             top: 15px;
             right: 15px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             z-index: 100;
         }
         
         .game-btn {
-            width: 50px;
-            height: 50px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
-            background: rgba(30, 41, 59, 0.9);
-            backdrop-filter: blur(5px);
-            border: 2px solid #475569;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(4px);
+            border: 2px solid rgba(255, 255, 255, 0.25);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
-            color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             touch-action: manipulation;
-            will-change: transform;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
         }
         
         .game-btn:active {
             transform: scale(0.9);
-            background: rgba(51, 65, 85, 0.9);
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(255, 255, 255, 0.5);
         }
         
-        .start-btn-large {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #10b981, #059669);
-            border: 4px solid white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 48px;
-            color: white;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 0 8px rgba(16, 185, 129, 0.2);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 200;
-            touch-action: manipulation;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            will-change: transform, box-shadow;
-            -webkit-tap-highlight-color: transparent;
+        /* ИКОНКИ - ОРИГИНАЛЬНЫЕ ЦВЕТА, БЕЗ ФИЛЬТРОВ */
+        .btn-icon {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            display: block;
+            background: transparent;
+            /* НИКАКИХ ФИЛЬТРОВ - оригинальные цвета PNG */
+            filter: none;
+            transition: transform 0.2s ease;
         }
         
-        .start-btn-large span {
-            font-size: 16px;
-            margin-top: 5px;
-            font-weight: bold;
+        .game-btn:active .btn-icon {
+            transform: scale(0.9);
         }
         
-        .start-btn-large:active {
-            transform: translate(-50%, -50%) scale(0.95);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), 0 0 0 12px rgba(16, 185, 129, 0.2);
+        /* Специально для иконок - никаких изменений цветов */
+        .pause-icon, .play-icon, .reset-icon {
+            filter: none !important;
         }
         
-        .start-btn-large.hidden {
-            display: none;
-        }
-        
-        /* СЧЁТЧИКИ ПРЯМО НА ИГРОВОМ ПОЛЕ */
+        /* СЧЁТЧИКИ */
         .game-stats-overlay {
             position: absolute;
             top: 15px;
@@ -232,7 +204,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         
-        /* СЧЁТЧИК ОЧКОВ - БЕЛЫЙ */
         .score-display {
             display: flex;
             align-items: center;
@@ -243,7 +214,6 @@
             text-shadow: 0 0 5px rgba(255,255,255,0.3);
         }
         
-        /* СЕРДЕЧКИ ЗДОРОВЬЯ */
         .hearts-container {
             display: flex;
             align-items: center;
@@ -277,11 +247,48 @@
             100% { transform: scale(0.8); color: #475569; opacity: 0.3; }
         }
         
-        /* ИНДИКАТОР ПЛОТНОСТИ - СКРЫТ */
-        .density-indicator {
+        /* БОЛЬШАЯ КНОПКА СТАРТ */
+        .start-btn-large {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #10b981, #059669);
+            border: 4px solid white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 0 8px rgba(16, 185, 129, 0.2);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 200;
+            touch-action: manipulation;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .start-btn-large span {
+            font-size: 16px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
+        .start-btn-large:active {
+            transform: translate(-50%, -50%) scale(0.95);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), 0 0 0 12px rgba(16, 185, 129, 0.2);
+        }
+        
+        .start-btn-large.hidden {
             display: none;
         }
         
+        /* ЭКРАН ОКОНЧАНИЯ ИГРЫ */
         .game-over {
             position: absolute;
             top: 0;
@@ -312,11 +319,6 @@
             margin-bottom: 20px;
             text-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
             animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateY(-30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
         }
         
         .game-over p {
@@ -402,33 +404,46 @@
         }
         
         @media (max-width: 380px) {
-            .burger-bag { width: 95px; height: 95px; }
-            .falling-item { font-size: 46px; width: 70px !important; height: 70px !important; }
-            .game-stats-overlay { padding: 8px 12px; gap: 12px; }
-            .heart { font-size: 1.5rem; }
-            .score-display { font-size: 1.1rem; color: #ffffff !important; }
-        }
-
-        .score-value {
-            color: #ffffff !important;
-        }
-        
-        #scoreDisplay {
-            color: #ffffff !important;
+            .burger-bag {
+                width: 140px;
+                height: 140px;
+                bottom: 15px;
+            }
+            .falling-item {
+                width: 60px !important;
+                height: 60px !important;
+            }
+            .game-stats-overlay {
+                padding: 8px 12px;
+                gap: 12px;
+            }
+            .heart {
+                font-size: 1.5rem;
+            }
+            .score-display {
+                font-size: 1.1rem;
+            }
+            .game-btn {
+                width: 44px;
+                height: 44px;
+            }
+            .btn-icon {
+                width: 24px;
+                height: 24px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="game-area" id="gameArea">
-            <!-- СЧЁТЧИКИ - ТОЛЬКО ОЧКИ И СЕРДЕЧКИ -->
+            <!-- СЧЁТЧИКИ -->
             <div class="game-stats-overlay">
                 <div class="score-display">
                     <span class="stat-icon">🍔</span>
-                    <span id="scoreDisplay" class="score-value">0</span>
+                    <span id="scoreDisplay">0</span>
                 </div>
                 
-                <!-- ТРИ СЕРДЕЧКА ЗДОРОВЬЯ -->
                 <div class="hearts-container" id="heartsContainer">
                     <span class="heart full" id="heart1">❤️</span>
                     <span class="heart full" id="heart2">❤️</span>
@@ -436,16 +451,18 @@
                 </div>
             </div>
             
-            <!-- КНОПКИ УПРАВЛЕНИЯ ИГРОЙ НА ПОЛЕ -->
-<div class="game-buttons">
-    <div class="game-btn" id="pauseBtn">
-        <img src="images/icons/pause.png" alt="Пауза" class="btn-icon pause-icon">
-        <img src="images/icons/play.png" alt="Продолжить" class="btn-icon play-icon" style="display: none;">
-    </div>
-    <div class="game-btn" id="resetBtn">
-        <img src="images/icons/reset.png" alt="Сброс" class="btn-icon">
-    </div>
-</div>
+            <!-- ===== КНОПКИ УПРАВЛЕНИЯ - ИСПРАВЛЕНО ===== -->
+            <div class="game-buttons">
+                <!-- КНОПКА ПАУЗЫ/ПЛЕЙ -->
+                <div class="game-btn" id="pauseBtn">
+                    <img src="images/icons/pause.png" alt="Пауза" class="btn-icon pause-icon">
+                    <img src="images/icons/play.png" alt="Продолжить" class="btn-icon play-icon" style="display: none;">
+                </div>
+                <!-- КНОПКА СБРОСА -->
+                <div class="game-btn" id="resetBtn">
+                    <img src="images/icons/reset.png" alt="Сброс" class="btn-icon reset-icon">
+                </div>
+            </div>
             
             <!-- БОЛЬШАЯ КНОПКА СТАРТ -->
             <div class="start-btn-large" id="startBtn">
@@ -453,7 +470,7 @@
                 <span>СТАРТ</span>
             </div>
             
-            <!-- ВАШ ПАКЕТ С ИЗОБРАЖЕНИЕМ ИЗ ПАПКИ IMAGES -->
+            <!-- ВАШ ПАКЕТ -->
             <div class="burger-bag" id="burgerBag">
                 <img src="images/bag.png" alt="Пакет для еды" id="bagImage">
             </div>
@@ -480,7 +497,7 @@
         const gameArea = document.getElementById('gameArea');
         const burgerBag = document.getElementById('burgerBag');
         
-        // Элементы интерфейса на игровом поле
+        // Элементы интерфейса
         const scoreDisplay = document.getElementById('scoreDisplay');
         const heart1 = document.getElementById('heart1');
         const heart2 = document.getElementById('heart2');
@@ -493,6 +510,10 @@
         const restartBtn = document.getElementById('restartBtn');
         const gameOverScreen = document.getElementById('gameOver');
         const finalScoreElement = document.getElementById('finalScore');
+        
+        // Иконки внутри кнопок
+        const pauseIcon = document.querySelector('.pause-icon');
+        const playIcon = document.querySelector('.play-icon');
         
         // Игровые переменные
         let score = 0;
@@ -512,23 +533,21 @@
         
         // НАСТРОЙКИ ИГРЫ
         const foodItems = [
-            { emoji: '🍔', points: 10 },
-            { emoji: '🍟', points: 15 },
-            { emoji: '🌭', points: 20 },
-            { emoji: '🍕', points: 25 },
-            { emoji: '🥙', points: 30 }
+            { image: 'images/food/burger.png', points: 10, emoji: '🍔' },
+            { image: 'images/food/fries.png', points: 15, emoji: '🍟' },
+            { image: 'images/food/hotdog.png', points: 20, emoji: '🌭' },
+            { image: 'images/food/pizza.png', points: 25, emoji: '🍕' },
+            { image: 'images/food/wrap.png', points: 30, emoji: '🥙' }
         ];
         
         const bombEmoji = '💣';
         const bagSpeedMultiplier = 3.2;
         
-        // НАСТРОЙКИ ПРОГРЕССИИ
         const BASE_SPAWN_INTERVAL = 3600;
         const SPAWN_REDUCTION_FACTOR = 0.12;
         const DENSITY_SCORE_STEP = 100;
         const SPEED_SCORE_STEP = 200;
         
-        // УРОВЕНЬ ПЛОТНОСТИ
         let densityLevel = 1;
         
         // Установка начальной позиции пакета
@@ -563,38 +582,26 @@
         
         smoothMove();
         
-        // Обновление UI
         function updateUI() {
             scoreDisplay.textContent = score;
             updateHearts();
         }
         
-        // ОБНОВЛЕНИЕ СЕРДЕЧЕК
         function updateHearts() {
             heart1.className = 'heart';
             heart2.className = 'heart';
             heart3.className = 'heart';
             
-            if (lives >= 1) {
-                heart1.className = 'heart full';
-            } else {
-                heart1.className = 'heart empty';
-            }
+            if (lives >= 1) heart1.className = 'heart full';
+            else heart1.className = 'heart empty';
             
-            if (lives >= 2) {
-                heart2.className = 'heart full';
-            } else {
-                heart2.className = 'heart empty';
-            }
+            if (lives >= 2) heart2.className = 'heart full';
+            else heart2.className = 'heart empty';
             
-            if (lives >= 3) {
-                heart3.className = 'heart full';
-            } else {
-                heart3.className = 'heart empty';
-            }
+            if (lives >= 3) heart3.className = 'heart full';
+            else heart3.className = 'heart empty';
         }
         
-        // ПОЛУЧАЕМ ТЕКУЩУЮ СКОРОСТЬ СОЗДАНИЯ ПРЕДМЕТОВ
         function getCurrentSpawnRate() {
             densityLevel = Math.floor(score / DENSITY_SCORE_STEP) + 1;
             const reduction = 1 - (densityLevel - 1) * SPAWN_REDUCTION_FACTOR;
@@ -602,13 +609,11 @@
             return Math.round(interval);
         }
         
-        // ПОЛУЧАЕМ ТЕКУЩУЮ СКОРОСТЬ ПАДЕНИЯ
         function getCurrentFallSpeed() {
             const speedLevel = Math.floor(score / SPEED_SCORE_STEP);
             return 2.5 + speedLevel * 0.3;
         }
         
-        // Проверка столкновения
         function checkCollision(itemRect) {
             const bagRect = burgerBag.getBoundingClientRect();
             const gameAreaRect = gameArea.getBoundingClientRect();
@@ -629,7 +634,6 @@
                     itemTop > bagBottom - 5);
         }
         
-        // Создание падающего предмета
         function createFallingItem() {
             if (!gameRunning || gamePaused) return;
             
@@ -644,6 +648,7 @@
                 item.textContent = bombEmoji;
                 item.classList.add('bomb-item');
                 item.style.fontSize = '56px';
+                
                 itemData = {
                     type: 'bomb',
                     points: -1,
@@ -652,26 +657,37 @@
                 };
             } else {
                 const foodItem = foodItems[Math.floor(Math.random() * foodItems.length)];
-                item.textContent = foodItem.emoji;
-                item.style.fontSize = '52px';
+                
+                const img = document.createElement('img');
+                img.src = foodItem.image;
+                img.alt = 'Food';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'contain';
+                img.style.display = 'block';
+                
+                item.innerHTML = '';
+                item.appendChild(img);
+                item.style.fontSize = '0';
+                item.style.background = 'none';
+                item.style.textShadow = 'none';
+                
                 itemData = {
                     type: 'food',
                     points: foodItem.points,
                     element: item,
                     id: 'food-' + Date.now() + '-' + Math.random(),
-                    emoji: foodItem.emoji
+                    image: foodItem.image
                 };
             }
             
-            item.style.background = 'none';
-            item.style.backgroundColor = 'transparent';
-            item.style.width = '80px';
-            item.style.height = '80px';
+            item.style.width = '70px';
+            item.style.height = '70px';
             item.style.display = 'flex';
             item.style.alignItems = 'center';
             item.style.justifyContent = 'center';
             
-            const maxLeft = gameArea.offsetWidth - 90;
+            const maxLeft = gameArea.offsetWidth - 80;
             const leftPosition = Math.max(0, Math.floor(Math.random() * maxLeft));
             
             item.style.left = `${leftPosition}px`;
@@ -688,7 +704,6 @@
             });
         }
         
-        // Обновление позиций предметов
         function updateFallingItems() {
             if (!gameRunning || gamePaused) return;
             
@@ -734,7 +749,6 @@
                             top: itemRect.top - gameAreaRect.top
                         });
                         
-                        // Анимация пакета - без логотипа
                         burgerBag.style.transform = 'translateY(-5px)';
                         setTimeout(() => {
                             burgerBag.style.transform = 'translateY(0)';
@@ -793,7 +807,6 @@
             }
         }
         
-        // Обновление интервала создания предметов
         function updateSpawnInterval() {
             clearInterval(itemInterval);
             const spawnRate = getCurrentSpawnRate();
@@ -804,31 +817,22 @@
             }, spawnRate);
         }
         
-        // Потеря жизни
         function loseLife() {
             lives = Math.max(0, lives - 1);
             
             if (lives === 2) {
                 heart3.classList.add('heart-lost');
-                setTimeout(() => {
-                    heart3.className = 'heart empty';
-                }, 300);
+                setTimeout(() => heart3.className = 'heart empty', 300);
             } else if (lives === 1) {
                 heart2.classList.add('heart-lost');
-                setTimeout(() => {
-                    heart2.className = 'heart empty';
-                }, 300);
+                setTimeout(() => heart2.className = 'heart empty', 300);
             } else if (lives === 0) {
                 heart1.classList.add('heart-lost');
-                setTimeout(() => {
-                    heart1.className = 'heart empty';
-                }, 300);
+                setTimeout(() => heart1.className = 'heart empty', 300);
             }
             
             burgerBag.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                burgerBag.style.transform = 'scale(1)';
-            }, 400);
+            setTimeout(() => burgerBag.style.transform = 'scale(1)', 400);
             
             updateUI();
         }
@@ -844,9 +848,7 @@
             gameArea.appendChild(message);
             
             setTimeout(() => {
-                if (message.parentNode) {
-                    message.remove();
-                }
+                if (message.parentNode) message.remove();
             }, 800);
         }
         
@@ -857,24 +859,14 @@
             feedback.style.top = `${y - 40}px`;
             
             gameArea.appendChild(feedback);
-            
-            setTimeout(() => {
-                if (feedback.parentNode) {
-                    feedback.remove();
-                }
-            }, 500);
+            setTimeout(() => { if (feedback.parentNode) feedback.remove(); }, 500);
         }
         
-        // ИСПРАВЛЕННАЯ ФУНКЦИЯ СТАРТА
+        // ===== ИСПРАВЛЕННЫЕ ФУНКЦИИ УПРАВЛЕНИЯ =====
+        
         function startGame(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            if (gameRunning) {
-                return;
-            }
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (gameRunning) return;
             
             resetGame();
             
@@ -882,54 +874,44 @@
             gamePaused = false;
             startBtn.classList.add('hidden');
             
+            // Показываем иконку паузы, скрываем play
+            if (pauseIcon) pauseIcon.style.display = 'block';
+            if (playIcon) playIcon.style.display = 'none';
+            
             const initialSpawnRate = getCurrentSpawnRate();
             itemInterval = setInterval(() => {
-                if (gameRunning && !gamePaused) {
-                    createFallingItem();
-                }
+                if (gameRunning && !gamePaused) createFallingItem();
             }, initialSpawnRate);
             
             gameInterval = setInterval(() => {
-                if (gameRunning && !gamePaused) {
-                    updateFallingItems();
-                }
+                if (gameRunning && !gamePaused) updateFallingItems();
             }, 16);
             
             return false;
         }
         
         function pauseGame(e) {
-            function pauseGame(e) {
-    if (e) { e.preventDefault(); e.stopPropagation(); }
-    if (!gameRunning) return;
-    
-    gamePaused = !gamePaused;
-    
-    // Меняем иконки на кнопке паузы
-    const pauseBtn = document.getElementById('pauseBtn');
-    const pauseIcon = pauseBtn.querySelector('.pause-icon');
-    const playIcon = pauseBtn.querySelector('.play-icon');
-    
-    if (gamePaused) {
-        // Показываем иконку Play
-        if (pauseIcon) pauseIcon.style.display = 'none';
-        if (playIcon) playIcon.style.display = 'block';
-        showMessage('ПАУЗА', '#94a3b8', {
-            left: gameArea.offsetWidth / 2 - 50,
-            top: gameArea.offsetHeight / 2
-        });
-    } else {
-        // Показываем иконку Pause
-        if (pauseIcon) pauseIcon.style.display = 'block';
-        if (playIcon) playIcon.style.display = 'none';
-    }
-}
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (!gameRunning) return;
+            
+            gamePaused = !gamePaused;
+            
+            // Меняем иконки Pause/Play
+            if (gamePaused) {
+                if (pauseIcon) pauseIcon.style.display = 'none';
+                if (playIcon) playIcon.style.display = 'block';
+                showMessage('ПАУЗА', '#94a3b8', {
+                    left: gameArea.offsetWidth / 2 - 50,
+                    top: gameArea.offsetHeight / 2
+                });
+            } else {
+                if (pauseIcon) pauseIcon.style.display = 'block';
+                if (playIcon) playIcon.style.display = 'none';
+            }
+        }
         
         function resetGame(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
+            if (e) { e.preventDefault(); e.stopPropagation(); }
             
             clearInterval(gameInterval);
             clearInterval(itemInterval);
@@ -938,11 +920,7 @@
             
             fallingItems.clear();
             const items = document.querySelectorAll('.falling-item, .item-collected, .touch-feedback, .missed-item, .caught-item');
-            items.forEach(item => {
-                if (item.parentNode) {
-                    item.remove();
-                }
-            });
+            items.forEach(item => { if (item.parentNode) item.remove(); });
             
             score = 0;
             lives = 3;
@@ -951,7 +929,10 @@
             gamePaused = false;
             
             startBtn.classList.remove('hidden');
-            pauseBtn.textContent = '⏸️';
+            
+            // Сбрасываем иконки
+            if (pauseIcon) pauseIcon.style.display = 'block';
+            if (playIcon) playIcon.style.display = 'none';
             
             targetPosition = gameArea.offsetWidth / 2 - burgerBag.offsetWidth / 2;
             currentPosition = targetPosition;
@@ -993,7 +974,6 @@
         // Сенсорное управление
         function handleTouchStart(e) {
             e.preventDefault();
-            
             if (!gameRunning || gamePaused) return;
             
             isTouching = true;
@@ -1003,13 +983,11 @@
             const bagWidth = burgerBag.offsetWidth;
             
             targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
-            
             createTouchFeedback(touchX, touch.clientY - gameAreaRect.top);
         }
         
         function handleTouchMove(e) {
             e.preventDefault();
-            
             if (!gameRunning || gamePaused || !isTouching) return;
             
             const touch = e.touches[0];
@@ -1037,29 +1015,29 @@
             else if (e.key === 'ArrowRight' || e.key === 'd') moveBag('right');
         });
         
-        // ОБРАБОТЧИКИ ДЛЯ ТЕЛЕФОНОВ
+        // Обработчики событий для кнопок
         startBtn.addEventListener('click', startGame);
-        startBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            startGame(e);
+        startBtn.addEventListener('touchstart', function(e) { 
+            e.preventDefault(); 
+            startGame(e); 
         }, { passive: false });
         
         pauseBtn.addEventListener('click', pauseGame);
-        pauseBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            pauseGame(e);
+        pauseBtn.addEventListener('touchstart', function(e) { 
+            e.preventDefault(); 
+            pauseGame(e); 
         }, { passive: false });
         
         resetBtn.addEventListener('click', resetGame);
-        resetBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            resetGame(e);
+        resetBtn.addEventListener('touchstart', function(e) { 
+            e.preventDefault(); 
+            resetGame(e); 
         }, { passive: false });
         
         restartBtn.addEventListener('click', resetGame);
-        restartBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            resetGame(e);
+        restartBtn.addEventListener('touchstart', function(e) { 
+            e.preventDefault(); 
+            resetGame(e); 
         }, { passive: false });
         
         updateUI();
