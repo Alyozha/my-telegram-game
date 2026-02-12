@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ловец еды - Мобильная версия</title>
+    <title>Ловец еды - Горизонтальная версия</title>
     <style>
         * {
             margin: 0;
@@ -39,13 +39,11 @@
             padding: 0;
         }
         
-        /* ВЕСЬ ЭКРАН - ИГРОВОЕ ПОЛЕ, БЕЗ РАМОК */
+        /* ===== ГОРИЗОНТАЛЬНАЯ ОРИЕНТАЦИЯ ===== */
         .game-area {
             position: relative;
-            width: 100%;
+            width: 100vw;
             height: 100vh;
-            min-height: 100vh;
-            max-height: 100vh;
             background-image: url('images/background.png');
             background-size: cover;
             background-position: center;
@@ -57,6 +55,8 @@
             border: none;
             outline: none;
             touch-action: pan-y;
+            display: flex;
+            flex-direction: column;
         }
         
         /* Затемнение фона */
@@ -77,17 +77,28 @@
             z-index: 2;
         }
         
-        /* ===== НАВИГАЦИЯ ===== */
-        .nav-buttons {
+        /* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
+        .top-bar {
             position: absolute;
             top: 15px;
-            left: 15px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 200;
+            pointer-events: none;
+        }
+        
+        .top-bar-left, .top-bar-right {
             display: flex;
             gap: 12px;
-            z-index: 200;
+            pointer-events: auto;
         }
         
-        .nav-btn {
+        /* КНОПКИ 50x50 БЕЗ ФОНА */
+        .nav-btn, .game-btn, .sound-btn {
             width: 50px;
             height: 50px;
             display: flex;
@@ -102,11 +113,11 @@
             box-shadow: none !important;
         }
         
-        .nav-btn:active {
+        .nav-btn:active, .game-btn:active, .sound-btn:active {
             transform: scale(0.85);
         }
         
-        .nav-icon {
+        .nav-icon, .btn-icon, .sound-icon {
             width: 50px;
             height: 50px;
             object-fit: contain;
@@ -115,177 +126,33 @@
             filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
         }
         
-        /* КНОПКИ ПАУЗЫ И СБРОСА - СПРАВА */
-        .game-buttons {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            display: flex;
-            gap: 15px;
-            z-index: 200;
-        }
-        
-        .game-btn {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-            touch-action: manipulation;
-            padding: 0;
-            background: none !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-        
-        .game-btn:active {
-            transform: scale(0.85);
-        }
-        
-        .btn-icon {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            display: block;
-            background: transparent;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
-        }
-        
-        /* КНОПКА НАЗАД - ДЛЯ ВКЛАДОК */
-        .back-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-            touch-action: manipulation;
-            padding: 0;
-            background: none !important;
-            border: none !important;
-            box-shadow: none !important;
-            z-index: 300;
-        }
-        
-        .back-btn:active {
-            transform: scale(0.85);
-        }
-        
-        .back-icon {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            display: block;
-            background: transparent;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
-        }
-        
-        /* ПАКЕТ С ИЗОБРАЖЕНИЕМ */
-        .burger-bag {
-            position: absolute;
-            bottom: 30px;
-            width: 160px;
-            height: 160px;
-            background: none;
-            border: none;
-            box-shadow: none;
-            transition: left 0.04s cubic-bezier(0.2, 0.9, 0.3, 1.1);
-            z-index: 10;
-            will-change: left, transform;
-        }
-        
-        .burger-bag img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
-        }
-        
-        /* ===== ЕДА - ЭМОДЗИ С ОБВОДКОЙ ===== */
-        .falling-item {
-            position: absolute;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 52px;
-            width: 70px !important;
-            height: 70px !important;
-            z-index: 5;
-            transition: transform 0.1s ease-out;
-            will-change: top, transform;
-            background: none !important;
-            border: none;
-            box-shadow: none;
-        }
-        
-        /* БЕЛАЯ ОБВОДКА ДЛЯ ЕДЫ */
-        .falling-item:not(.bomb-item) {
-            text-shadow: 
-                -3px -3px 0 white,
-                3px -3px 0 white,
-                -3px 3px 0 white,
-                3px 3px 0 white,
-                0 0 10px rgba(0,0,0,0.5);
-        }
-        
-        /* КРАСНАЯ ОБВОДКА ДЛЯ БОМБ */
-        .falling-item.bomb-item {
-            text-shadow: 
-                -4px -4px 0 #ff0000,
-                4px -4px 0 #ff0000,
-                -4px 4px 0 #ff0000,
-                4px 4px 0 #ff0000,
-                0 0 15px rgba(255, 0, 0, 0.7) !important;
-            font-size: 56px;
-            color: #000;
-        }
-        
-        .falling-item img {
-            display: none;
-        }
-        
-        /* СЧЁТЧИКИ */
-        .game-stats-overlay {
+        /* ===== СЧЁТЧИК ЖИЗНЕЙ ===== */
+        .lives-container {
             position: absolute;
             top: 15px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(5px);
-            padding: 10px 20px;
+            padding: 8px 20px;
             border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
-            gap: 20px;
+            justify-content: center;
+            gap: 8px;
             z-index: 150;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        
-        .score-display {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #ffffff;
-            text-shadow: 0 0 5px rgba(255,255,255,0.3);
         }
         
         .hearts-container {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
         }
         
         .heart {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             transition: all 0.3s ease;
         }
         
@@ -310,14 +177,102 @@
             100% { transform: scale(0.8); color: #475569; opacity: 0.3; }
         }
         
-        /* БОЛЬШАЯ КНОПКА СТАРТ */
+        /* ===== СЧЁТЧИК ОЧКОВ - ПОД ЖИЗНЯМИ ===== */
+        .score-container {
+            position: absolute;
+            top: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(5px);
+            padding: 6px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .score-display {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+        }
+        
+        /* ===== ПАКЕТ - УМЕНЬШЕН В 1.5 РАЗА ===== */
+        .burger-bag {
+            position: absolute;
+            bottom: 30px;
+            width: 107px;  /* 160 / 1.5 = 107px */
+            height: 107px; /* 160 / 1.5 = 107px */
+            background: none;
+            border: none;
+            box-shadow: none;
+            transition: left 0.04s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+            z-index: 10;
+            will-change: left, transform;
+        }
+        
+        .burger-bag img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
+        }
+        
+        /* ===== ЕДА - ЭМОДЗИ С ОБВОДКОЙ ===== */
+        .falling-item {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            width: 65px !important;
+            height: 65px !important;
+            z-index: 5;
+            transition: transform 0.1s ease-out;
+            will-change: top, transform;
+            background: none !important;
+            border: none;
+            box-shadow: none;
+        }
+        
+        .falling-item:not(.bomb-item) {
+            text-shadow: 
+                -3px -3px 0 white,
+                3px -3px 0 white,
+                -3px 3px 0 white,
+                3px 3px 0 white,
+                0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .falling-item.bomb-item {
+            text-shadow: 
+                -4px -4px 0 #ff0000,
+                4px -4px 0 #ff0000,
+                -4px 4px 0 #ff0000,
+                4px 4px 0 #ff0000,
+                0 0 15px rgba(255, 0, 0, 0.7) !important;
+            font-size: 52px;
+            color: #000;
+        }
+        
+        .falling-item img {
+            display: none;
+        }
+        
+        /* ===== БОЛЬШАЯ КНОПКА СТАРТ ===== */
         .start-btn-large {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 130px;
-            height: 130px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             background: linear-gradient(145deg, #10b981, #059669);
             border: 4px solid white;
@@ -325,7 +280,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 52px;
+            font-size: 48px;
             color: white;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             cursor: pointer;
@@ -364,18 +319,45 @@
             z-index: 1000;
             overflow-y: auto;
             padding: 80px 25px 40px;
-            animation: fadeIn 0.3s ease;
+            animation: slideIn 0.3s ease;
+            -webkit-overflow-scrolling: touch;
         }
         
         .info-panel.active {
             display: flex;
         }
         
+        /* СВАЙП ДЛЯ ПРАВИЛ */
+        .info-content {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding-bottom: 30px;
+        }
+        
+        .swipe-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
         .info-title {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: bold;
             color: #fbbf24;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
             display: flex;
             align-items: center;
@@ -387,12 +369,12 @@
             background: rgba(30, 41, 59, 0.6);
             border-radius: 20px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .info-subtitle {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: #94a3b8;
             margin-bottom: 15px;
@@ -406,20 +388,20 @@
         .info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            gap: 12px;
         }
         
         .food-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px;
+            gap: 10px;
+            padding: 8px;
             background: rgba(15, 23, 42, 0.7);
-            border-radius: 15px;
+            border-radius: 12px;
         }
         
         .food-emoji {
-            font-size: 2rem;
+            font-size: 1.8rem;
         }
         
         .food-desc {
@@ -428,12 +410,12 @@
         }
         
         .food-name {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #e2e8f0;
         }
         
         .food-points {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: #10b981;
         }
@@ -451,13 +433,13 @@
         }
         
         .rule-icon {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             width: 40px;
             text-align: center;
         }
         
         .rule-text {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #f1f5f9;
             line-height: 1.4;
         }
@@ -496,7 +478,7 @@
         }
         
         .shop-title {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: bold;
             color: #fbbf24;
             margin-bottom: 30px;
@@ -509,7 +491,7 @@
         .shop-empty {
             text-align: center;
             color: #94a3b8;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             padding: 40px;
             background: rgba(30, 41, 59, 0.6);
             border-radius: 20px;
@@ -517,14 +499,52 @@
         }
         
         .shop-emoji {
-            font-size: 4rem;
+            font-size: 3.5rem;
             margin-bottom: 20px;
             display: block;
+        }
+        
+        /* ===== КНОПКА НАЗАД ===== */
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            touch-action: manipulation;
+            padding: 0;
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            z-index: 1100;
+        }
+        
+        .back-btn:active {
+            transform: scale(0.85);
+        }
+        
+        .back-icon {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            display: block;
+            background: transparent;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
         }
         
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
         }
         
         .touch-feedback {
@@ -541,301 +561,6 @@
         @keyframes touchPulse {
             0% { transform: scale(0.3); opacity: 0.8; }
             100% { transform: scale(2); opacity: 0; }
-        }
-        
-        @media (max-width: 380px) {
-            .burger-bag {
-                width: 140px;
-                height: 140px;
-                bottom: 20px;
-            }
-            .falling-item {
-                font-size: 46px;
-                width: 60px !important;
-                height: 60px !important;
-            }
-            .falling-item.bomb-item {
-                font-size: 50px;
-            }
-            .game-stats-overlay {
-                padding: 8px 16px;
-                gap: 15px;
-            }
-            .heart {
-                font-size: 1.4rem;
-            }
-            .score-display {
-                font-size: 1.2rem;
-            }
-            .game-btn, .nav-btn, .back-btn {
-                width: 45px;
-                height: 45px;
-            }
-            .btn-icon, .nav-icon, .back-icon {
-                width: 45px;
-                height: 45px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- ИГРОВОЕ ПОЛЕ (ВЕСЬ ЭКРАН) -->
-        <div class="game-area" id="gameArea">
-            <!-- НАВИГАЦИЯ - КНОПКИ МАГАЗИН И ИНФОРМАЦИЯ -->
-            <div class="nav-buttons">
-                <!-- shop.png - ваше изображение для магазина -->
-                <div class="nav-btn" id="shopBtn">
-                    <img src="images/icons/shop.png" alt="Магазин" class="nav-icon" id="shopIcon">
-                </div>
-                <!-- info.png - ваше изображение для информации -->
-                <div class="nav-btn" id="infoBtn">
-                    <img src="images/icons/info.png" alt="Информация" class="nav-icon" id="infoIcon">
-                </div>
-            </div>
-            
-            <!-- СЧЁТЧИКИ ПО ЦЕНТРУ -->
-            <div class="game-stats-overlay">
-                <div class="score-display">
-                    <span>🍔</span>
-                    <span id="scoreDisplay">0</span>
-                </div>
-                
-                <div class="hearts-container" id="heartsContainer">
-                    <span class="heart full" id="heart1">❤️</span>
-                    <span class="heart full" id="heart2">❤️</span>
-                    <span class="heart full" id="heart3">❤️</span>
-                </div>
-            </div>
-            
-            <!-- КНОПКИ ПАУЗЫ И СБРОСА -->
-            <div class="game-buttons">
-                <!-- pause.png - ваше изображение паузы -->
-                <div class="game-btn" id="pauseBtn">
-                    <img src="images/icons/pause.png" alt="Пауза" class="btn-icon pause-icon">
-                    <img src="images/icons/play.png" alt="Продолжить" class="btn-icon play-icon" style="display: none;">
-                </div>
-                <!-- reset.png - ваше изображение сброса -->
-                <div class="game-btn" id="resetBtn">
-                    <img src="images/icons/reset.png" alt="Сброс" class="btn-icon reset-icon">
-                </div>
-            </div>
-            
-            <!-- БОЛЬШАЯ КНОПКА СТАРТ -->
-            <div class="start-btn-large" id="startBtn">
-                🍔
-                <span>СТАРТ</span>
-            </div>
-            
-            <!-- ПАКЕТ -->
-            <div class="burger-bag" id="burgerBag">
-                <img src="images/bag.png" alt="Пакет" id="bagImage">
-            </div>
-            
-            <!-- ===== ВКЛАДКА ИНФОРМАЦИЯ ===== -->
-            <div class="info-panel" id="infoPanel">
-                <!-- back.png - ваше изображение кнопки назад -->
-                <div class="back-btn" id="infoBackBtn">
-                    <img src="images/icons/back.png" alt="Назад" class="back-icon">
-                </div>
-                
-                <div class="info-title">
-                    <span>📋</span> ПРАВИЛА ИГРЫ
-                </div>
-                
-                <!-- МЕНЮ ЕДЫ -->
-                <div class="info-section">
-                    <div class="info-subtitle">
-                        <span>🍽️</span> МЕНЮ
-                    </div>
-                    <div class="info-grid">
-                        <div class="food-item">
-                            <span class="food-emoji">🍔</span>
-                            <div class="food-desc">
-                                <span class="food-name">Гамбургер</span>
-                                <span class="food-points">+10</span>
-                            </div>
-                        </div>
-                        <div class="food-item">
-                            <span class="food-emoji">🍟</span>
-                            <div class="food-desc">
-                                <span class="food-name">Картошка фри</span>
-                                <span class="food-points">+15</span>
-                            </div>
-                        </div>
-                        <div class="food-item">
-                            <span class="food-emoji">🌭</span>
-                            <div class="food-desc">
-                                <span class="food-name">Хот-дог</span>
-                                <span class="food-points">+20</span>
-                            </div>
-                        </div>
-                        <div class="food-item">
-                            <span class="food-emoji">🍕</span>
-                            <div class="food-desc">
-                                <span class="food-name">Пицца</span>
-                                <span class="food-points">+25</span>
-                            </div>
-                        </div>
-                        <div class="food-item">
-                            <span class="food-emoji">🥙</span>
-                            <div class="food-desc">
-                                <span class="food-name">Шаурма</span>
-                                <span class="food-points">+30</span>
-                            </div>
-                        </div>
-                        <div class="food-item">
-                            <span class="food-emoji">💣</span>
-                            <div class="food-desc">
-                                <span class="food-name">БОМБА</span>
-                                <span class="food-points" style="color: #ef4444;">-1 ЖИЗНЬ</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- МЕХАНИКИ -->
-                <div class="info-section">
-                    <div class="info-subtitle">
-                        <span>⚙️</span> МЕХАНИКИ
-                    </div>
-                    
-                    <div class="rule-item">
-                        <span class="rule-icon">🎯</span>
-                        <span class="rule-text"><span class="rule-highlight">Управление:</span> Водите пальцем по экрану — пакет следует за касанием</span>
-                    </div>
-                    
-                    <div class="rule-item">
-                        <span class="rule-icon">❤️</span>
-                        <span class="rule-text"><span class="rule-highlight">Жизни:</span> 3 сердца. Теряете жизнь при пропуске еды или ловле бомбы</span>
-                    </div>
-                    
-                    <div class="rule-item">
-                        <span class="rule-icon">📊</span>
-                        <span class="rule-text"><span class="rule-highlight">Уровень:</span> Растёт каждые 100 очков. Увеличивает плотность еды</span>
-                    </div>
-                    
-                    <div class="rule-item">
-                        <span class="rule-icon">⚡</span>
-                        <span class="rule-text"><span class="rule-highlight">Скорость:</span> Растёт каждые 200 очков. Еда падает быстрее</span>
-                    </div>
-                    
-                    <div class="rule-item">
-                        <span class="rule-icon">💣</span>
-                        <span class="rule-text"><span class="bomb-highlight">Бомбы:</span> Не ловите! -1 жизнь при ловле. При пропуске просто исчезают</span>
-                    </div>
-                    
-                    <div class="rule-item">
-                        <span class="rule-icon">🎮</span>
-                        <span class="rule-text"><span class="rule-highlight">Цель игры:</span> Набрать максимум очков, не потеряв все жизни</span>
-                    </div>
-                </div>
-                
-                <!-- СОВЕТЫ -->
-                <div class="info-section">
-                    <div class="info-subtitle">
-                        <span>💡</span> СОВЕТЫ
-                    </div>
-                    
-                    <div class="rule-item">
-                        <span class="rule-icon">🎯</span>
-                        <span class="rule-text">Держите пакет по центру — так проще ловить</span>
-                    </div>
-                    
-                    <div class="rule-item">
-                        <span class="rule-icon">⚠️</span>
-                        <span class="rule-text">Красная обводка = бомба! Уворачивайтесь</span>
-                    </div>
-                    
-                    <div class="rule-item">
-                        <span class="rule-icon">🍕</span>
-                        <span class="rule-text">Пицца и шаурма — самые дорогие, ловите их в первую очередь</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- ===== ВКЛАДКА МАГАЗИН ===== -->
-            <div class="shop-panel" id="shopPanel">
-                <!-- back.png - ваше изображение кнопки назад -->
-                <div class="back-btn" id="shopBackBtn">
-                    <img src="images/icons/back.png" alt="Назад" class="back-icon">
-                </div>
-                
-                <div class="shop-title">
-                    <span>🛒</span> МАГАЗИН
-                </div>
-                
-                <div class="shop-empty">
-                    <span class="shop-emoji">🏗️</span>
-                    <p>Магазин временно пуст</p>
-                    <p style="font-size: 0.9rem; margin-top: 15px;">Скоро здесь появятся улучшения!</p>
-                </div>
-            </div>
-            
-            <!-- ЭКРАН ОКОНЧАНИЯ ИГРЫ -->
-            <div class="game-over" id="gameOver">
-                <h2>GAME OVER</h2>
-                <p>🍔 <span id="finalScore">0</span> 🍟</p>
-                <button class="restart-btn" id="restartBtn">
-                    🔄 ИГРАТЬ СНОВА
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <style>
-        /* ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ ЭКРАНА GAME OVER */
-        .game-over {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(5px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 2000;
-            border-radius: 0;
-            text-align: center;
-            padding: 20px;
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .game-over h2 {
-            font-size: 2.8rem;
-            color: #ef4444;
-            margin-bottom: 20px;
-            text-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
-        }
-        
-        .game-over p {
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            color: #f8fafc;
-        }
-        
-        .restart-btn {
-            background: linear-gradient(to right, #0ea5e9, #0284c7);
-            color: white;
-            padding: 18px 35px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 10px 0 #075985;
-            transition: all 0.1s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .restart-btn:active {
-            transform: translateY(5px);
-            box-shadow: 0 5px 0 #075985;
         }
         
         .item-collected {
@@ -872,14 +597,351 @@
         .missed-item {
             animation: missedAnimation 0.5s ease-in forwards;
         }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 2000;
+            text-align: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .game-over h2 {
+            font-size: 2.5rem;
+            color: #ef4444;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
+        }
+        
+        .game-over p {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: #f8fafc;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(to right, #0ea5e9, #0284c7);
+            color: white;
+            padding: 16px 32px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 0 #075985;
+            transition: all 0.1s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .restart-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 5px 0 #075985;
+        }
+        
+        /* Адаптация под горизонтальный экран */
+        @media (orientation: landscape) {
+            .burger-bag {
+                bottom: 20px;
+                width: 100px;
+                height: 100px;
+            }
+            
+            .falling-item {
+                font-size: 44px;
+                width: 60px !important;
+                height: 60px !important;
+            }
+            
+            .falling-item.bomb-item {
+                font-size: 48px;
+            }
+            
+            .lives-container {
+                top: 12px;
+                padding: 6px 18px;
+            }
+            
+            .score-container {
+                top: 75px;
+                padding: 5px 16px;
+            }
+            
+            .heart {
+                font-size: 1.6rem;
+            }
+            
+            .score-display {
+                font-size: 1.6rem;
+            }
+            
+            .nav-btn, .game-btn, .sound-btn, .back-btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .nav-icon, .btn-icon, .sound-icon, .back-icon {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .start-btn-large {
+                width: 110px;
+                height: 110px;
+                font-size: 44px;
+            }
+        }
+        
+        @media (max-width: 380px) {
+            .burger-bag {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .nav-btn, .game-btn, .sound-btn, .back-btn {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .nav-icon, .btn-icon, .sound-icon, .back-icon {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .heart {
+                font-size: 1.4rem;
+            }
+            
+            .score-display {
+                font-size: 1.4rem;
+            }
+        }
     </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ИГРОВОЕ ПОЛЕ -->
+        <div class="game-area" id="gameArea">
+            <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <!-- shop.png - магазин -->
+                    <div class="nav-btn" id="shopBtn">
+                        <img src="images/icons/shop.png" alt="Магазин" class="nav-icon">
+                    </div>
+                    <!-- info.png - информация -->
+                    <div class="nav-btn" id="infoBtn">
+                        <img src="images/icons/info.png" alt="Информация" class="nav-icon">
+                    </div>
+                </div>
+                
+                <div class="top-bar-right">
+                    <!-- sound.png / mute.png - звук вкл/выкл -->
+                    <div class="sound-btn" id="soundToggleBtn">
+                        <img src="images/icons/sound.png" alt="Звук вкл" class="sound-icon" id="soundOnIcon">
+                        <img src="images/icons/mute.png" alt="Звук выкл" class="sound-icon" id="soundOffIcon" style="display: none;">
+                    </div>
+                    <!-- pause.png / play.png - пауза -->
+                    <div class="game-btn" id="pauseBtn">
+                        <img src="images/icons/pause.png" alt="Пауза" class="btn-icon pause-icon">
+                        <img src="images/icons/play.png" alt="Продолжить" class="btn-icon play-icon" style="display: none;">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- СЧЁТЧИК ЖИЗНЕЙ (ПО ЦЕНТРУ) -->
+            <div class="lives-container">
+                <div class="hearts-container" id="heartsContainer">
+                    <span class="heart full" id="heart1">❤️</span>
+                    <span class="heart full" id="heart2">❤️</span>
+                    <span class="heart full" id="heart3">❤️</span>
+                </div>
+            </div>
+            
+            <!-- СЧЁТЧИК ОЧКОВ (ПОД ЖИЗНЯМИ) -->
+            <div class="score-container">
+                <span class="score-display" id="scoreDisplay">0</span>
+            </div>
+            
+            <!-- БОЛЬШАЯ КНОПКА СТАРТ -->
+            <div class="start-btn-large" id="startBtn">
+                🍔
+                <span>СТАРТ</span>
+            </div>
+            
+            <!-- ПАКЕТ (УМЕНЬШЕН) -->
+            <div class="burger-bag" id="burgerBag">
+                <img src="images/bag.png" alt="Пакет" id="bagImage">
+            </div>
+            
+            <!-- ===== ВКЛАДКА ИНФОРМАЦИЯ ===== -->
+            <div class="info-panel" id="infoPanel">
+                <div class="back-btn" id="infoBackBtn">
+                    <img src="images/icons/back.png" alt="Назад" class="back-icon">
+                </div>
+                
+                <div class="info-content">
+                    <div class="info-title">
+                        <span>📋</span> ПРАВИЛА ИГРЫ
+                    </div>
+                    
+                    <!-- МЕНЮ ЕДЫ -->
+                    <div class="info-section">
+                        <div class="info-subtitle">
+                            <span>🍽️</span> МЕНЮ
+                        </div>
+                        <div class="info-grid">
+                            <div class="food-item">
+                                <span class="food-emoji">🍔</span>
+                                <div class="food-desc">
+                                    <span class="food-name">Гамбургер</span>
+                                    <span class="food-points">+10</span>
+                                </div>
+                            </div>
+                            <div class="food-item">
+                                <span class="food-emoji">🍟</span>
+                                <div class="food-desc">
+                                    <span class="food-name">Картошка фри</span>
+                                    <span class="food-points">+15</span>
+                                </div>
+                            </div>
+                            <div class="food-item">
+                                <span class="food-emoji">🌭</span>
+                                <div class="food-desc">
+                                    <span class="food-name">Хот-дог</span>
+                                    <span class="food-points">+20</span>
+                                </div>
+                            </div>
+                            <div class="food-item">
+                                <span class="food-emoji">🍕</span>
+                                <div class="food-desc">
+                                    <span class="food-name">Пицца</span>
+                                    <span class="food-points">+25</span>
+                                </div>
+                            </div>
+                            <div class="food-item">
+                                <span class="food-emoji">🥙</span>
+                                <div class="food-desc">
+                                    <span class="food-name">Шаурма</span>
+                                    <span class="food-points">+30</span>
+                                </div>
+                            </div>
+                            <div class="food-item">
+                                <span class="food-emoji">💣</span>
+                                <div class="food-desc">
+                                    <span class="food-name">БОМБА</span>
+                                    <span class="food-points" style="color: #ef4444;">-1 ЖИЗНЬ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- МЕХАНИКИ -->
+                    <div class="info-section">
+                        <div class="info-subtitle">
+                            <span>⚙️</span> МЕХАНИКИ
+                        </div>
+                        
+                        <div class="rule-item">
+                            <span class="rule-icon">🎯</span>
+                            <span class="rule-text"><span class="rule-highlight">Управление:</span> Водите пальцем по экрану</span>
+                        </div>
+                        
+                        <div class="rule-item">
+                            <span class="rule-icon">❤️</span>
+                            <span class="rule-text"><span class="rule-highlight">Жизни:</span> 3 сердца. Теряете при пропуске еды или ловле бомбы</span>
+                        </div>
+                        
+                        <div class="rule-item">
+                            <span class="rule-icon">📊</span>
+                            <span class="rule-text"><span class="rule-highlight">Уровень:</span> Растёт каждые 100 очков. Еда падает быстрее</span>
+                        </div>
+                        
+                        <div class="rule-item">
+                            <span class="rule-icon">💣</span>
+                            <span class="rule-text"><span class="bomb-highlight">Бомбы:</span> Не ловите! -1 жизнь. При пропуске исчезают</span>
+                        </div>
+                    </div>
+                    
+                    <!-- СОВЕТЫ -->
+                    <div class="info-section">
+                        <div class="info-subtitle">
+                            <span>💡</span> СОВЕТЫ
+                        </div>
+                        
+                        <div class="rule-item">
+                            <span class="rule-icon">⚠️</span>
+                            <span class="rule-text">Красная обводка = бомба! Уворачивайтесь</span>
+                        </div>
+                        
+                        <div class="rule-item">
+                            <span class="rule-icon">🍕</span>
+                            <span class="rule-text">Пицца и шаурма — самые дорогие</span>
+                        </div>
+                    </div>
+                    
+                    <div class="swipe-indicator">
+                        <span>👆</span> ЛИСТАЙТЕ ВНИЗ-ВВЕРХ <span>👇</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ===== ВКЛАДКА МАГАЗИН ===== -->
+            <div class="shop-panel" id="shopPanel">
+                <div class="back-btn" id="shopBackBtn">
+                    <img src="images/icons/back.png" alt="Назад" class="back-icon">
+                </div>
+                
+                <div class="shop-title">
+                    <span>🛒</span> МАГАЗИН
+                </div>
+                
+                <div class="shop-empty">
+                    <span class="shop-emoji">🏗️</span>
+                    <p>Магазин временно пуст</p>
+                    <p style="font-size: 0.9rem; margin-top: 15px;">Скоро здесь появятся улучшения!</p>
+                </div>
+            </div>
+            
+            <!-- ЭКРАН ОКОНЧАНИЯ ИГРЫ -->
+            <div class="game-over" id="gameOver">
+                <h2>GAME OVER</h2>
+                <p><span id="finalScore">0</span> очков</p>
+                <button class="restart-btn" id="restartBtn">
+                    🔄 ИГРАТЬ СНОВА
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        if (window.Telegram && Telegram.WebApp) {
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-        }
-
+        // ===== ЗВУКИ И МУЗЫКА =====
+        // Звуки из ваших файлов
+        const successSound = new Audio('sounds/success.mp3');
+        const failSound = new Audio('sounds/fail.mp3');
+        const bgMusic = new Audio('sounds/music.mp3');
+        
+        // Настройка звуков
+        successSound.volume = 0.3;
+        failSound.volume = 0.35;
+        bgMusic.volume = 0.2;
+        bgMusic.loop = true;
+        
+        // Состояние звука
+        let isSoundOn = true;
+        let isMusicPlaying = false;
+        
         // ===== ЭЛЕМЕНТЫ DOM =====
         const gameArea = document.getElementById('gameArea');
         const burgerBag = document.getElementById('burgerBag');
@@ -891,7 +953,9 @@
         // КНОПКИ
         const startBtn = document.getElementById('startBtn');
         const pauseBtn = document.getElementById('pauseBtn');
-        const resetBtn = document.getElementById('resetBtn');
+        const soundToggleBtn = document.getElementById('soundToggleBtn');
+        const soundOnIcon = document.getElementById('soundOnIcon');
+        const soundOffIcon = document.getElementById('soundOffIcon');
         const restartBtn = document.getElementById('restartBtn');
         const gameOverScreen = document.getElementById('gameOver');
         const finalScoreElement = document.getElementById('finalScore');
@@ -920,7 +984,7 @@
         ];
         
         const bombEmoji = '💣';
-        const bagSpeedMultiplier = 3.2;
+        const bagSpeedMultiplier = 3.5; // Увеличена скорость
         
         // ИГРОВЫЕ ПЕРЕМЕННЫЕ
         let score = 0;
@@ -932,20 +996,55 @@
         let bagPosition = gameArea.offsetWidth / 2 - burgerBag.offsetWidth / 2;
         let isTouching = false;
         let fallingItems = new Map();
-        let densityLevel = 1;
         
-        // НАСТРОЙКИ ПРОГРЕССИИ
-        const BASE_SPAWN_INTERVAL = 3600;
-        const SPAWN_REDUCTION_FACTOR = 0.12;
-        const DENSITY_SCORE_STEP = 100;
+        // НАСТРОЙКИ ПРОГРЕССИИ (БЕЗ ПЛОТНОСТИ)
+        const BASE_SPAWN_INTERVAL = 2200; // Увеличена скорость на первом уровне
         const SPEED_SCORE_STEP = 200;
         
         // ПЛАВНОЕ ДВИЖЕНИЕ
         let targetPosition = bagPosition;
         let currentPosition = bagPosition;
         let animationFrameId = null;
-        const SMOOTHING_FACTOR = 0.22;
+        const SMOOTHING_FACTOR = 0.25;
         
+        // ===== ФУНКЦИИ УПРАВЛЕНИЯ ЗВУКОМ =====
+        function toggleSound(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            
+            isSoundOn = !isSoundOn;
+            
+            if (isSoundOn) {
+                soundOnIcon.style.display = 'block';
+                soundOffIcon.style.display = 'none';
+                bgMusic.volume = 0.2;
+                if (!isMusicPlaying && gameRunning) {
+                    bgMusic.play().catch(e => {});
+                    isMusicPlaying = true;
+                }
+            } else {
+                soundOnIcon.style.display = 'none';
+                soundOffIcon.style.display = 'block';
+                bgMusic.volume = 0;
+                bgMusic.pause();
+                isMusicPlaying = false;
+            }
+        }
+        
+        function playSuccess() {
+            if (isSoundOn && gameRunning && !gamePaused) {
+                successSound.currentTime = 0;
+                successSound.play().catch(e => {});
+            }
+        }
+        
+        function playFail() {
+            if (isSoundOn && gameRunning && !gamePaused) {
+                failSound.currentTime = 0;
+                failSound.play().catch(e => {});
+            }
+        }
+        
+        // ===== ФУНКЦИИ ИГРЫ =====
         function updateBagPosition() {
             targetPosition = Math.max(0, Math.min(targetPosition, gameArea.offsetWidth - burgerBag.offsetWidth));
             currentPosition = targetPosition;
@@ -987,13 +1086,14 @@
         }
         
         function getCurrentSpawnRate() {
-            densityLevel = Math.floor(score / DENSITY_SCORE_STEP) + 1;
-            const reduction = 1 - (densityLevel - 1) * SPAWN_REDUCTION_FACTOR;
-            return Math.round(Math.max(400, BASE_SPAWN_INTERVAL * reduction));
+            // БЕЗ ПЛОТНОСТИ - только скорость растёт от очков
+            const speedLevel = Math.floor(score / SPEED_SCORE_STEP);
+            return Math.round(Math.max(800, BASE_SPAWN_INTERVAL - speedLevel * 150));
         }
         
         function getCurrentFallSpeed() {
-            return 2.5 + Math.floor(score / SPEED_SCORE_STEP) * 0.3;
+            // Увеличена базовая скорость
+            return 3.2 + Math.floor(score / SPEED_SCORE_STEP) * 0.25;
         }
         
         function checkCollision(itemRect) {
@@ -1029,7 +1129,7 @@
             if (isBomb) {
                 item.textContent = bombEmoji;
                 item.classList.add('bomb-item');
-                item.style.fontSize = '56px';
+                item.style.fontSize = '52px';
                 itemData = {
                     type: 'bomb',
                     points: -1,
@@ -1039,7 +1139,7 @@
             } else {
                 const foodItem = foodItems[Math.floor(Math.random() * foodItems.length)];
                 item.textContent = foodItem.emoji;
-                item.style.fontSize = '52px';
+                item.style.fontSize = '48px';
                 itemData = {
                     type: 'food',
                     points: foodItem.points,
@@ -1049,14 +1149,14 @@
                 };
             }
             
-            item.style.width = '70px';
-            item.style.height = '70px';
+            item.style.width = '65px';
+            item.style.height = '65px';
             item.style.display = 'flex';
             item.style.alignItems = 'center';
             item.style.justifyContent = 'center';
             item.style.background = 'none';
             
-            const maxLeft = gameArea.offsetWidth - 80;
+            const maxLeft = gameArea.offsetWidth - 75;
             const leftPosition = Math.max(0, Math.floor(Math.random() * maxLeft));
             
             item.style.left = `${leftPosition}px`;
@@ -1106,6 +1206,7 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: itemRect.top - gameAreaRect.top
                         });
+                        playFail();
                         burgerBag.style.transform = 'scale(0.95)';
                         setTimeout(() => burgerBag.style.transform = 'scale(1)', 200);
                     } else {
@@ -1114,14 +1215,10 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: itemRect.top - gameAreaRect.top
                         });
+                        playSuccess();
                         
                         burgerBag.style.transform = 'translateY(-5px)';
                         setTimeout(() => burgerBag.style.transform = 'translateY(0)', 200);
-                        
-                        if (Math.floor(score / DENSITY_SCORE_STEP) + 1 > densityLevel) {
-                            densityLevel = Math.floor(score / DENSITY_SCORE_STEP) + 1;
-                            updateSpawnInterval();
-                        }
                     }
                     
                     updateUI();
@@ -1144,6 +1241,7 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: gameAreaHeight - 80
                         });
+                        playFail();
                         itemData.element.classList.add('missed-item');
                         setTimeout(() => {
                             if (itemData.element.parentNode) {
@@ -1217,6 +1315,13 @@
             startBtn.classList.add('hidden');
             if (pauseIcon) pauseIcon.style.display = 'block';
             if (playIcon) playIcon.style.display = 'none';
+            
+            // Запускаем музыку если звук включен
+            if (isSoundOn && !isMusicPlaying) {
+                bgMusic.play().catch(e => {});
+                isMusicPlaying = true;
+            }
+            
             updateSpawnInterval();
             gameInterval = setInterval(() => {
                 if (gameRunning && !gamePaused) updateFallingItems();
@@ -1234,9 +1339,15 @@
                     left: gameArea.offsetWidth / 2 - 50,
                     top: gameArea.offsetHeight / 2
                 });
+                // Ставим музыку на паузу
+                if (isSoundOn) bgMusic.pause();
             } else {
                 if (pauseIcon) pauseIcon.style.display = 'block';
                 if (playIcon) playIcon.style.display = 'none';
+                // Возобновляем музыку
+                if (isSoundOn && gameRunning) {
+                    bgMusic.play().catch(e => {});
+                }
             }
         }
         
@@ -1250,7 +1361,6 @@
             
             score = 0;
             lives = 3;
-            densityLevel = 1;
             gameRunning = false;
             gamePaused = false;
             
@@ -1269,6 +1379,13 @@
             
             gameOverScreen.style.display = 'none';
             updateUI();
+            
+            // Останавливаем музыку
+            if (isSoundOn) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+                isMusicPlaying = false;
+            }
         }
         
         function endGame() {
@@ -1277,13 +1394,20 @@
             clearInterval(itemInterval);
             finalScoreElement.textContent = score;
             gameOverScreen.style.display = 'flex';
+            
+            // Останавливаем музыку
+            if (isSoundOn) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+                isMusicPlaying = false;
+            }
         }
         
         function moveBag(direction) {
             if (!gameRunning || gamePaused) return;
             const bagWidth = burgerBag.offsetWidth;
             const gameAreaWidth = gameArea.offsetWidth;
-            const moveAmount = 45 * bagSpeedMultiplier;
+            const moveAmount = 50 * bagSpeedMultiplier;
             if (direction === 'left') {
                 targetPosition = Math.max(0, targetPosition - moveAmount);
             } else {
@@ -1294,7 +1418,6 @@
         // ===== НАВИГАЦИЯ =====
         function openInfo(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
-            // Ставим игру на паузу, если она запущена
             if (gameRunning && !gamePaused) {
                 pauseGame();
             }
@@ -1304,7 +1427,6 @@
         
         function openShop(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
-            // Ставим игру на паузу, если она запущена
             if (gameRunning && !gamePaused) {
                 pauseGame();
             }
@@ -1366,10 +1488,12 @@
         startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(e); }, { passive: false });
         pauseBtn.addEventListener('click', pauseGame);
         pauseBtn.addEventListener('touchstart', (e) => { e.preventDefault(); pauseGame(e); }, { passive: false });
-        resetBtn.addEventListener('click', resetGame);
-        resetBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(e); }, { passive: false });
         restartBtn.addEventListener('click', resetGame);
         restartBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(e); }, { passive: false });
+        
+        // КНОПКА ЗВУКА
+        soundToggleBtn.addEventListener('click', toggleSound);
+        soundToggleBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleSound(e); }, { passive: false });
         
         // КНОПКИ НАВИГАЦИИ
         infoBtn.addEventListener('click', openInfo);
