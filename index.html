@@ -110,52 +110,25 @@
         }
         
         .falling-item {
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 70px !important;
-    height: 70px !important;
-    z-index: 5;
-    transition: transform 0.1s ease-out;
-    will-change: top, transform;
-    background: none !important;
-    border: none;
-    box-shadow: none;
-}
-
-.falling-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
-    transition: transform 0.2s ease;
-}
-
-.falling-item:hover img {
-    transform: scale(1.1);
-}
-
-.falling-item.bomb-item {
-    font-size: 56px;
-    text-shadow: 
-        -4px -4px 0 #ff6b6b,
-        4px -4px 0 #ff6b6b,
-        -4px 4px 0 #ff6b6b,
-        4px 4px 0 #ff6b6b,
-        0 0 15px rgba(255,0,0,0.5);
-}
-
-.falling-item.bomb-item img {
-    display: none;
-}
-
-@media (max-width: 380px) {
-    .falling-item {
-        width: 60px !important;
-        height: 60px !important;
-    }
-}
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 52px;
+            width: 70px !important;
+            height: 70px !important;
+            text-shadow: 
+                -3px -3px 0 white,
+                3px -3px 0 white,
+                -3px 3px 0 white,
+                3px 3px 0 white,
+                0 0 10px rgba(0,0,0,0.5);
+            filter: drop-shadow(0 8px 6px rgba(0,0,0,0.3));
+            z-index: 5;
+            transition: transform 0.1s ease-out, filter 0.2s ease;
+            background: none !important;
+            will-change: top;
+        }
         
         .falling-item.bomb-item {
             text-shadow: 
@@ -534,11 +507,11 @@
         
         // НАСТРОЙКИ ИГРЫ
         const foodItems = [
-            { image: 'images/food/danar.png', points: 10 },
+            { emoji: '🍔', points: 10 },
             { emoji: '🍟', points: 15 },
             { emoji: '🌭', points: 20 },
-            { image: 'images/food/shava.png', points: 25 },
-            { image: 'images/food/wrap.png', points: 30 }
+            { emoji: '🍕', points: 25 },
+            { emoji: '🥙', points: 30 }
         ];
         
         const bombEmoji = '💣';
