@@ -25,6 +25,7 @@
             justify-content: center;
             padding: 0;
             overflow-x: hidden;
+            overflow-y: hidden;
             touch-action: manipulation;
         }
         
@@ -54,9 +55,7 @@
             padding: 0;
             border: none;
             outline: none;
-            touch-action: pan-y;
-            display: flex;
-            flex-direction: column;
+            touch-action: none; /* ИСПРАВЛЕНО: было pan-y, теперь none для лучшего контроля */
         }
         
         /* Затемнение фона */
@@ -177,7 +176,7 @@
             100% { transform: scale(0.8); color: #475569; opacity: 0.3; }
         }
         
-        /* ===== СЧЁТЧИК ОЧКОВ - ПОД ЖИЗНЯМИ ===== */
+        /* ===== СЧЁТЧИК ОЧКОВ ===== */
         .score-container {
             position: absolute;
             top: 85px;
@@ -207,8 +206,8 @@
         .burger-bag {
             position: absolute;
             bottom: 30px;
-            width: 107px;  /* 160 / 1.5 = 107px */
-            height: 107px; /* 160 / 1.5 = 107px */
+            width: 107px;
+            height: 107px;
             background: none;
             border: none;
             box-shadow: none;
@@ -327,7 +326,6 @@
             display: flex;
         }
         
-        /* СВАЙП ДЛЯ ПРАВИЛ */
         .info-content {
             width: 100%;
             max-width: 600px;
@@ -736,23 +734,19 @@
             <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
             <div class="top-bar">
                 <div class="top-bar-left">
-                    <!-- shop.png - магазин -->
                     <div class="nav-btn" id="shopBtn">
                         <img src="images/icons/shop.png" alt="Магазин" class="nav-icon">
                     </div>
-                    <!-- info.png - информация -->
                     <div class="nav-btn" id="infoBtn">
                         <img src="images/icons/info.png" alt="Информация" class="nav-icon">
                     </div>
                 </div>
                 
                 <div class="top-bar-right">
-                    <!-- sound.png / mute.png - звук вкл/выкл -->
                     <div class="sound-btn" id="soundToggleBtn">
                         <img src="images/icons/sound.png" alt="Звук вкл" class="sound-icon" id="soundOnIcon">
                         <img src="images/icons/mute.png" alt="Звук выкл" class="sound-icon" id="soundOffIcon" style="display: none;">
                     </div>
-                    <!-- pause.png / play.png - пауза -->
                     <div class="game-btn" id="pauseBtn">
                         <img src="images/icons/pause.png" alt="Пауза" class="btn-icon pause-icon">
                         <img src="images/icons/play.png" alt="Продолжить" class="btn-icon play-icon" style="display: none;">
@@ -760,7 +754,7 @@
                 </div>
             </div>
             
-            <!-- СЧЁТЧИК ЖИЗНЕЙ (ПО ЦЕНТРУ) -->
+            <!-- СЧЁТЧИК ЖИЗНЕЙ -->
             <div class="lives-container">
                 <div class="hearts-container" id="heartsContainer">
                     <span class="heart full" id="heart1">❤️</span>
@@ -769,7 +763,7 @@
                 </div>
             </div>
             
-            <!-- СЧЁТЧИК ОЧКОВ (ПОД ЖИЗНЯМИ) -->
+            <!-- СЧЁТЧИК ОЧКОВ -->
             <div class="score-container">
                 <span class="score-display" id="scoreDisplay">0</span>
             </div>
@@ -780,12 +774,12 @@
                 <span>СТАРТ</span>
             </div>
             
-            <!-- ПАКЕТ (УМЕНЬШЕН) -->
+            <!-- ПАКЕТ -->
             <div class="burger-bag" id="burgerBag">
                 <img src="images/bag.png" alt="Пакет" id="bagImage">
             </div>
             
-            <!-- ===== ВКЛАДКА ИНФОРМАЦИЯ ===== -->
+            <!-- ВКЛАДКА ИНФОРМАЦИЯ -->
             <div class="info-panel" id="infoPanel">
                 <div class="back-btn" id="infoBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -796,7 +790,6 @@
                         <span>📋</span> ПРАВИЛА ИГРЫ
                     </div>
                     
-                    <!-- МЕНЮ ЕДЫ -->
                     <div class="info-section">
                         <div class="info-subtitle">
                             <span>🍽️</span> МЕНЮ
@@ -847,7 +840,6 @@
                         </div>
                     </div>
                     
-                    <!-- МЕХАНИКИ -->
                     <div class="info-section">
                         <div class="info-subtitle">
                             <span>⚙️</span> МЕХАНИКИ
@@ -874,7 +866,6 @@
                         </div>
                     </div>
                     
-                    <!-- СОВЕТЫ -->
                     <div class="info-section">
                         <div class="info-subtitle">
                             <span>💡</span> СОВЕТЫ
@@ -897,7 +888,7 @@
                 </div>
             </div>
             
-            <!-- ===== ВКЛАДКА МАГАЗИН ===== -->
+            <!-- ВКЛАДКА МАГАЗИН -->
             <div class="shop-panel" id="shopPanel">
                 <div class="back-btn" id="shopBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -926,55 +917,71 @@
     </div>
 
     <script>
+        // ===== ИСПРАВЛЕНИЕ 1: Проверка существования элементов =====
+        function getElementOrThrow(id, elementName) {
+            const el = document.getElementById(id);
+            if (!el) {
+                console.warn(`Предупреждение: Элемент '${id}' не найден. Функционал '${elementName}' может работать некорректно.`);
+            }
+            return el;
+        }
+
         // ===== ЗВУКИ И МУЗЫКА =====
-        // Звуки из ваших файлов
-        const successSound = new Audio('sounds/success.mp3');
-        const failSound = new Audio('sounds/fail.mp3');
-        const bgMusic = new Audio('sounds/music.mp3');
+        // ИСПРАВЛЕНИЕ 2: Проверка загрузки звуков
+        let successSound, failSound, bgMusic;
         
-        // Настройка звуков
-        successSound.volume = 0.3;
-        failSound.volume = 0.35;
-        bgMusic.volume = 0.2;
-        bgMusic.loop = true;
+        try {
+            successSound = new Audio('sounds/success.mp3');
+            failSound = new Audio('sounds/fail.mp3');
+            bgMusic = new Audio('sounds/music.mp3');
+            
+            successSound.volume = 0.3;
+            failSound.volume = 0.35;
+            bgMusic.volume = 0.2;
+            bgMusic.loop = true;
+            
+            // ИСПРАВЛЕНИЕ 3: Предзагрузка звуков
+            successSound.load();
+            failSound.load();
+            bgMusic.load();
+        } catch (e) {
+            console.warn('Ошибка загрузки звуков:', e);
+            // Создаем заглушки, чтобы не ломать игру
+            successSound = { play: function() {}, pause: function() {}, volume: 0.3, currentTime: 0 };
+            failSound = { play: function() {}, pause: function() {}, volume: 0.35, currentTime: 0 };
+            bgMusic = { play: function() {}, pause: function() {}, volume: 0.2, currentTime: 0, loop: true };
+        }
         
-        // Состояние звука
         let isSoundOn = true;
         let isMusicPlaying = false;
         
-        // ===== ЭЛЕМЕНТЫ DOM =====
-        const gameArea = document.getElementById('gameArea');
-        const burgerBag = document.getElementById('burgerBag');
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        const heart1 = document.getElementById('heart1');
-        const heart2 = document.getElementById('heart2');
-        const heart3 = document.getElementById('heart3');
+        // ===== ЭЛЕМЕНТЫ DOM С ПРОВЕРКОЙ =====
+        const gameArea = getElementOrThrow('gameArea', 'игровая область');
+        const burgerBag = getElementOrThrow('burgerBag', 'пакет');
+        const scoreDisplay = getElementOrThrow('scoreDisplay', 'счет');
+        const heart1 = getElementOrThrow('heart1', 'сердце 1');
+        const heart2 = getElementOrThrow('heart2', 'сердце 2');
+        const heart3 = getElementOrThrow('heart3', 'сердце 3');
+        const startBtn = getElementOrThrow('startBtn', 'кнопка старт');
+        const pauseBtn = getElementOrThrow('pauseBtn', 'кнопка паузы');
+        const soundToggleBtn = getElementOrThrow('soundToggleBtn', 'кнопка звука');
+        const soundOnIcon = getElementOrThrow('soundOnIcon', 'иконка звука вкл');
+        const soundOffIcon = getElementOrThrow('soundOffIcon', 'иконка звука выкл');
+        const restartBtn = getElementOrThrow('restartBtn', 'кнопка рестарт');
+        const gameOverScreen = getElementOrThrow('gameOver', 'экран окончания');
+        const finalScoreElement = getElementOrThrow('finalScore', 'финальный счет');
+        const shopBtn = getElementOrThrow('shopBtn', 'кнопка магазина');
+        const infoBtn = getElementOrThrow('infoBtn', 'кнопка информации');
+        const infoBackBtn = getElementOrThrow('infoBackBtn', 'кнопка назад из информации');
+        const shopBackBtn = getElementOrThrow('shopBackBtn', 'кнопка назад из магазина');
+        const infoPanel = getElementOrThrow('infoPanel', 'панель информации');
+        const shopPanel = getElementOrThrow('shopPanel', 'панель магазина');
         
-        // КНОПКИ
-        const startBtn = document.getElementById('startBtn');
-        const pauseBtn = document.getElementById('pauseBtn');
-        const soundToggleBtn = document.getElementById('soundToggleBtn');
-        const soundOnIcon = document.getElementById('soundOnIcon');
-        const soundOffIcon = document.getElementById('soundOffIcon');
-        const restartBtn = document.getElementById('restartBtn');
-        const gameOverScreen = document.getElementById('gameOver');
-        const finalScoreElement = document.getElementById('finalScore');
-        
-        // КНОПКИ НАВИГАЦИИ
-        const shopBtn = document.getElementById('shopBtn');
-        const infoBtn = document.getElementById('infoBtn');
-        const infoBackBtn = document.getElementById('infoBackBtn');
-        const shopBackBtn = document.getElementById('shopBackBtn');
-        
-        // ПАНЕЛИ
-        const infoPanel = document.getElementById('infoPanel');
-        const shopPanel = document.getElementById('shopPanel');
-        
-        // ИКОНКИ
+        // ИКОНКИ - с проверкой на существование
         const pauseIcon = document.querySelector('.pause-icon');
         const playIcon = document.querySelector('.play-icon');
         
-        // ===== ЕДА - ТОЛЬКО ЭМОДЗИ =====
+        // ===== ЕДА =====
         const foodItems = [
             { emoji: '🍔', points: 10 },
             { emoji: '🍟', points: 15 },
@@ -984,28 +991,28 @@
         ];
         
         const bombEmoji = '💣';
-        const bagSpeedMultiplier = 3.5; // Увеличена скорость
+        const bagSpeedMultiplier = 3.5;
         
-        // ИГРОВЫЕ ПЕРЕМЕННЫЕ
+        // ===== ИГРОВЫЕ ПЕРЕМЕННЫЕ =====
         let score = 0;
         let lives = 3;
         let gameRunning = false;
         let gamePaused = false;
-        let gameInterval;
-        let itemInterval;
-        let bagPosition = gameArea.offsetWidth / 2 - burgerBag.offsetWidth / 2;
+        let gameInterval = null;
+        let itemInterval = null;
         let isTouching = false;
         let fallingItems = new Map();
         
-        // НАСТРОЙКИ ПРОГРЕССИИ (БЕЗ ПЛОТНОСТИ)
-        const BASE_SPAWN_INTERVAL = 2200; // Увеличена скорость на первом уровне
-        const SPEED_SCORE_STEP = 200;
-        
-        // ПЛАВНОЕ ДВИЖЕНИЕ
-        let targetPosition = bagPosition;
-        let currentPosition = bagPosition;
+        // ИСПРАВЛЕНИЕ 4: Инициализация позиции пакета после загрузки
+        let bagPosition = 0;
+        let targetPosition = 0;
+        let currentPosition = 0;
         let animationFrameId = null;
         const SMOOTHING_FACTOR = 0.25;
+        
+        // НАСТРОЙКИ ПРОГРЕССИИ
+        const BASE_SPAWN_INTERVAL = 2200;
+        const SPEED_SCORE_STEP = 200;
         
         // ===== ФУНКЦИИ УПРАВЛЕНИЯ ЗВУКОМ =====
         function toggleSound(e) {
@@ -1013,70 +1020,98 @@
             
             isSoundOn = !isSoundOn;
             
-            if (isSoundOn) {
-                soundOnIcon.style.display = 'block';
-                soundOffIcon.style.display = 'none';
-                bgMusic.volume = 0.2;
-                if (!isMusicPlaying && gameRunning) {
-                    bgMusic.play().catch(e => {});
-                    isMusicPlaying = true;
+            if (soundOnIcon && soundOffIcon) {
+                if (isSoundOn) {
+                    soundOnIcon.style.display = 'block';
+                    soundOffIcon.style.display = 'none';
+                    if (bgMusic && !isMusicPlaying && gameRunning && !gamePaused) {
+                        bgMusic.play().catch(e => {});
+                        isMusicPlaying = true;
+                    }
+                } else {
+                    soundOnIcon.style.display = 'none';
+                    soundOffIcon.style.display = 'block';
+                    if (bgMusic) {
+                        bgMusic.pause();
+                        isMusicPlaying = false;
+                    }
                 }
-            } else {
-                soundOnIcon.style.display = 'none';
-                soundOffIcon.style.display = 'block';
-                bgMusic.volume = 0;
-                bgMusic.pause();
-                isMusicPlaying = false;
             }
         }
         
         function playSuccess() {
-            if (isSoundOn && gameRunning && !gamePaused) {
-                successSound.currentTime = 0;
-                successSound.play().catch(e => {});
+            if (isSoundOn && gameRunning && !gamePaused && successSound) {
+                try {
+                    successSound.currentTime = 0;
+                    successSound.play().catch(e => {});
+                } catch (e) {}
             }
         }
         
         function playFail() {
-            if (isSoundOn && gameRunning && !gamePaused) {
-                failSound.currentTime = 0;
-                failSound.play().catch(e => {});
+            if (isSoundOn && gameRunning && !gamePaused && failSound) {
+                try {
+                    failSound.currentTime = 0;
+                    failSound.play().catch(e => {});
+                } catch (e) {}
             }
         }
         
         // ===== ФУНКЦИИ ИГРЫ =====
+        function initBagPosition() {
+            if (burgerBag && gameArea) {
+                bagPosition = (gameArea.offsetWidth / 2) - (burgerBag.offsetWidth / 2);
+                targetPosition = bagPosition;
+                currentPosition = bagPosition;
+                burgerBag.style.left = `${currentPosition}px`;
+            }
+        }
+        
         function updateBagPosition() {
-            targetPosition = Math.max(0, Math.min(targetPosition, gameArea.offsetWidth - burgerBag.offsetWidth));
+            if (!burgerBag || !gameArea) return;
+            const maxLeft = gameArea.offsetWidth - burgerBag.offsetWidth;
+            targetPosition = Math.max(0, Math.min(targetPosition, maxLeft));
             currentPosition = targetPosition;
             burgerBag.style.left = `${currentPosition}px`;
         }
-        updateBagPosition();
         
         function smoothMove() {
-            if (!gameRunning || gamePaused) {
+            if (!gameRunning || gamePaused || !burgerBag) {
                 animationFrameId = requestAnimationFrame(smoothMove);
                 return;
             }
+            
+            if (!burgerBag || !gameArea) {
+                animationFrameId = requestAnimationFrame(smoothMove);
+                return;
+            }
+            
+            const maxLeft = gameArea.offsetWidth - burgerBag.offsetWidth;
+            targetPosition = Math.max(0, Math.min(targetPosition, maxLeft));
+            
             const diff = targetPosition - currentPosition;
             if (Math.abs(diff) < 0.1) {
                 currentPosition = targetPosition;
             } else {
                 currentPosition += diff * SMOOTHING_FACTOR;
             }
+            
             burgerBag.style.left = `${currentPosition}px`;
             animationFrameId = requestAnimationFrame(smoothMove);
         }
-        smoothMove();
         
         function updateUI() {
-            scoreDisplay.textContent = score;
+            if (scoreDisplay) scoreDisplay.textContent = score;
             updateHearts();
         }
         
         function updateHearts() {
+            if (!heart1 || !heart2 || !heart3) return;
+            
             heart1.className = 'heart';
             heart2.className = 'heart';
             heart3.className = 'heart';
+            
             if (lives >= 1) heart1.className = 'heart full';
             else heart1.className = 'heart empty';
             if (lives >= 2) heart2.className = 'heart full';
@@ -1086,17 +1121,17 @@
         }
         
         function getCurrentSpawnRate() {
-            // БЕЗ ПЛОТНОСТИ - только скорость растёт от очков
             const speedLevel = Math.floor(score / SPEED_SCORE_STEP);
             return Math.round(Math.max(800, BASE_SPAWN_INTERVAL - speedLevel * 150));
         }
         
         function getCurrentFallSpeed() {
-            // Увеличена базовая скорость
             return 3.2 + Math.floor(score / SPEED_SCORE_STEP) * 0.25;
         }
         
         function checkCollision(itemRect) {
+            if (!burgerBag || !gameArea) return false;
+            
             const bagRect = burgerBag.getBoundingClientRect();
             const gameAreaRect = gameArea.getBoundingClientRect();
             
@@ -1117,13 +1152,12 @@
         }
         
         function createFallingItem() {
-            if (!gameRunning || gamePaused) return;
+            if (!gameRunning || gamePaused || !gameArea) return;
             
             const item = document.createElement('div');
             item.classList.add('falling-item');
             
             const isBomb = Math.random() < 0.15;
-            
             let itemData;
             
             if (isBomb) {
@@ -1144,8 +1178,7 @@
                     type: 'food',
                     points: foodItem.points,
                     element: item,
-                    id: 'food-' + Date.now() + '-' + Math.random(),
-                    emoji: foodItem.emoji
+                    id: 'food-' + Date.now() + '-' + Math.random()
                 };
             }
             
@@ -1156,8 +1189,8 @@
             item.style.justifyContent = 'center';
             item.style.background = 'none';
             
-            const maxLeft = gameArea.offsetWidth - 75;
-            const leftPosition = Math.max(0, Math.floor(Math.random() * maxLeft));
+            const maxLeft = Math.max(0, gameArea.offsetWidth - 75);
+            const leftPosition = Math.floor(Math.random() * maxLeft);
             
             item.style.left = `${leftPosition}px`;
             item.style.top = '0px';
@@ -1174,7 +1207,7 @@
         }
         
         function updateFallingItems() {
-            if (!gameRunning || gamePaused) return;
+            if (!gameRunning || gamePaused || !gameArea) return;
             
             const gameAreaHeight = gameArea.offsetHeight;
             const gameAreaRect = gameArea.getBoundingClientRect();
@@ -1182,6 +1215,10 @@
             
             for (const [id, itemData] of fallingItems) {
                 if (itemData.caught || itemData.missed) continue;
+                if (!itemData.element || !itemData.element.parentNode) {
+                    fallingItems.delete(id);
+                    continue;
+                }
                 
                 itemData.top += currentFallSpeed;
                 itemData.element.style.top = `${itemData.top}px`;
@@ -1190,7 +1227,7 @@
                 
                 if (itemData.top > gameAreaHeight + 50) {
                     itemData.missed = true;
-                    itemData.element.remove();
+                    if (itemData.element.parentNode) itemData.element.remove();
                     fallingItems.delete(id);
                     continue;
                 }
@@ -1207,8 +1244,10 @@
                             top: itemRect.top - gameAreaRect.top
                         });
                         playFail();
-                        burgerBag.style.transform = 'scale(0.95)';
-                        setTimeout(() => burgerBag.style.transform = 'scale(1)', 200);
+                        if (burgerBag) {
+                            burgerBag.style.transform = 'scale(0.95)';
+                            setTimeout(() => { if (burgerBag) burgerBag.style.transform = 'scale(1)'; }, 200);
+                        }
                     } else {
                         score += itemData.points;
                         showMessage(`+${itemData.points}`, '#ffffff', {
@@ -1217,18 +1256,22 @@
                         });
                         playSuccess();
                         
-                        burgerBag.style.transform = 'translateY(-5px)';
-                        setTimeout(() => burgerBag.style.transform = 'translateY(0)', 200);
+                        if (burgerBag) {
+                            burgerBag.style.transform = 'translateY(-5px)';
+                            setTimeout(() => { if (burgerBag) burgerBag.style.transform = 'translateY(0)'; }, 200);
+                        }
                     }
                     
                     updateUI();
-                    itemData.element.classList.add('caught-item');
-                    setTimeout(() => {
-                        if (itemData.element.parentNode) {
-                            itemData.element.remove();
-                            fallingItems.delete(id);
-                        }
-                    }, 250);
+                    if (itemData.element) {
+                        itemData.element.classList.add('caught-item');
+                        setTimeout(() => {
+                            if (itemData.element && itemData.element.parentNode) {
+                                itemData.element.remove();
+                                fallingItems.delete(id);
+                            }
+                        }, 250);
+                    }
                     continue;
                 }
                 
@@ -1242,15 +1285,17 @@
                             top: gameAreaHeight - 80
                         });
                         playFail();
-                        itemData.element.classList.add('missed-item');
-                        setTimeout(() => {
-                            if (itemData.element.parentNode) {
-                                itemData.element.remove();
-                                fallingItems.delete(id);
-                            }
-                        }, 500);
+                        if (itemData.element) {
+                            itemData.element.classList.add('missed-item');
+                            setTimeout(() => {
+                                if (itemData.element && itemData.element.parentNode) {
+                                    itemData.element.remove();
+                                    fallingItems.delete(id);
+                                }
+                            }, 500);
+                        }
                     } else if (itemData.type === 'bomb') {
-                        if (itemData.element.parentNode) {
+                        if (itemData.element && itemData.element.parentNode) {
                             itemData.element.remove();
                             fallingItems.delete(id);
                         }
@@ -1262,7 +1307,7 @@
         }
         
         function updateSpawnInterval() {
-            clearInterval(itemInterval);
+            if (itemInterval) clearInterval(itemInterval);
             itemInterval = setInterval(() => {
                 if (gameRunning && !gamePaused) createFallingItem();
             }, getCurrentSpawnRate());
@@ -1270,22 +1315,28 @@
         
         function loseLife() {
             lives = Math.max(0, lives - 1);
-            if (lives === 2) {
+            
+            if (lives === 2 && heart3) {
                 heart3.classList.add('heart-lost');
-                setTimeout(() => heart3.className = 'heart empty', 300);
-            } else if (lives === 1) {
+                setTimeout(() => { if (heart3) heart3.className = 'heart empty'; }, 300);
+            } else if (lives === 1 && heart2) {
                 heart2.classList.add('heart-lost');
-                setTimeout(() => heart2.className = 'heart empty', 300);
-            } else if (lives === 0) {
+                setTimeout(() => { if (heart2) heart2.className = 'heart empty'; }, 300);
+            } else if (lives === 0 && heart1) {
                 heart1.classList.add('heart-lost');
-                setTimeout(() => heart1.className = 'heart empty', 300);
+                setTimeout(() => { if (heart1) heart1.className = 'heart empty'; }, 300);
             }
-            burgerBag.style.transform = 'scale(0.9)';
-            setTimeout(() => burgerBag.style.transform = 'scale(1)', 400);
+            
+            if (burgerBag) {
+                burgerBag.style.transform = 'scale(0.9)';
+                setTimeout(() => { if (burgerBag) burgerBag.style.transform = 'scale(1)'; }, 400);
+            }
+            
             updateUI();
         }
         
         function showMessage(text, color, position) {
+            if (!gameArea) return;
             const message = document.createElement('div');
             message.classList.add('item-collected');
             message.textContent = text;
@@ -1297,6 +1348,7 @@
         }
         
         function createTouchFeedback(x, y) {
+            if (!gameArea) return;
             const feedback = document.createElement('div');
             feedback.classList.add('touch-feedback');
             feedback.style.left = `${x - 40}px`;
@@ -1309,20 +1361,27 @@
         function startGame(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             if (gameRunning) return;
+            
             resetGame();
+            
             gameRunning = true;
             gamePaused = false;
-            startBtn.classList.add('hidden');
-            if (pauseIcon) pauseIcon.style.display = 'block';
-            if (playIcon) playIcon.style.display = 'none';
             
-            // Запускаем музыку если звук включен
-            if (isSoundOn && !isMusicPlaying) {
+            if (startBtn) startBtn.classList.add('hidden');
+            if (pauseIcon && playIcon) {
+                pauseIcon.style.display = 'block';
+                playIcon.style.display = 'none';
+            }
+            
+            if (isSoundOn && bgMusic && !isMusicPlaying) {
                 bgMusic.play().catch(e => {});
                 isMusicPlaying = true;
             }
             
+            initBagPosition();
             updateSpawnInterval();
+            
+            if (gameInterval) clearInterval(gameInterval);
             gameInterval = setInterval(() => {
                 if (gameRunning && !gamePaused) updateFallingItems();
             }, 16);
@@ -1331,57 +1390,72 @@
         function pauseGame(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             if (!gameRunning) return;
+            
             gamePaused = !gamePaused;
-            if (gamePaused) {
-                if (pauseIcon) pauseIcon.style.display = 'none';
-                if (playIcon) playIcon.style.display = 'block';
-                showMessage('ПАУЗА', '#94a3b8', {
-                    left: gameArea.offsetWidth / 2 - 50,
-                    top: gameArea.offsetHeight / 2
-                });
-                // Ставим музыку на паузу
-                if (isSoundOn) bgMusic.pause();
-            } else {
-                if (pauseIcon) pauseIcon.style.display = 'block';
-                if (playIcon) playIcon.style.display = 'none';
-                // Возобновляем музыку
-                if (isSoundOn && gameRunning) {
-                    bgMusic.play().catch(e => {});
+            
+            if (pauseIcon && playIcon) {
+                if (gamePaused) {
+                    pauseIcon.style.display = 'none';
+                    playIcon.style.display = 'block';
+                    if (gameArea) {
+                        showMessage('ПАУЗА', '#94a3b8', {
+                            left: gameArea.offsetWidth / 2 - 50,
+                            top: gameArea.offsetHeight / 2
+                        });
+                    }
+                    if (isSoundOn && bgMusic) bgMusic.pause();
+                } else {
+                    pauseIcon.style.display = 'block';
+                    playIcon.style.display = 'none';
+                    if (isSoundOn && bgMusic && gameRunning) {
+                        bgMusic.play().catch(e => {});
+                    }
                 }
             }
         }
         
         function resetGame(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
-            clearInterval(gameInterval);
-            clearInterval(itemInterval);
+            
+            if (gameInterval) clearInterval(gameInterval);
+            if (itemInterval) clearInterval(itemInterval);
+            gameInterval = null;
+            itemInterval = null;
+            
             fallingItems.clear();
-            document.querySelectorAll('.falling-item, .item-collected, .touch-feedback, .missed-item, .caught-item')
-                .forEach(item => { if (item.parentNode) item.remove(); });
+            
+            if (gameArea) {
+                document.querySelectorAll('.falling-item, .item-collected, .touch-feedback, .missed-item, .caught-item')
+                    .forEach(item => { if (item.parentNode) item.remove(); });
+            }
             
             score = 0;
             lives = 3;
             gameRunning = false;
             gamePaused = false;
             
-            startBtn.classList.remove('hidden');
-            if (pauseIcon) pauseIcon.style.display = 'block';
-            if (playIcon) playIcon.style.display = 'none';
+            if (startBtn) startBtn.classList.remove('hidden');
+            if (pauseIcon && playIcon) {
+                pauseIcon.style.display = 'block';
+                playIcon.style.display = 'none';
+            }
             
-            targetPosition = gameArea.offsetWidth / 2 - burgerBag.offsetWidth / 2;
-            currentPosition = targetPosition;
-            burgerBag.style.left = `${currentPosition}px`;
-            burgerBag.style.transform = 'scale(1)';
+            if (burgerBag && gameArea) {
+                initBagPosition();
+                burgerBag.style.transform = 'scale(1)';
+            }
             
-            heart1.className = 'heart full';
-            heart2.className = 'heart full';
-            heart3.className = 'heart full';
+            if (heart1 && heart2 && heart3) {
+                heart1.className = 'heart full';
+                heart2.className = 'heart full';
+                heart3.className = 'heart full';
+            }
             
-            gameOverScreen.style.display = 'none';
+            if (gameOverScreen) gameOverScreen.style.display = 'none';
+            
             updateUI();
             
-            // Останавливаем музыку
-            if (isSoundOn) {
+            if (isSoundOn && bgMusic) {
                 bgMusic.pause();
                 bgMusic.currentTime = 0;
                 isMusicPlaying = false;
@@ -1390,13 +1464,16 @@
         
         function endGame() {
             gameRunning = false;
-            clearInterval(gameInterval);
-            clearInterval(itemInterval);
-            finalScoreElement.textContent = score;
-            gameOverScreen.style.display = 'flex';
             
-            // Останавливаем музыку
-            if (isSoundOn) {
+            if (gameInterval) clearInterval(gameInterval);
+            if (itemInterval) clearInterval(itemInterval);
+            gameInterval = null;
+            itemInterval = null;
+            
+            if (finalScoreElement) finalScoreElement.textContent = score;
+            if (gameOverScreen) gameOverScreen.style.display = 'flex';
+            
+            if (isSoundOn && bgMusic) {
                 bgMusic.pause();
                 bgMusic.currentTime = 0;
                 isMusicPlaying = false;
@@ -1404,10 +1481,12 @@
         }
         
         function moveBag(direction) {
-            if (!gameRunning || gamePaused) return;
+            if (!gameRunning || gamePaused || !burgerBag || !gameArea) return;
+            
             const bagWidth = burgerBag.offsetWidth;
             const gameAreaWidth = gameArea.offsetWidth;
             const moveAmount = 50 * bagSpeedMultiplier;
+            
             if (direction === 'left') {
                 targetPosition = Math.max(0, targetPosition - moveAmount);
             } else {
@@ -1419,51 +1498,57 @@
         function openInfo(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             if (gameRunning && !gamePaused) {
-                pauseGame();
+                pauseGame(e);
             }
-            infoPanel.classList.add('active');
-            shopPanel.classList.remove('active');
+            if (infoPanel) infoPanel.classList.add('active');
+            if (shopPanel) shopPanel.classList.remove('active');
         }
         
         function openShop(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             if (gameRunning && !gamePaused) {
-                pauseGame();
+                pauseGame(e);
             }
-            shopPanel.classList.add('active');
-            infoPanel.classList.remove('active');
+            if (shopPanel) shopPanel.classList.add('active');
+            if (infoPanel) infoPanel.classList.remove('active');
         }
         
         function closeInfo(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
-            infoPanel.classList.remove('active');
+            if (infoPanel) infoPanel.classList.remove('active');
         }
         
         function closeShop(e) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
-            shopPanel.classList.remove('active');
+            if (shopPanel) shopPanel.classList.remove('active');
         }
         
         // ===== СОБЫТИЯ =====
         function handleTouchStart(e) {
+            if (!gameRunning || gamePaused || !burgerBag || !gameArea) return;
+            
             e.preventDefault();
-            if (!gameRunning || gamePaused) return;
             isTouching = true;
+            
             const touch = e.touches[0];
             const gameAreaRect = gameArea.getBoundingClientRect();
             const touchX = touch.clientX - gameAreaRect.left;
             const bagWidth = burgerBag.offsetWidth;
+            
             targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
             createTouchFeedback(touchX, touch.clientY - gameAreaRect.top);
         }
         
         function handleTouchMove(e) {
+            if (!gameRunning || gamePaused || !isTouching || !burgerBag || !gameArea) return;
+            
             e.preventDefault();
-            if (!gameRunning || gamePaused || !isTouching) return;
+            
             const touch = e.touches[0];
             const gameAreaRect = gameArea.getBoundingClientRect();
             const touchX = touch.clientX - gameAreaRect.left;
             const bagWidth = burgerBag.offsetWidth;
+            
             targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
         }
         
@@ -1472,10 +1557,20 @@
             isTouching = false;
         }
         
-        gameArea.addEventListener('touchstart', handleTouchStart, { passive: false });
-        gameArea.addEventListener('touchmove', handleTouchMove, { passive: false });
-        gameArea.addEventListener('touchend', handleTouchEnd);
-        gameArea.addEventListener('touchcancel', handleTouchEnd);
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        window.addEventListener('load', function() {
+            initBagPosition();
+            smoothMove();
+            updateUI();
+        });
+        
+        // Добавляем обработчики событий с проверкой
+        if (gameArea) {
+            gameArea.addEventListener('touchstart', handleTouchStart, { passive: false });
+            gameArea.addEventListener('touchmove', handleTouchMove, { passive: false });
+            gameArea.addEventListener('touchend', handleTouchEnd);
+            gameArea.addEventListener('touchcancel', handleTouchEnd);
+        }
         
         document.addEventListener('keydown', (e) => {
             if (!gameRunning || gamePaused) return;
@@ -1484,35 +1579,55 @@
         });
         
         // КНОПКИ ИГРЫ
-        startBtn.addEventListener('click', startGame);
-        startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(e); }, { passive: false });
-        pauseBtn.addEventListener('click', pauseGame);
-        pauseBtn.addEventListener('touchstart', (e) => { e.preventDefault(); pauseGame(e); }, { passive: false });
-        restartBtn.addEventListener('click', resetGame);
-        restartBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(e); }, { passive: false });
+        if (startBtn) {
+            startBtn.addEventListener('click', startGame);
+            startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(e); }, { passive: false });
+        }
         
-        // КНОПКА ЗВУКА
-        soundToggleBtn.addEventListener('click', toggleSound);
-        soundToggleBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleSound(e); }, { passive: false });
+        if (pauseBtn) {
+            pauseBtn.addEventListener('click', pauseGame);
+            pauseBtn.addEventListener('touchstart', (e) => { e.preventDefault(); pauseGame(e); }, { passive: false });
+        }
+        
+        if (restartBtn) {
+            restartBtn.addEventListener('click', resetGame);
+            restartBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(e); }, { passive: false });
+        }
+        
+        if (soundToggleBtn) {
+            soundToggleBtn.addEventListener('click', toggleSound);
+            soundToggleBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleSound(e); }, { passive: false });
+        }
         
         // КНОПКИ НАВИГАЦИИ
-        infoBtn.addEventListener('click', openInfo);
-        infoBtn.addEventListener('touchstart', (e) => { e.preventDefault(); openInfo(e); }, { passive: false });
-        shopBtn.addEventListener('click', openShop);
-        shopBtn.addEventListener('touchstart', (e) => { e.preventDefault(); openShop(e); }, { passive: false });
-        infoBackBtn.addEventListener('click', closeInfo);
-        infoBackBtn.addEventListener('touchstart', (e) => { e.preventDefault(); closeInfo(e); }, { passive: false });
-        shopBackBtn.addEventListener('click', closeShop);
-        shopBackBtn.addEventListener('touchstart', (e) => { e.preventDefault(); closeShop(e); }, { passive: false });
+        if (infoBtn) {
+            infoBtn.addEventListener('click', openInfo);
+            infoBtn.addEventListener('touchstart', (e) => { e.preventDefault(); openInfo(e); }, { passive: false });
+        }
         
-        updateUI();
+        if (shopBtn) {
+            shopBtn.addEventListener('click', openShop);
+            shopBtn.addEventListener('touchstart', (e) => { e.preventDefault(); openShop(e); }, { passive: false });
+        }
+        
+        if (infoBackBtn) {
+            infoBackBtn.addEventListener('click', closeInfo);
+            infoBackBtn.addEventListener('touchstart', (e) => { e.preventDefault(); closeInfo(e); }, { passive: false });
+        }
+        
+        if (shopBackBtn) {
+            shopBackBtn.addEventListener('click', closeShop);
+            shopBackBtn.addEventListener('touchstart', (e) => { e.preventDefault(); closeShop(e); }, { passive: false });
+        }
         
         window.addEventListener('resize', () => {
-            const bagWidth = burgerBag.offsetWidth;
-            const gameAreaWidth = gameArea.offsetWidth;
-            targetPosition = Math.max(0, Math.min(targetPosition, gameAreaWidth - bagWidth));
-            currentPosition = targetPosition;
-            burgerBag.style.left = `${currentPosition}px`;
+            if (burgerBag && gameArea) {
+                const bagWidth = burgerBag.offsetWidth;
+                const gameAreaWidth = gameArea.offsetWidth;
+                targetPosition = Math.max(0, Math.min(targetPosition, gameAreaWidth - bagWidth));
+                currentPosition = targetPosition;
+                burgerBag.style.left = `${currentPosition}px`;
+            }
         });
     </script>
 </body>
