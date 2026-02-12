@@ -58,7 +58,6 @@
             touch-action: none;
         }
         
-        /* Затемнение фона */
         .game-area::before {
             content: '';
             position: absolute;
@@ -110,6 +109,7 @@
             background: none !important;
             border: none !important;
             box-shadow: none !important;
+            outline: none !important;
         }
         
         .nav-btn:active, .game-btn:active, .sound-btn:active {
@@ -122,9 +122,10 @@
             object-fit: contain;
             display: block;
             background: transparent;
-            /* ПОЛНОСТЬЮ УБРАНА ТЕНЬ */
-            filter: none;
-            -webkit-filter: none;
+            filter: none !important;
+            -webkit-filter: none !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
         }
         
         /* ===== СЧЁТЧИК ЖИЗНЕЙ ===== */
@@ -204,7 +205,7 @@
             letter-spacing: 2px;
         }
         
-        /* ===== ПАКЕТ - ОПУЩЕН НИЖЕ ===== */
+        /* ===== ПАКЕТ ===== */
         .burger-bag {
             position: absolute;
             bottom: 15px;
@@ -225,7 +226,7 @@
             filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2));
         }
         
-        /* ===== ЕДА - ЭМОДЗИ С ОБВОДКОЙ ===== */
+        /* ===== ЕДА ===== */
         .falling-item {
             position: absolute;
             display: flex;
@@ -338,21 +339,6 @@
             padding-bottom: 30px;
         }
         
-        .swipe-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #94a3b8;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        
         .info-title {
             font-size: 2rem;
             font-weight: bold;
@@ -454,6 +440,21 @@
             font-weight: bold;
         }
         
+        .swipe-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
         /* ===== ВКЛАДКА МАГАЗИН ===== */
         .shop-panel {
             position: absolute;
@@ -521,6 +522,7 @@
             background: none !important;
             border: none !important;
             box-shadow: none !important;
+            outline: none !important;
             z-index: 1100;
         }
         
@@ -534,8 +536,9 @@
             object-fit: contain;
             display: block;
             background: transparent;
-            filter: none;
-            -webkit-filter: none;
+            filter: none !important;
+            -webkit-filter: none !important;
+            box-shadow: none !important;
         }
         
         @keyframes fadeIn {
@@ -651,7 +654,6 @@
             box-shadow: 0 5px 0 #075985;
         }
         
-        /* Адаптация под горизонтальный экран */
         @media (orientation: landscape) {
             .burger-bag {
                 bottom: 15px;
@@ -733,7 +735,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- ИГРОВОЕ ПОЛЕ -->
         <div class="game-area" id="gameArea">
             <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
             <div class="top-bar">
@@ -783,7 +784,7 @@
                 <img src="images/bag.png" alt="Пакет" id="bagImage">
             </div>
             
-            <!-- ВКЛАДКА ИНФОРМАЦИЯ -->
+            <!-- ИНФОРМАЦИЯ -->
             <div class="info-panel" id="infoPanel">
                 <div class="back-btn" id="infoBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -892,7 +893,7 @@
                 </div>
             </div>
             
-            <!-- ВКЛАДКА МАГАЗИН -->
+            <!-- МАГАЗИН -->
             <div class="shop-panel" id="shopPanel">
                 <div class="back-btn" id="shopBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -909,7 +910,7 @@
                 </div>
             </div>
             
-            <!-- ЭКРАН ОКОНЧАНИЯ ИГРЫ -->
+            <!-- GAME OVER -->
             <div class="game-over" id="gameOver">
                 <h2>GAME OVER</h2>
                 <p><span id="finalScore">0</span> очков</p>
@@ -921,8 +922,9 @@
     </div>
 
     <script>
-        // ===== ИСПРАВЛЕНИЕ 1: Правильная инициализация =====
-        window.addEventListener('DOMContentLoaded', function() {
+        // ===== ИСПРАВЛЕНИЕ 1: ИНИЦИАЛИЗАЦИЯ =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен');
             initGame();
         });
 
@@ -932,65 +934,70 @@
             updateUI();
         }
 
-        // ===== ЗВУКИ И МУЗЫКА =====
-        let successSound, failSound, bgMusic;
+        // ===== ИСПРАВЛЕНИЕ 2: ЗВУКИ =====
         let isSoundOn = true;
         let isMusicPlaying = false;
+        let bgMusic = null;
         
-        try {
-            successSound = new Audio('sounds/success.mp3');
-            failSound = new Audio('sounds/fail.mp3');
-            bgMusic = new Audio('sounds/music.mp3');
-            
-            successSound.volume = 0.3;
-            failSound.volume = 0.35;
-            bgMusic.volume = 0.2;
-            bgMusic.loop = true;
-            
-            // ИСПРАВЛЕНИЕ 2: Предзагрузка звуков
-            successSound.load();
-            failSound.load();
-            bgMusic.load();
-        } catch (e) {
-            console.warn('Ошибка загрузки звуков:', e);
-            // Заглушки для звуков
-            successSound = { play: function() {}, pause: function() {}, volume: 0.3, currentTime: 0, load: function() {} };
-            failSound = { play: function() {}, pause: function() {}, volume: 0.35, currentTime: 0, load: function() {} };
-            bgMusic = { play: function() {}, pause: function() {}, volume: 0.2, currentTime: 0, loop: true, load: function() {} };
+        // Инициализация фоновой музыки
+        function initBgMusic() {
+            try {
+                bgMusic = new Audio('sounds/music.mp3');
+                bgMusic.volume = 0.2;
+                bgMusic.loop = true;
+                bgMusic.load();
+            } catch (e) {
+                console.warn('Фоновая музыка не загружена');
+                bgMusic = { play: function() {}, pause: function() {}, volume: 0.2, loop: true, load: function() {} };
+            }
+        }
+        initBgMusic();
+        
+        // ИСПРАВЛЕНИЕ 3: Звук успеха - работает КАЖДЫЙ РАЗ
+        function playSuccess() {
+            if (!isSoundOn) return;
+            try {
+                const sound = new Audio('sounds/success.mp3');
+                sound.volume = 0.3;
+                sound.play().catch(e => {});
+            } catch (e) {}
         }
         
-        // ===== ЭЛЕМЕНТЫ DOM С ПРОВЕРКОЙ =====
-        function getElement(id) {
-            const el = document.getElementById(id);
-            if (!el) console.warn(`Элемент '${id}' не найден`);
-            return el;
+        // ИСПРАВЛЕНИЕ 4: Звук неудачи - работает КАЖДЫЙ РАЗ
+        function playFail() {
+            if (!isSoundOn) return;
+            try {
+                const sound = new Audio('sounds/fail.mp3');
+                sound.volume = 0.35;
+                sound.play().catch(e => {});
+            } catch (e) {}
         }
+
+        // ===== ЭЛЕМЕНТЫ DOM =====
+        const gameArea = document.getElementById('gameArea');
+        const burgerBag = document.getElementById('burgerBag');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const heart1 = document.getElementById('heart1');
+        const heart2 = document.getElementById('heart2');
+        const heart3 = document.getElementById('heart3');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const soundToggleBtn = document.getElementById('soundToggleBtn');
+        const soundOnIcon = document.getElementById('soundOnIcon');
+        const soundOffIcon = document.getElementById('soundOffIcon');
+        const restartBtn = document.getElementById('restartBtn');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreElement = document.getElementById('finalScore');
+        const shopBtn = document.getElementById('shopBtn');
+        const infoBtn = document.getElementById('infoBtn');
+        const infoBackBtn = document.getElementById('infoBackBtn');
+        const shopBackBtn = document.getElementById('shopBackBtn');
+        const infoPanel = document.getElementById('infoPanel');
+        const shopPanel = document.getElementById('shopPanel');
         
-        const gameArea = getElement('gameArea');
-        const burgerBag = getElement('burgerBag');
-        const scoreDisplay = getElement('scoreDisplay');
-        const heart1 = getElement('heart1');
-        const heart2 = getElement('heart2');
-        const heart3 = getElement('heart3');
-        const startBtn = getElement('startBtn');
-        const pauseBtn = getElement('pauseBtn');
-        const soundToggleBtn = getElement('soundToggleBtn');
-        const soundOnIcon = getElement('soundOnIcon');
-        const soundOffIcon = getElement('soundOffIcon');
-        const restartBtn = getElement('restartBtn');
-        const gameOverScreen = getElement('gameOver');
-        const finalScoreElement = getElement('finalScore');
-        const shopBtn = getElement('shopBtn');
-        const infoBtn = getElement('infoBtn');
-        const infoBackBtn = getElement('infoBackBtn');
-        const shopBackBtn = getElement('shopBackBtn');
-        const infoPanel = getElement('infoPanel');
-        const shopPanel = getElement('shopPanel');
-        
-        // Иконки
         const pauseIcon = document.querySelector('.pause-icon');
         const playIcon = document.querySelector('.play-icon');
-        
+
         // ===== ЕДА =====
         const foodItems = [
             { emoji: '🍔', points: 10 },
@@ -1013,84 +1020,30 @@
         let isTouching = false;
         let fallingItems = new Map();
         
-        // Позиция пакета
         let bagPosition = 0;
         let targetPosition = 0;
         let currentPosition = 0;
         let animationFrameId = null;
         const SMOOTHING_FACTOR = 0.25;
         
-        // Настройки прогрессии
         const BASE_SPAWN_INTERVAL = 2200;
         const SPEED_SCORE_STEP = 200;
-        
-        // ===== ФУНКЦИИ УПРАВЛЕНИЯ ЗВУКОМ =====
-        function toggleSound(e) {
-            if (e) { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
-            }
-            
-            isSoundOn = !isSoundOn;
-            
-            if (soundOnIcon && soundOffIcon) {
-                if (isSoundOn) {
-                    soundOnIcon.style.display = 'block';
-                    soundOffIcon.style.display = 'none';
-                    if (bgMusic && !isMusicPlaying && gameRunning && !gamePaused) {
-                        bgMusic.play().catch(e => {});
-                        isMusicPlaying = true;
-                    }
-                } else {
-                    soundOnIcon.style.display = 'none';
-                    soundOffIcon.style.display = 'block';
-                    if (bgMusic) {
-                        bgMusic.pause();
-                        isMusicPlaying = false;
-                    }
-                }
-            }
-        }
-        
-        // ИСПРАВЛЕНИЕ 3: Звук удачи на КАЖДУЮ поимку
-        function playSuccess() {
-            if (!isSoundOn || !gameRunning || gamePaused || !successSound) return;
-            
-            try {
-                // ИСПРАВЛЕНИЕ 4: Создаем новый Audio для каждого звука
-                const sound = new Audio('sounds/success.mp3');
-                sound.volume = 0.3;
-                sound.play().catch(e => {});
-            } catch (e) {}
-        }
-        
-        // ИСПРАВЛЕНИЕ 5: Звук неудачи на КАЖДУЮ потерю жизни
-        function playFail() {
-            if (!isSoundOn || !gameRunning || gamePaused || !failSound) return;
-            
-            try {
-                // Создаем новый Audio для каждого звука
-                const sound = new Audio('sounds/fail.mp3');
-                sound.volume = 0.35;
-                sound.play().catch(e => {});
-            } catch (e) {}
-        }
-        
-        // ===== ФУНКЦИИ ИГРЫ =====
+
+        // ===== ФУНКЦИИ ПОЗИЦИИ =====
         function initBagPosition() {
-            if (burgerBag && gameArea) {
-                const bagWidth = burgerBag.offsetWidth;
-                const gameWidth = gameArea.offsetWidth;
-                
-                if (bagWidth > 0 && gameWidth > 0) {
-                    bagPosition = (gameWidth / 2) - (bagWidth / 2);
-                    targetPosition = bagPosition;
-                    currentPosition = bagPosition;
-                    burgerBag.style.left = `${currentPosition}px`;
-                }
+            if (!burgerBag || !gameArea) return;
+            
+            const bagWidth = burgerBag.offsetWidth;
+            const gameWidth = gameArea.offsetWidth;
+            
+            if (bagWidth > 0 && gameWidth > 0) {
+                bagPosition = (gameWidth / 2) - (bagWidth / 2);
+                targetPosition = bagPosition;
+                currentPosition = bagPosition;
+                burgerBag.style.left = `${currentPosition}px`;
             }
         }
-        
+
         function smoothMove() {
             if (!burgerBag || !gameArea) {
                 animationFrameId = requestAnimationFrame(smoothMove);
@@ -1098,7 +1051,7 @@
             }
             
             if (gameRunning && !gamePaused) {
-                const maxLeft = gameArea.offsetWidth - burgerBag.offsetWidth;
+                const maxLeft = Math.max(0, gameArea.offsetWidth - burgerBag.offsetWidth);
                 targetPosition = Math.max(0, Math.min(targetPosition, maxLeft));
                 
                 const diff = targetPosition - currentPosition;
@@ -1113,7 +1066,8 @@
             
             animationFrameId = requestAnimationFrame(smoothMove);
         }
-        
+
+        // ===== UI =====
         function updateUI() {
             if (scoreDisplay) scoreDisplay.textContent = score;
             updateHearts();
@@ -1133,7 +1087,8 @@
             if (lives >= 3) heart3.className = 'heart full';
             else heart3.className = 'heart empty';
         }
-        
+
+        // ===== НАСТРОЙКИ СЛОЖНОСТИ =====
         function getCurrentSpawnRate() {
             const speedLevel = Math.floor(score / SPEED_SCORE_STEP);
             return Math.round(Math.max(800, BASE_SPAWN_INTERVAL - speedLevel * 150));
@@ -1142,7 +1097,8 @@
         function getCurrentFallSpeed() {
             return 3.2 + Math.floor(score / SPEED_SCORE_STEP) * 0.25;
         }
-        
+
+        // ===== СТОЛКНОВЕНИЯ =====
         function checkCollision(itemRect) {
             if (!burgerBag || !gameArea) return false;
             
@@ -1164,7 +1120,8 @@
                     itemBottom < bagTop + 5 || 
                     itemTop > bagBottom - 5);
         }
-        
+
+        // ===== СОЗДАНИЕ ПРЕДМЕТОВ =====
         function createFallingItem() {
             if (!gameRunning || gamePaused || !gameArea) return;
             
@@ -1219,7 +1176,8 @@
                 missed: false
             });
         }
-        
+
+        // ===== ОБНОВЛЕНИЕ ПОЗИЦИЙ =====
         function updateFallingItems() {
             if (!gameRunning || gamePaused || !gameArea) return;
             
@@ -1257,7 +1215,7 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: itemRect.top - gameAreaRect.top
                         });
-                        playFail(); // Звук при ловле бомбы
+                        playFail();
                         
                         if (burgerBag) {
                             burgerBag.style.transform = 'scale(0.95)';
@@ -1269,7 +1227,7 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: itemRect.top - gameAreaRect.top
                         });
-                        playSuccess(); // Звук при каждой поимке
+                        playSuccess();
                         
                         if (burgerBag) {
                             burgerBag.style.transform = 'translateY(-5px)';
@@ -1300,7 +1258,7 @@
                             left: itemRect.left - gameAreaRect.left + 20,
                             top: gameAreaHeight - 80
                         });
-                        playFail(); // Звук при пропуске еды
+                        playFail();
                         
                         if (itemData.element) {
                             itemData.element.classList.add('missed-item');
@@ -1322,14 +1280,15 @@
             
             if (lives <= 0) endGame();
         }
-        
+
         function updateSpawnInterval() {
             if (itemInterval) clearInterval(itemInterval);
             itemInterval = setInterval(() => {
                 if (gameRunning && !gamePaused) createFallingItem();
             }, getCurrentSpawnRate());
         }
-        
+
+        // ===== ПОТЕРЯ ЖИЗНИ =====
         function loseLife() {
             lives = Math.max(0, lives - 1);
             
@@ -1351,7 +1310,7 @@
             
             updateUI();
         }
-        
+
         function showMessage(text, color, position) {
             if (!gameArea) return;
             const message = document.createElement('div');
@@ -1363,7 +1322,7 @@
             gameArea.appendChild(message);
             setTimeout(() => { if (message.parentNode) message.remove(); }, 800);
         }
-        
+
         function createTouchFeedback(x, y) {
             if (!gameArea) return;
             const feedback = document.createElement('div');
@@ -1373,13 +1332,34 @@
             gameArea.appendChild(feedback);
             setTimeout(() => { if (feedback.parentNode) feedback.remove(); }, 500);
         }
-        
-        // ===== УПРАВЛЕНИЕ ИГРОЙ =====
-        function startGame(e) {
-            if (e) { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
+
+        // ===== УПРАВЛЕНИЕ =====
+        function toggleSound(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            
+            isSoundOn = !isSoundOn;
+            
+            if (soundOnIcon && soundOffIcon) {
+                if (isSoundOn) {
+                    soundOnIcon.style.display = 'block';
+                    soundOffIcon.style.display = 'none';
+                    if (bgMusic && !isMusicPlaying && gameRunning && !gamePaused) {
+                        bgMusic.play().catch(e => {});
+                        isMusicPlaying = true;
+                    }
+                } else {
+                    soundOnIcon.style.display = 'none';
+                    soundOffIcon.style.display = 'block';
+                    if (bgMusic) {
+                        bgMusic.pause();
+                        isMusicPlaying = false;
+                    }
+                }
             }
+        }
+
+        function startGame(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
             if (gameRunning) return;
             
             resetGame();
@@ -1406,12 +1386,9 @@
                 if (gameRunning && !gamePaused) updateFallingItems();
             }, 16);
         }
-        
+
         function pauseGame(e) {
-            if (e) { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
-            }
+            if (e) { e.preventDefault(); e.stopPropagation(); }
             if (!gameRunning) return;
             
             gamePaused = !gamePaused;
@@ -1436,12 +1413,9 @@
                 }
             }
         }
-        
+
         function resetGame(e) {
-            if (e) { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
-            }
+            if (e) { e.preventDefault(); e.stopPropagation(); }
             
             if (gameInterval) clearInterval(gameInterval);
             if (itemInterval) clearInterval(itemInterval);
@@ -1487,7 +1461,7 @@
                 isMusicPlaying = false;
             }
         }
-        
+
         function endGame() {
             gameRunning = false;
             
@@ -1505,7 +1479,7 @@
                 isMusicPlaying = false;
             }
         }
-        
+
         function moveBag(direction) {
             if (!gameRunning || gamePaused || !burgerBag || !gameArea) return;
             
@@ -1519,13 +1493,10 @@
                 targetPosition = Math.min(gameAreaWidth - bagWidth, targetPosition + moveAmount);
             }
         }
-        
+
         // ===== НАВИГАЦИЯ =====
         function openInfo(e) {
-            if (e) { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
-            }
+            if (e) { e.preventDefault(); e.stopPropagation(); }
             if (gameRunning && !gamePaused) {
                 pauseGame(e);
             }
@@ -1534,10 +1505,7 @@
         }
         
         function openShop(e) {
-            if (e) { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
-            }
+            if (e) { e.preventDefault(); e.stopPropagation(); }
             if (gameRunning && !gamePaused) {
                 pauseGame(e);
             }
@@ -1546,21 +1514,15 @@
         }
         
         function closeInfo(e) {
-            if (e) { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
-            }
+            if (e) { e.preventDefault(); e.stopPropagation(); }
             if (infoPanel) infoPanel.classList.remove('active');
         }
         
         function closeShop(e) {
-            if (e) { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
-            }
+            if (e) { e.preventDefault(); e.stopPropagation(); }
             if (shopPanel) shopPanel.classList.remove('active');
         }
-        
+
         // ===== СОБЫТИЯ =====
         function handleTouchStart(e) {
             if (!gameRunning || gamePaused || !burgerBag || !gameArea) return;
@@ -1594,21 +1556,21 @@
             e.preventDefault();
             isTouching = false;
         }
-        
-        // ===== ДОБАВЛЕНИЕ ОБРАБОТЧИКОВ =====
+
+        // ===== ПОДПИСКА НА СОБЫТИЯ =====
         if (gameArea) {
             gameArea.addEventListener('touchstart', handleTouchStart, { passive: false });
             gameArea.addEventListener('touchmove', handleTouchMove, { passive: false });
             gameArea.addEventListener('touchend', handleTouchEnd);
             gameArea.addEventListener('touchcancel', handleTouchEnd);
         }
-        
+
         document.addEventListener('keydown', (e) => {
             if (!gameRunning || gamePaused) return;
             if (e.key === 'ArrowLeft' || e.key === 'a') moveBag('left');
             else if (e.key === 'ArrowRight' || e.key === 'd') moveBag('right');
         });
-        
+
         // КНОПКИ ИГРЫ
         if (startBtn) {
             startBtn.addEventListener('click', startGame);
@@ -1629,7 +1591,7 @@
             soundToggleBtn.addEventListener('click', toggleSound);
             soundToggleBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleSound(e); }, { passive: false });
         }
-        
+
         // КНОПКИ НАВИГАЦИИ
         if (infoBtn) {
             infoBtn.addEventListener('click', openInfo);
@@ -1650,7 +1612,7 @@
             shopBackBtn.addEventListener('click', closeShop);
             shopBackBtn.addEventListener('touchstart', (e) => { e.preventDefault(); closeShop(e); }, { passive: false });
         }
-        
+
         window.addEventListener('resize', () => {
             if (burgerBag && gameArea) {
                 const bagWidth = burgerBag.offsetWidth;
