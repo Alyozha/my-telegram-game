@@ -40,7 +40,6 @@
             padding: 0;
         }
         
-        /* ===== ГОРИЗОНТАЛЬНАЯ ОРИЕНТАЦИЯ ===== */
         .game-area {
             position: relative;
             width: 100vw;
@@ -75,7 +74,6 @@
             z-index: 2;
         }
         
-        /* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
         .top-bar {
             position: absolute;
             top: 15px;
@@ -95,7 +93,6 @@
             pointer-events: auto;
         }
         
-        /* КНОПКИ 50x50 БЕЗ ФОНА И ТЕНИ */
         .nav-btn, .game-btn, .sound-btn {
             width: 50px;
             height: 50px;
@@ -128,7 +125,6 @@
             text-shadow: none !important;
         }
         
-        /* ===== СЧЁТЧИК ЖИЗНЕЙ ===== */
         .lives-container {
             position: absolute;
             top: 15px;
@@ -179,7 +175,6 @@
             100% { transform: scale(0.8); color: #475569; opacity: 0.3; }
         }
         
-        /* ===== СЧЁТЧИК ОЧКОВ ===== */
         .score-container {
             position: absolute;
             top: 85px;
@@ -205,7 +200,6 @@
             letter-spacing: 2px;
         }
         
-        /* ===== ПАКЕТ ===== */
         .burger-bag {
             position: absolute;
             bottom: 15px;
@@ -226,7 +220,6 @@
             filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2));
         }
         
-        /* ===== ЕДА ===== */
         .falling-item {
             position: absolute;
             display: flex;
@@ -263,11 +256,6 @@
             color: #000;
         }
         
-        .falling-item img {
-            display: none;
-        }
-        
-        /* ===== БОЛЬШАЯ КНОПКА СТАРТ ===== */
         .start-btn-large {
             position: absolute;
             top: 50%;
@@ -305,7 +293,6 @@
             display: none;
         }
         
-        /* ===== ВКЛАДКА ИНФОРМАЦИЯ ===== */
         .info-panel {
             position: absolute;
             top: 0;
@@ -455,7 +442,6 @@
             50% { transform: translateY(-5px); }
         }
         
-        /* ===== ВКЛАДКА МАГАЗИН ===== */
         .shop-panel {
             position: absolute;
             top: 0;
@@ -505,7 +491,6 @@
             display: block;
         }
         
-        /* ===== КНОПКА НАЗАД ===== */
         .back-btn {
             position: absolute;
             top: 15px;
@@ -736,7 +721,6 @@
 <body>
     <div class="container">
         <div class="game-area" id="gameArea">
-            <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
             <div class="top-bar">
                 <div class="top-bar-left">
                     <div class="nav-btn" id="shopBtn">
@@ -759,7 +743,6 @@
                 </div>
             </div>
             
-            <!-- СЧЁТЧИК ЖИЗНЕЙ -->
             <div class="lives-container">
                 <div class="hearts-container" id="heartsContainer">
                     <span class="heart full" id="heart1">❤️</span>
@@ -768,23 +751,19 @@
                 </div>
             </div>
             
-            <!-- СЧЁТЧИК ОЧКОВ -->
             <div class="score-container">
                 <span class="score-display" id="scoreDisplay">0</span>
             </div>
             
-            <!-- БОЛЬШАЯ КНОПКА СТАРТ -->
             <div class="start-btn-large" id="startBtn">
                 🍔
                 <span>СТАРТ</span>
             </div>
             
-            <!-- ПАКЕТ -->
             <div class="burger-bag" id="burgerBag">
                 <img src="images/bag.png" alt="Пакет" id="bagImage">
             </div>
             
-            <!-- ИНФОРМАЦИЯ -->
             <div class="info-panel" id="infoPanel">
                 <div class="back-btn" id="infoBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -893,7 +872,6 @@
                 </div>
             </div>
             
-            <!-- МАГАЗИН -->
             <div class="shop-panel" id="shopPanel">
                 <div class="back-btn" id="shopBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -910,7 +888,6 @@
                 </div>
             </div>
             
-            <!-- GAME OVER -->
             <div class="game-over" id="gameOver">
                 <h2>GAME OVER</h2>
                 <p><span id="finalScore">0</span> очков</p>
@@ -922,25 +899,22 @@
     </div>
 
     <script>
-        // ===== ИСПРАВЛЕНИЕ 1: ИНИЦИАЛИЗАЦИЯ =====
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM загружен');
-            initGame();
-        });
-
-        function initGame() {
-            initBagPosition();
-            smoothMove();
-            updateUI();
-        }
-
-        // ===== ИСПРАВЛЕНИЕ 2: ЗВУКИ =====
+        // ===== ИСПРАВЛЕНИЕ 1: ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
         let isSoundOn = true;
         let isMusicPlaying = false;
         let bgMusic = null;
+        let gameRunning = false;
+        let gamePaused = false;
+        let score = 0;
+        let lives = 3;
+        let gameInterval = null;
+        let itemInterval = null;
+        let isTouching = false;
+        let fallingItems = new Map();
+        let animationFrameId = null;
         
-        // Инициализация фоновой музыки
-        function initBgMusic() {
+        // ===== ИСПРАВЛЕНИЕ 2: ИНИЦИАЛИЗАЦИЯ ЗВУКОВ =====
+        function initSounds() {
             try {
                 bgMusic = new Audio('sounds/music.mp3');
                 bgMusic.volume = 0.2;
@@ -948,12 +922,19 @@
                 bgMusic.load();
             } catch (e) {
                 console.warn('Фоновая музыка не загружена');
-                bgMusic = { play: function() {}, pause: function() {}, volume: 0.2, loop: true, load: function() {} };
+                bgMusic = {
+                    play: function() { return Promise.resolve(); },
+                    pause: function() {},
+                    load: function() {},
+                    volume: 0.2,
+                    loop: true,
+                    currentTime: 0
+                };
             }
         }
-        initBgMusic();
+        initSounds();
         
-        // ИСПРАВЛЕНИЕ 3: Звук успеха - работает КАЖДЫЙ РАЗ
+        // ===== ИСПРАВЛЕНИЕ 3: ЗВУК УСПЕХА - РАБОТАЕТ КАЖДЫЙ РАЗ =====
         function playSuccess() {
             if (!isSoundOn) return;
             try {
@@ -963,7 +944,7 @@
             } catch (e) {}
         }
         
-        // ИСПРАВЛЕНИЕ 4: Звук неудачи - работает КАЖДЫЙ РАЗ
+        // ===== ИСПРАВЛЕНИЕ 4: ЗВУК НЕУДАЧИ - РАБОТАЕТ КАЖДЫЙ РАЗ =====
         function playFail() {
             if (!isSoundOn) return;
             try {
@@ -998,6 +979,11 @@
         const pauseIcon = document.querySelector('.pause-icon');
         const playIcon = document.querySelector('.play-icon');
 
+        // ===== ИСПРАВЛЕНИЕ 5: ПРОВЕРКА ЭЛЕМЕНТОВ =====
+        if (!gameArea || !burgerBag || !scoreDisplay) {
+            console.error('Критическая ошибка: элементы игры не найдены');
+        }
+
         // ===== ЕДА =====
         const foodItems = [
             { emoji: '🍔', points: 10 },
@@ -1010,26 +996,15 @@
         const bombEmoji = '💣';
         const bagSpeedMultiplier = 3.5;
         
-        // ===== ИГРОВЫЕ ПЕРЕМЕННЫЕ =====
-        let score = 0;
-        let lives = 3;
-        let gameRunning = false;
-        let gamePaused = false;
-        let gameInterval = null;
-        let itemInterval = null;
-        let isTouching = false;
-        let fallingItems = new Map();
-        
+        // ===== ПАРАМЕТРЫ ИГРЫ =====
         let bagPosition = 0;
         let targetPosition = 0;
         let currentPosition = 0;
-        let animationFrameId = null;
         const SMOOTHING_FACTOR = 0.25;
-        
         const BASE_SPAWN_INTERVAL = 2200;
         const SPEED_SCORE_STEP = 200;
 
-        // ===== ФУНКЦИИ ПОЗИЦИИ =====
+        // ===== ИСПРАВЛЕНИЕ 6: ФУНКЦИИ ПОЗИЦИИ =====
         function initBagPosition() {
             if (!burgerBag || !gameArea) return;
             
@@ -1037,7 +1012,7 @@
             const gameWidth = gameArea.offsetWidth;
             
             if (bagWidth > 0 && gameWidth > 0) {
-                bagPosition = (gameWidth / 2) - (bagWidth / 2);
+                bagPosition = Math.max(0, (gameWidth / 2) - (bagWidth / 2));
                 targetPosition = bagPosition;
                 currentPosition = bagPosition;
                 burgerBag.style.left = `${currentPosition}px`;
@@ -1088,7 +1063,6 @@
             else heart3.className = 'heart empty';
         }
 
-        // ===== НАСТРОЙКИ СЛОЖНОСТИ =====
         function getCurrentSpawnRate() {
             const speedLevel = Math.floor(score / SPEED_SCORE_STEP);
             return Math.round(Math.max(800, BASE_SPAWN_INTERVAL - speedLevel * 150));
@@ -1098,7 +1072,6 @@
             return 3.2 + Math.floor(score / SPEED_SCORE_STEP) * 0.25;
         }
 
-        // ===== СТОЛКНОВЕНИЯ =====
         function checkCollision(itemRect) {
             if (!burgerBag || !gameArea) return false;
             
@@ -1121,7 +1094,6 @@
                     itemTop > bagBottom - 5);
         }
 
-        // ===== СОЗДАНИЕ ПРЕДМЕТОВ =====
         function createFallingItem() {
             if (!gameRunning || gamePaused || !gameArea) return;
             
@@ -1177,7 +1149,6 @@
             });
         }
 
-        // ===== ОБНОВЛЕНИЕ ПОЗИЦИЙ =====
         function updateFallingItems() {
             if (!gameRunning || gamePaused || !gameArea) return;
             
@@ -1288,7 +1259,6 @@
             }, getCurrentSpawnRate());
         }
 
-        // ===== ПОТЕРЯ ЖИЗНИ =====
         function loseLife() {
             lives = Math.max(0, lives - 1);
             
@@ -1335,31 +1305,32 @@
 
         // ===== УПРАВЛЕНИЕ =====
         function toggleSound(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             
             isSoundOn = !isSoundOn;
             
             if (soundOnIcon && soundOffIcon) {
-                if (isSoundOn) {
-                    soundOnIcon.style.display = 'block';
-                    soundOffIcon.style.display = 'none';
-                    if (bgMusic && !isMusicPlaying && gameRunning && !gamePaused) {
-                        bgMusic.play().catch(e => {});
-                        isMusicPlaying = true;
-                    }
-                } else {
-                    soundOnIcon.style.display = 'none';
-                    soundOffIcon.style.display = 'block';
-                    if (bgMusic) {
-                        bgMusic.pause();
-                        isMusicPlaying = false;
-                    }
+                soundOnIcon.style.display = isSoundOn ? 'block' : 'none';
+                soundOffIcon.style.display = isSoundOn ? 'none' : 'block';
+                
+                if (isSoundOn && gameRunning && !gamePaused && bgMusic) {
+                    bgMusic.play().catch(e => {});
+                    isMusicPlaying = true;
+                } else if (bgMusic) {
+                    bgMusic.pause();
+                    isMusicPlaying = false;
                 }
             }
         }
 
         function startGame(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (gameRunning) return;
             
             resetGame();
@@ -1388,15 +1359,19 @@
         }
 
         function pauseGame(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (!gameRunning) return;
             
             gamePaused = !gamePaused;
             
             if (pauseIcon && playIcon) {
+                pauseIcon.style.display = gamePaused ? 'none' : 'block';
+                playIcon.style.display = gamePaused ? 'block' : 'none';
+                
                 if (gamePaused) {
-                    pauseIcon.style.display = 'none';
-                    playIcon.style.display = 'block';
                     if (gameArea) {
                         showMessage('ПАУЗА', '#94a3b8', {
                             left: gameArea.offsetWidth / 2 - 50,
@@ -1405,8 +1380,6 @@
                     }
                     if (isSoundOn && bgMusic) bgMusic.pause();
                 } else {
-                    pauseIcon.style.display = 'block';
-                    playIcon.style.display = 'none';
                     if (isSoundOn && bgMusic && gameRunning) {
                         bgMusic.play().catch(e => {});
                     }
@@ -1415,7 +1388,10 @@
         }
 
         function resetGame(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             
             if (gameInterval) clearInterval(gameInterval);
             if (itemInterval) clearInterval(itemInterval);
@@ -1496,47 +1472,67 @@
 
         // ===== НАВИГАЦИЯ =====
         function openInfo(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (gameRunning && !gamePaused) {
                 pauseGame(e);
             }
-            if (infoPanel) infoPanel.classList.add('active');
-            if (shopPanel) shopPanel.classList.remove('active');
+            if (infoPanel) {
+                infoPanel.classList.add('active');
+                shopPanel.classList.remove('active');
+            }
         }
         
         function openShop(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (gameRunning && !gamePaused) {
                 pauseGame(e);
             }
-            if (shopPanel) shopPanel.classList.add('active');
-            if (infoPanel) infoPanel.classList.remove('active');
+            if (shopPanel) {
+                shopPanel.classList.add('active');
+                infoPanel.classList.remove('active');
+            }
         }
         
         function closeInfo(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (infoPanel) infoPanel.classList.remove('active');
         }
         
         function closeShop(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (e) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
             if (shopPanel) shopPanel.classList.remove('active');
         }
 
-        // ===== СОБЫТИЯ =====
+        // ===== ИСПРАВЛЕНИЕ 7: ОБРАБОТЧИКИ ТАЧ-СОБЫТИЙ =====
         function handleTouchStart(e) {
             if (!gameRunning || gamePaused || !burgerBag || !gameArea) return;
             
             e.preventDefault();
             isTouching = true;
             
-            const touch = e.touches[0];
-            const gameAreaRect = gameArea.getBoundingClientRect();
-            const touchX = touch.clientX - gameAreaRect.left;
-            const bagWidth = burgerBag.offsetWidth;
-            
-            targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
-            createTouchFeedback(touchX, touch.clientY - gameAreaRect.top);
+            try {
+                const touch = e.touches[0];
+                const gameAreaRect = gameArea.getBoundingClientRect();
+                const touchX = touch.clientX - gameAreaRect.left;
+                const bagWidth = burgerBag.offsetWidth;
+                
+                targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
+                createTouchFeedback(touchX, touch.clientY - gameAreaRect.top);
+            } catch (error) {
+                console.warn('Touch error:', error);
+            }
         }
         
         function handleTouchMove(e) {
@@ -1544,18 +1540,36 @@
             
             e.preventDefault();
             
-            const touch = e.touches[0];
-            const gameAreaRect = gameArea.getBoundingClientRect();
-            const touchX = touch.clientX - gameAreaRect.left;
-            const bagWidth = burgerBag.offsetWidth;
-            
-            targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
+            try {
+                const touch = e.touches[0];
+                const gameAreaRect = gameArea.getBoundingClientRect();
+                const touchX = touch.clientX - gameAreaRect.left;
+                const bagWidth = burgerBag.offsetWidth;
+                
+                targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
+            } catch (error) {
+                console.warn('Touch move error:', error);
+            }
         }
         
         function handleTouchEnd(e) {
             e.preventDefault();
             isTouching = false;
         }
+
+        // ===== ИСПРАВЛЕНИЕ 8: ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен');
+            initBagPosition();
+            smoothMove();
+            updateUI();
+            
+            // Инициализация иконок звука
+            if (soundOnIcon && soundOffIcon) {
+                soundOnIcon.style.display = 'block';
+                soundOffIcon.style.display = 'none';
+            }
+        });
 
         // ===== ПОДПИСКА НА СОБЫТИЯ =====
         if (gameArea) {
@@ -1571,7 +1585,7 @@
             else if (e.key === 'ArrowRight' || e.key === 'd') moveBag('right');
         });
 
-        // КНОПКИ ИГРЫ
+        // ===== КНОПКИ ИГРЫ =====
         if (startBtn) {
             startBtn.addEventListener('click', startGame);
             startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(e); }, { passive: false });
@@ -1592,7 +1606,7 @@
             soundToggleBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleSound(e); }, { passive: false });
         }
 
-        // КНОПКИ НАВИГАЦИИ
+        // ===== КНОПКИ НАВИГАЦИИ =====
         if (infoBtn) {
             infoBtn.addEventListener('click', openInfo);
             infoBtn.addEventListener('touchstart', (e) => { e.preventDefault(); openInfo(e); }, { passive: false });
@@ -1613,6 +1627,7 @@
             shopBackBtn.addEventListener('touchstart', (e) => { e.preventDefault(); closeShop(e); }, { passive: false });
         }
 
+        // ===== ОБРАБОТКА РЕСАЙЗА =====
         window.addEventListener('resize', () => {
             if (burgerBag && gameArea) {
                 const bagWidth = burgerBag.offsetWidth;
