@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ловец еды – ФИНАЛ</title>
+    <title>Ловец еды - ИСПРАВЛЕННАЯ ВЕРСИЯ</title>
     <style>
         * {
             margin: 0;
@@ -64,7 +64,6 @@
             z-index: 2;
         }
 
-        /* Верхняя панель с кнопками */
         .top-bar {
             position: absolute;
             top: 15px;
@@ -84,7 +83,6 @@
             pointer-events: auto;
         }
 
-        /* Кнопки без фона и теней */
         .nav-btn, .game-btn, .sound-btn, .back-btn {
             width: 50px;
             height: 50px;
@@ -113,7 +111,6 @@
             filter: none !important;
         }
 
-        /* Сердечки – большие, без рамки, отодвинуты от кнопок */
         .lives-container {
             position: absolute;
             top: 20px;
@@ -155,7 +152,6 @@
             100% { transform: scale(0.8); color: #4b5563; opacity: 0.2; }
         }
 
-        /* Счёт очков – белым по центру */
         .score-container {
             position: absolute;
             top: 85px;
@@ -180,7 +176,6 @@
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
-        /* Пакет (корзинка) – точно по центру снизу */
         .burger-bag {
             position: absolute;
             bottom: 15px;
@@ -199,7 +194,6 @@
             filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2));
         }
 
-        /* Падающие предметы */
         .falling-item {
             position: absolute;
             display: flex;
@@ -223,7 +217,6 @@
             color: #000;
         }
 
-        /* Кнопка СТАРТ */
         .start-btn-large {
             position: absolute;
             top: 50%;
@@ -261,7 +254,6 @@
             display: none;
         }
 
-        /* Панели информации и магазина */
         .info-panel, .shop-panel {
             position: absolute;
             top: 0;
@@ -700,7 +692,6 @@
                 <img src="images/bag.png" alt="Пакет" id="bagImage">
             </div>
 
-            <!-- Панель информации -->
             <div class="info-panel" id="infoPanel">
                 <div class="back-btn" id="infoBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -734,7 +725,6 @@
                 </div>
             </div>
 
-            <!-- Панель магазина -->
             <div class="shop-panel" id="shopPanel">
                 <div class="back-btn" id="shopBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -747,7 +737,6 @@
                 </div>
             </div>
 
-            <!-- Game Over экран -->
             <div class="game-over" id="gameOver">
                 <h2>GAME OVER</h2>
                 <p><span id="finalScore">0</span> очков</p>
@@ -782,6 +771,7 @@
             }
 
             function playSuccess() {
+                // ИСПРАВЛЕНО: проверка на существование звука
                 if (!isSoundOn || !gameRunning || gamePaused || !successSound) return;
                 try {
                     successSound.cloneNode().play().catch(() => {});
@@ -789,13 +779,14 @@
             }
 
             function playFail() {
+                // ИСПРАВЛЕНО: проверка на существование звука
                 if (!isSoundOn || !gameRunning || gamePaused || !failSound) return;
                 try {
                     failSound.cloneNode().play().catch(() => {});
                 } catch (e) {}
             }
 
-            // ---------- Состояние игры ----------
+            // ---------- Состояние ----------
             let score = 0;
             let lives = 3;
             let gameRunning = false;
@@ -807,9 +798,8 @@
             let itemInterval = null;
             let animationFrame = null;
 
-            const items = new Map(); // падающие предметы
+            const items = new Map();
 
-            // ---------- Данные о еде (каждый продукт со своими очками) ----------
             const FOODS = [
                 { emoji: '🍔', points: 10 },
                 { emoji: '🍟', points: 15 },
@@ -818,7 +808,7 @@
                 { emoji: '🥙', points: 30 }
             ];
 
-            // ---------- DOM элементы ----------
+            // ---------- DOM ----------
             const gameArea = document.getElementById('gameArea');
             const burgerBag = document.getElementById('burgerBag');
             const scoreDisplay = document.getElementById('scoreDisplay');
@@ -843,7 +833,7 @@
             const pauseIcon = document.querySelector('.pause-icon');
             const playIcon = document.querySelector('.play-icon');
 
-            // ---------- Позиция корзинки ----------
+            // ---------- Позиция пакета ----------
             let bagX = 0;
             let targetX = 0;
 
@@ -854,7 +844,7 @@
                 if (bagW > 0 && gameW > 0) {
                     bagX = (gameW - bagW) / 2;
                     targetX = bagX;
-                    burgerBag.style.left = bagX + 'px';
+                    burgerBag.style.left = Math.round(bagX) + 'px';
                 }
             }
 
@@ -863,17 +853,25 @@
                     animationFrame = requestAnimationFrame(moveBagLoop);
                     return;
                 }
+                
+                const maxX = gameArea.offsetWidth - burgerBag.offsetWidth;
+                targetX = Math.max(0, Math.min(targetX, maxX));
+                
+                // ИСПРАВЛЕНО: пакет двигается только когда игра активна и не на паузе
                 if (gameRunning && !gamePaused) {
-                    const maxX = gameArea.offsetWidth - burgerBag.offsetWidth;
-                    targetX = Math.max(0, Math.min(targetX, maxX));
                     bagX += (targetX - bagX) * 0.2;
                     if (Math.abs(targetX - bagX) < 0.1) bagX = targetX;
                     burgerBag.style.left = Math.round(bagX) + 'px';
+                } else {
+                    // На паузе или когда игра неактивна - просто фиксируем позицию
+                    bagX = targetX;
+                    burgerBag.style.left = Math.round(bagX) + 'px';
                 }
+                
                 animationFrame = requestAnimationFrame(moveBagLoop);
             }
 
-            // ---------- UI обновление ----------
+            // ---------- UI ----------
             function updateUI() {
                 if (scoreDisplay) scoreDisplay.textContent = score;
                 heart1.className = lives >= 1 ? 'heart full' : 'heart empty';
@@ -881,7 +879,6 @@
                 heart3.className = lives >= 3 ? 'heart full' : 'heart empty';
             }
 
-            // ---------- Сложность (скорость растёт с очками) ----------
             function getLevel() {
                 return Math.floor(score / 200);
             }
@@ -894,7 +891,6 @@
                 return 3.2 + getLevel() * 0.25;
             }
 
-            // ---------- Проверка столкновения ----------
             function checkCollision(rect) {
                 const bag = burgerBag.getBoundingClientRect();
                 const game = gameArea.getBoundingClientRect();
@@ -913,7 +909,6 @@
                        itemB > bagT + 5 && itemT < bagB - 5;
             }
 
-            // ---------- Создание падающего предмета ----------
             function createItem() {
                 if (!gameRunning || gamePaused) return;
 
@@ -928,7 +923,7 @@
                 } else {
                     const food = FOODS[Math.floor(Math.random() * FOODS.length)];
                     item.textContent = food.emoji;
-                    points = food.points;
+                    points = food.points; // ИСПРАВЛЕНО: points четко соответствует выбранному продукту
                 }
 
                 item.style.width = '65px';
@@ -947,7 +942,50 @@
                 });
             }
 
-            // ---------- Обновление всех предметов (движение, столкновения) ----------
+            function showMessage(text, color, x, y) {
+                const msg = document.createElement('div');
+                msg.className = 'item-collected';
+                msg.textContent = text;
+                msg.style.color = color;
+                msg.style.left = x + 'px';
+                msg.style.top = y + 'px';
+                gameArea.appendChild(msg);
+                setTimeout(() => msg.remove(), 800);
+            }
+
+            // ИСПРАВЛЕНО: вынес общую логику потери жизни в отдельную функцию
+            function loseLife(rect, gameRect, isMiss, height) {
+                lives--;
+                
+                let heartToLose = null;
+                if (lives === 2) heartToLose = heart3;
+                else if (lives === 1) heartToLose = heart2;
+                else if (lives === 0) heartToLose = heart1;
+                
+                if (heartToLose) {
+                    heartToLose.classList.add('heart-lost');
+                    setTimeout(() => {
+                        if (heartToLose) {
+                            heartToLose.classList.remove('heart-lost');
+                            heartToLose.className = 'heart empty';
+                        }
+                    }, 300);
+                }
+                
+                playFail();
+                
+                if (isMiss) {
+                    showMessage('😢 ПРОПУСК -1', '#ef4444', rect.left - gameRect.left, height - 80);
+                } else {
+                    showMessage('💣 -1', '#ef4444', rect.left - gameRect.left, rect.top - gameRect.top);
+                }
+                
+                burgerBag.style.transform = 'scale(0.95)';
+                setTimeout(() => burgerBag.style.transform = 'scale(1)', 200);
+                
+                updateUI();
+            }
+
             function updateItems() {
                 if (!gameRunning || gamePaused) return;
 
@@ -971,23 +1009,23 @@
                     }
 
                     const rect = el.getBoundingClientRect();
+                    const collision = checkCollision(rect);
 
-                    // Поймали?
-                    if (checkCollision(rect) && data.top < height - 20) {
-                        // Немедленно удаляем из коллекции, чтобы не обрабатывать повторно
+                    if (collision && data.top < height - 20) {
                         items.delete(el);
-
+                        
                         if (data.type === 'bomb') {
-                            lives--;
-                            if (lives === 2) heart3.classList.add('heart-lost');
-                            else if (lives === 1) heart2.classList.add('heart-lost');
-                            else if (lives === 0) heart1.classList.add('heart-lost');
+                            loseLife(rect, gameRect, false, height);
+                            
+                            el.classList.add('caught-item');
+                            setTimeout(() => {
+                                if (el.parentNode) el.remove();
+                            }, 250);
 
-                            playFail();
-                            showMessage('💣 -1', '#ef4444', rect.left - gameRect.left, rect.top - gameRect.top);
-
-                            burgerBag.style.transform = 'scale(0.95)';
-                            setTimeout(() => burgerBag.style.transform = 'scale(1)', 200);
+                            if (lives <= 0) {
+                                endGame();
+                                return; // ИСПРАВЛЕНО: выход из функции после завершения игры
+                            }
                         } else {
                             score += data.points;
                             playSuccess();
@@ -995,66 +1033,39 @@
 
                             burgerBag.style.transform = 'translateY(-5px)';
                             setTimeout(() => burgerBag.style.transform = 'translateY(0)', 200);
-                        }
-
-                        updateUI();
-                        el.classList.add('caught-item');
-                        setTimeout(() => {
-                            if (el.parentNode) el.remove();
-                        }, 250);
-
-                        if (lives <= 0) {
-                            endGame();
-                            return;
+                            
+                            updateUI();
+                            
+                            el.classList.add('caught-item');
+                            setTimeout(() => {
+                                if (el.parentNode) el.remove();
+                            }, 250);
                         }
                         continue;
                     }
 
-                    // Пропуск еды (достигла низа)
                     if (data.top > height - 70 && data.type === 'food') {
-                        // Немедленно удаляем из коллекции
                         items.delete(el);
-
-                        lives--;
-                        if (lives === 2) heart3.classList.add('heart-lost');
-                        else if (lives === 1) heart2.classList.add('heart-lost');
-                        else if (lives === 0) heart1.classList.add('heart-lost');
-
-                        playFail();
-                        showMessage('😢 ПРОПУСК -1', '#ef4444', rect.left - gameRect.left, height - 80);
+                        
+                        loseLife(rect, gameRect, true, height);
 
                         el.classList.add('missed-item');
                         setTimeout(() => {
                             if (el.parentNode) el.remove();
                         }, 500);
 
-                        updateUI();
-
                         if (lives <= 0) {
                             endGame();
-                            return;
+                            return; // ИСПРАВЛЕНО: выход из функции после завершения игры
                         }
                         continue;
                     }
 
-                    // Бомба упала – просто исчезает
                     if (data.top > height - 70 && data.type === 'bomb') {
                         items.delete(el);
                         el.remove();
                     }
                 }
-            }
-
-            // ---------- Вспомогательные функции ----------
-            function showMessage(text, color, x, y) {
-                const msg = document.createElement('div');
-                msg.className = 'item-collected';
-                msg.textContent = text;
-                msg.style.color = color;
-                msg.style.left = x + 'px';
-                msg.style.top = y + 'px';
-                gameArea.appendChild(msg);
-                setTimeout(() => msg.remove(), 800);
             }
 
             function toggleSound(e) {
@@ -1063,6 +1074,7 @@
                 soundOnIcon.style.display = isSoundOn ? 'block' : 'none';
                 soundOffIcon.style.display = isSoundOn ? 'none' : 'block';
 
+                // ИСПРАВЛЕНО: музыка запускается только если игра активна
                 if (isSoundOn && gameRunning && !gamePaused && bgMusic) {
                     bgMusic.play().catch(() => {});
                 } else if (bgMusic) {
@@ -1070,12 +1082,10 @@
                 }
             }
 
-            // ---------- Управление игрой ----------
             function startGame(e) {
                 if (e) e.preventDefault();
                 if (gameRunning) return;
 
-                // Очистка старых интервалов и предметов
                 if (gameInterval) clearInterval(gameInterval);
                 if (itemInterval) clearInterval(itemInterval);
 
@@ -1090,8 +1100,9 @@
                 gamePaused = false;
 
                 startBtn.classList.add('hidden');
-                pauseIcon.style.display = 'block';
-                playIcon.style.display = 'none';
+                // ИСПРАВЛЕНО: проверка на существование иконок
+                if (pauseIcon) pauseIcon.style.display = 'block';
+                if (playIcon) playIcon.style.display = 'none';
 
                 heart1.className = 'heart full';
                 heart2.className = 'heart full';
@@ -1100,6 +1111,8 @@
                 gameOverScreen.style.display = 'none';
 
                 centerBag();
+                // ИСПРАВЛЕНО: синхронизация targetX после centerBag
+                targetX = bagX;
                 updateUI();
 
                 if (isSoundOn && bgMusic) {
@@ -1120,8 +1133,11 @@
                 if (!gameRunning) return;
 
                 gamePaused = !gamePaused;
-                pauseIcon.style.display = gamePaused ? 'none' : 'block';
-                playIcon.style.display = gamePaused ? 'block' : 'none';
+                
+                if (pauseIcon && playIcon) {
+                    pauseIcon.style.display = gamePaused ? 'none' : 'block';
+                    playIcon.style.display = gamePaused ? 'block' : 'none';
+                }
 
                 if (gamePaused) {
                     if (bgMusic) bgMusic.pause();
@@ -1148,8 +1164,10 @@
                 gamePaused = false;
 
                 startBtn.classList.remove('hidden');
-                pauseIcon.style.display = 'block';
-                playIcon.style.display = 'none';
+                if (pauseIcon && playIcon) {
+                    pauseIcon.style.display = 'block';
+                    playIcon.style.display = 'none';
+                }
 
                 heart1.className = 'heart full';
                 heart2.className = 'heart full';
@@ -1158,6 +1176,8 @@
                 gameOverScreen.style.display = 'none';
 
                 centerBag();
+                // ИСПРАВЛЕНО: синхронизация targetX после centerBag
+                targetX = bagX;
                 updateUI();
 
                 if (bgMusic) {
@@ -1188,32 +1208,31 @@
                 targetX = Math.min(max, targetX);
             }
 
-            // ---------- Навигация по панелям ----------
             function openInfo(e) {
                 if (e) e.preventDefault();
                 if (gameRunning && !gamePaused) pauseGame(e);
-                infoPanel.classList.add('active');
-                shopPanel.classList.remove('active');
+                // ИСПРАВЛЕНО: проверка на существование панелей
+                if (infoPanel) infoPanel.classList.add('active');
+                if (shopPanel) shopPanel.classList.remove('active');
             }
 
             function openShop(e) {
                 if (e) e.preventDefault();
                 if (gameRunning && !gamePaused) pauseGame(e);
-                shopPanel.classList.add('active');
-                infoPanel.classList.remove('active');
+                if (shopPanel) shopPanel.classList.add('active');
+                if (infoPanel) infoPanel.classList.remove('active');
             }
 
             function closeInfo(e) {
                 if (e) e.preventDefault();
-                infoPanel.classList.remove('active');
+                if (infoPanel) infoPanel.classList.remove('active');
             }
 
             function closeShop(e) {
                 if (e) e.preventDefault();
-                shopPanel.classList.remove('active');
+                if (shopPanel) shopPanel.classList.remove('active');
             }
 
-            // ---------- События касания и клавиатуры ----------
             function onTouchStart(e) {
                 if (!gameRunning || gamePaused) return;
                 e.preventDefault();
@@ -1254,10 +1273,10 @@
                 if (e.key === 'ArrowRight' || e.key === 'd') moveRight();
             }
 
-            // ---------- Инициализация ----------
             function init() {
                 initSounds();
                 centerBag();
+                targetX = bagX; // ИСПРАВЛЕНО: синхронизация при инициализации
                 updateUI();
                 moveBagLoop();
 
@@ -1298,7 +1317,6 @@
                 init();
             }
 
-            // Очистка при выгрузке страницы
             window.addEventListener('beforeunload', () => {
                 if (gameInterval) clearInterval(gameInterval);
                 if (itemInterval) clearInterval(itemInterval);
