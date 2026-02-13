@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ловец еды - ФИНАЛ</title>
+    <title>Ловец еды - ФИНАЛЬНАЯ ВЕРСИЯ</title>
     <style>
         * {
             margin: 0;
@@ -111,23 +111,27 @@
             filter: none !important;
         }
         
-        /* ===== СЕРДЕЧКА - БОЛЬШЕ И БЕЗ РАМКИ ===== */
+        /* ===== СЕРДЕЧКА - ИДЕАЛЬНО ПО ЦЕНТРУ ===== */
         .lives-container {
             position: absolute;
-            top: 20px;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 12px;
+            height: 50px;
             z-index: 150;
+            pointer-events: none;
         }
         
         .heart {
-            font-size: 2.4rem;
-            margin: 0 5px;
+            font-size: 2.8rem;
+            line-height: 1;
             transition: all 0.3s ease;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+            margin: 0 2px;
         }
         
         .heart.full {
@@ -136,7 +140,7 @@
         
         .heart.empty {
             color: #4b5563;
-            opacity: 0.3;
+            opacity: 0.2;
             transform: scale(0.8);
         }
         
@@ -147,7 +151,7 @@
         @keyframes heartBreak {
             0% { transform: scale(1); color: #ef4444; }
             50% { transform: scale(1.5); color: #ef4444; }
-            100% { transform: scale(0.8); color: #4b5563; opacity: 0.3; }
+            100% { transform: scale(0.8); color: #4b5563; opacity: 0.2; }
         }
         
         .score-container {
@@ -593,11 +597,12 @@
             }
             
             .lives-container {
-                top: 15px;
+                top: 12px;
+                gap: 10px;
             }
             
             .heart {
-                font-size: 2.2rem;
+                font-size: 2.6rem;
             }
             
             .score-container {
@@ -644,7 +649,7 @@
             }
             
             .heart {
-                font-size: 2rem;
+                font-size: 2.4rem;
             }
             
             .score-display {
@@ -763,25 +768,82 @@
         (function() {
             "use strict";
             
-            // ========== ЗВУКИ - ТИШЕ, ПРОЩЕ ==========
-            const successSound = new Audio('sounds/success.mp3');
-            const failSound = new Audio('sounds/fail.mp3');
-            const bgMusic = new Audio('sounds/music.mp3');
+            // ========== ПУЛ ЗВУКОВ - 100% СРАБАТЫВАНИЕ ==========
+            const SUCCESS_POOL = [];
+            const FAIL_POOL = [];
+            const POOL_SIZE = 5;
             
-            // Делаем тише (0.2 = 20% громкости)
-            successSound.volume = 0.2;
-            failSound.volume = 0.2;
-            bgMusic.volume = 0.15;
-            bgMusic.loop = true;
+            // Заполняем пул звуков успеха
+            for (let i = 0; i < POOL_SIZE; i++) {
+                try {
+                    const sound = new Audio('sounds/success.mp3');
+                    sound.volume = 0.2;
+                    sound.load();
+                    SUCCESS_POOL.push(sound);
+                } catch (e) {
+                    console.warn('Ошибка загрузки success.mp3');
+                }
+            }
             
-            // ========== СОСТОЯНИЕ ==========
+            // Заполняем пул звуков неудачи
+            for (let i = 0; i < POOL_SIZE; i++) {
+                try {
+                    const sound = new Audio('sounds/fail.mp3');
+                    sound.volume = 0.2;
+                    sound.load();
+                    FAIL_POOL.push(sound);
+                } catch (e) {
+                    console.warn('Ошибка загрузки fail.mp3');
+                }
+            }
+            
+            // Фоновая музыка
+            let bgMusic;
+            try {
+                bgMusic = new Audio('sounds/music.mp3');
+                bgMusic.volume = 0.15;
+                bgMusic.loop = true;
+                bgMusic.load();
+            } catch (e) {
+                console.warn('Ошибка загрузки music.mp3');
+                bgMusic = { play: () => Promise.resolve(), pause: () => {}, load: () => {} };
+            }
+            
+            let successIndex = 0;
+            let failIndex = 0;
+            let isSoundOn = true;
+            let isMusicPlaying = false;
+            
+            function playSuccess() {
+                if (!isSoundOn || !gameRunning || gamePaused) return;
+                if (SUCCESS_POOL.length === 0) return;
+                
+                const sound = SUCCESS_POOL[successIndex];
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.play().catch(() => {});
+                    successIndex = (successIndex + 1) % POOL_SIZE;
+                }
+            }
+            
+            function playFail() {
+                if (!isSoundOn || !gameRunning || gamePaused) return;
+                if (FAIL_POOL.length === 0) return;
+                
+                const sound = FAIL_POOL[failIndex];
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.play().catch(() => {});
+                    failIndex = (failIndex + 1) % POOL_SIZE;
+                }
+            }
+            
+            // ========== СОСТОЯНИЕ ИГРЫ ==========
             let score = 0;
             let lives = 3;
             let gameRunning = false;
             let gamePaused = false;
             let isTouching = false;
-            let isSoundOn = true;
-            let isMusicPlaying = false;
             
             let gameInterval = null;
             let itemInterval = null;
@@ -803,7 +865,6 @@
             const BAG_SIZE = 107;
             const BOMB_CHANCE = 0.15;
             
-            // Рост скорости и появления (небольшой)
             const BASE_SPAWN = 2200;
             const BASE_SPEED = 3.2;
             const SCORE_STEP = 200;
@@ -835,46 +896,33 @@
             const pauseIcon = document.querySelector('.pause-icon');
             const playIcon = document.querySelector('.play-icon');
             
-            // Позиция пакета
+            // ========== ПОЗИЦИЯ ПАКЕТА - СТАБИЛЬНАЯ ==========
             let targetPosition = 0;
             let currentPosition = 0;
+            let isInitialized = false;
             
-            // ========== ФУНКЦИИ ЗВУКОВ ==========
-            function playSuccess() {
-                if (!isSoundOn || !gameRunning || gamePaused) return;
-                successSound.currentTime = 0;
-                successSound.play().catch(() => {});
-            }
-            
-            function playFail() {
-                if (!isSoundOn || !gameRunning || gamePaused) return;
-                failSound.currentTime = 0;
-                failSound.play().catch(() => {});
-            }
-            
-            function toggleSound(e) {
-                if (e) e.preventDefault();
-                isSoundOn = !isSoundOn;
-                
-                soundOnIcon.style.display = isSoundOn ? 'block' : 'none';
-                soundOffIcon.style.display = isSoundOn ? 'none' : 'block';
-                
-                if (isSoundOn && gameRunning && !gamePaused) {
-                    bgMusic.play().catch(() => {});
-                } else {
-                    bgMusic.pause();
-                }
-            }
-            
-            // ========== ПОЗИЦИЯ ПАКЕТА ==========
-            function updateBagPosition() {
+            function initBagPosition() {
                 if (!burgerBag || !gameArea) return;
                 
                 const bagWidth = burgerBag.offsetWidth;
                 const gameWidth = gameArea.offsetWidth;
                 
                 if (bagWidth > 0 && gameWidth > 0) {
-                    targetPosition = (gameWidth - bagWidth) / 2;
+                    targetPosition = Math.round((gameWidth - bagWidth) / 2);
+                    currentPosition = targetPosition;
+                    burgerBag.style.left = `${currentPosition}px`;
+                    isInitialized = true;
+                }
+            }
+            
+            function resetBagPosition() {
+                if (!burgerBag || !gameArea || !isInitialized) return;
+                
+                const bagWidth = burgerBag.offsetWidth;
+                const gameWidth = gameArea.offsetWidth;
+                
+                if (bagWidth > 0 && gameWidth > 0) {
+                    targetPosition = Math.round((gameWidth - bagWidth) / 2);
                     currentPosition = targetPosition;
                     burgerBag.style.left = `${currentPosition}px`;
                 }
@@ -891,13 +939,13 @@
                     targetPosition = Math.max(0, Math.min(targetPosition, maxLeft));
                     
                     const diff = targetPosition - currentPosition;
-                    currentPosition += diff * 0.25;
-                    
                     if (Math.abs(diff) < 0.5) {
                         currentPosition = targetPosition;
+                    } else {
+                        currentPosition += diff * 0.25;
                     }
                     
-                    burgerBag.style.left = `${currentPosition}px`;
+                    burgerBag.style.left = `${Math.round(currentPosition)}px`;
                 }
                 
                 animationFrameId = requestAnimationFrame(smoothMove);
@@ -905,11 +953,13 @@
             
             // ========== UI ==========
             function updateUI() {
-                scoreDisplay.textContent = score;
+                if (scoreDisplay) scoreDisplay.textContent = score;
                 
-                heart1.className = lives >= 1 ? 'heart full' : 'heart empty';
-                heart2.className = lives >= 2 ? 'heart full' : 'heart empty';
-                heart3.className = lives >= 3 ? 'heart full' : 'heart empty';
+                if (heart1 && heart2 && heart3) {
+                    heart1.className = lives >= 1 ? 'heart full' : 'heart empty';
+                    heart2.className = lives >= 2 ? 'heart full' : 'heart empty';
+                    heart3.className = lives >= 3 ? 'heart full' : 'heart empty';
+                }
             }
             
             // ========== РАСЧЕТ СЛОЖНОСТИ ==========
@@ -929,6 +979,8 @@
             
             // ========== КОЛЛИЗИЯ ==========
             function checkCollision(itemRect) {
+                if (!burgerBag || !gameArea) return false;
+                
                 const bagRect = burgerBag.getBoundingClientRect();
                 const gameRect = gameArea.getBoundingClientRect();
                 
@@ -1000,7 +1052,7 @@
                 const gameRect = gameArea.getBoundingClientRect();
                 
                 for (const [id, data] of fallingItems) {
-                    if (data.caught || !data.element.parentNode) {
+                    if (data.caught || !data.element || !data.element.parentNode) {
                         fallingItems.delete(id);
                         continue;
                     }
@@ -1009,7 +1061,7 @@
                     data.element.style.top = `${data.top}px`;
                     
                     if (data.top > height + 100) {
-                        data.element.remove();
+                        if (data.element.parentNode) data.element.remove();
                         fallingItems.delete(id);
                         continue;
                     }
@@ -1021,60 +1073,93 @@
                         data.caught = true;
                         
                         if (data.type === 'bomb') {
-                            // Бомба
                             lives = Math.max(0, lives - 1);
-                            if (lives === 2) heart3.classList.add('heart-lost');
-                            else if (lives === 1) heart2.classList.add('heart-lost');
-                            else if (lives === 0) heart1.classList.add('heart-lost');
+                            
+                            let heartToLose = null;
+                            if (lives === 2) heartToLose = heart3;
+                            else if (lives === 1) heartToLose = heart2;
+                            else if (lives === 0) heartToLose = heart1;
+                            
+                            if (heartToLose) {
+                                heartToLose.classList.add('heart-lost');
+                                setTimeout(() => {
+                                    if (heartToLose) {
+                                        heartToLose.classList.remove('heart-lost');
+                                        heartToLose.className = 'heart empty';
+                                    }
+                                }, 300);
+                            }
                             
                             playFail();
                             showMessage('💣 -1', '#ef4444', rect.left - gameRect.left, rect.top - gameRect.top);
                             
-                            burgerBag.style.transform = 'scale(0.95)';
-                            setTimeout(() => burgerBag.style.transform = 'scale(1)', 200);
+                            if (burgerBag) {
+                                burgerBag.style.transform = 'scale(0.95)';
+                                setTimeout(() => {
+                                    if (burgerBag) burgerBag.style.transform = 'scale(1)';
+                                }, 200);
+                            }
                         } else {
-                            // Еда
                             score += data.points;
                             playSuccess();
                             showMessage(`+${data.points}`, '#10b981', rect.left - gameRect.left, rect.top - gameRect.top);
                             
-                            burgerBag.style.transform = 'translateY(-5px)';
-                            setTimeout(() => burgerBag.style.transform = 'translateY(0)', 200);
+                            if (burgerBag) {
+                                burgerBag.style.transform = 'translateY(-5px)';
+                                setTimeout(() => {
+                                    if (burgerBag) burgerBag.style.transform = 'translateY(0)';
+                                }, 200);
+                            }
                         }
                         
                         updateUI();
                         
-                        data.element.classList.add('caught-item');
-                        setTimeout(() => {
-                            if (data.element.parentNode) {
-                                data.element.remove();
-                                fallingItems.delete(id);
-                            }
-                        }, 250);
+                        if (data.element) {
+                            data.element.classList.add('caught-item');
+                            setTimeout(() => {
+                                if (data.element && data.element.parentNode) {
+                                    data.element.remove();
+                                    fallingItems.delete(id);
+                                }
+                            }, 250);
+                        }
                         
                         if (lives <= 0) {
                             endGame();
                             return;
                         }
                     } else if (data.top > height - 70 && !data.caught && data.type === 'food') {
-                        // Пропуск еды
                         data.caught = true;
                         
                         lives = Math.max(0, lives - 1);
-                        if (lives === 2) heart3.classList.add('heart-lost');
-                        else if (lives === 1) heart2.classList.add('heart-lost');
-                        else if (lives === 0) heart1.classList.add('heart-lost');
+                        
+                        let heartToLose = null;
+                        if (lives === 2) heartToLose = heart3;
+                        else if (lives === 1) heartToLose = heart2;
+                        else if (lives === 0) heartToLose = heart1;
+                        
+                        if (heartToLose) {
+                            heartToLose.classList.add('heart-lost');
+                            setTimeout(() => {
+                                if (heartToLose) {
+                                    heartToLose.classList.remove('heart-lost');
+                                    heartToLose.className = 'heart empty';
+                                }
+                            }, 300);
+                        }
                         
                         playFail();
                         showMessage('😢 ПРОПУСК -1', '#ef4444', rect.left - gameRect.left, height - 80);
                         
-                        data.element.classList.add('missed-item');
-                        setTimeout(() => {
-                            if (data.element.parentNode) {
-                                data.element.remove();
-                                fallingItems.delete(id);
-                            }
-                        }, 500);
+                        if (data.element) {
+                            data.element.classList.add('missed-item');
+                            setTimeout(() => {
+                                if (data.element && data.element.parentNode) {
+                                    data.element.remove();
+                                    fallingItems.delete(id);
+                                }
+                            }, 500);
+                        }
                         
                         updateUI();
                         
@@ -1083,9 +1168,10 @@
                             return;
                         }
                     } else if (data.top > height - 70 && !data.caught && data.type === 'bomb') {
-                        // Бомба упала - просто исчезает
-                        data.element.remove();
-                        fallingItems.delete(id);
+                        if (data.element && data.element.parentNode) {
+                            data.element.remove();
+                            fallingItems.delete(id);
+                        }
                     }
                 }
             }
@@ -1100,7 +1186,9 @@
                 msg.style.left = `${x}px`;
                 msg.style.top = `${y}px`;
                 gameArea.appendChild(msg);
-                setTimeout(() => msg.remove(), 800);
+                setTimeout(() => {
+                    if (msg.parentNode) msg.remove();
+                }, 800);
             }
             
             function createTouchFeedback(x, y) {
@@ -1110,7 +1198,25 @@
                 fb.style.left = `${x - 40}px`;
                 fb.style.top = `${y - 40}px`;
                 gameArea.appendChild(fb);
-                setTimeout(() => fb.remove(), 500);
+                setTimeout(() => {
+                    if (fb.parentNode) fb.remove();
+                }, 500);
+            }
+            
+            function toggleSound(e) {
+                if (e) e.preventDefault();
+                isSoundOn = !isSoundOn;
+                
+                if (soundOnIcon && soundOffIcon) {
+                    soundOnIcon.style.display = isSoundOn ? 'block' : 'none';
+                    soundOffIcon.style.display = isSoundOn ? 'none' : 'block';
+                }
+                
+                if (isSoundOn && gameRunning && !gamePaused && bgMusic) {
+                    bgMusic.play().catch(() => {});
+                } else if (bgMusic) {
+                    bgMusic.pause();
+                }
             }
             
             // ========== УПРАВЛЕНИЕ ==========
@@ -1118,23 +1224,40 @@
                 if (e) e.preventDefault();
                 if (gameRunning) return;
                 
-                resetGame();
+                if (gameInterval) clearInterval(gameInterval);
+                if (itemInterval) clearInterval(itemInterval);
                 
+                fallingItems.forEach(data => {
+                    if (data.element && data.element.parentNode) data.element.remove();
+                });
+                fallingItems.clear();
+                
+                score = 0;
+                lives = 3;
                 gameRunning = true;
                 gamePaused = false;
                 
-                startBtn.classList.add('hidden');
+                if (startBtn) startBtn.classList.add('hidden');
                 if (pauseIcon && playIcon) {
                     pauseIcon.style.display = 'block';
                     playIcon.style.display = 'none';
                 }
                 
-                if (isSoundOn && !isMusicPlaying) {
+                if (heart1 && heart2 && heart3) {
+                    heart1.className = 'heart full';
+                    heart2.className = 'heart full';
+                    heart3.className = 'heart full';
+                }
+                
+                if (gameOverScreen) gameOverScreen.style.display = 'none';
+                
+                resetBagPosition();
+                updateUI();
+                
+                if (isSoundOn && bgMusic && !isMusicPlaying) {
                     bgMusic.play().catch(() => {});
                     isMusicPlaying = true;
                 }
-                
-                updateBagPosition();
                 
                 itemInterval = setInterval(() => {
                     if (gameRunning && !gamePaused) createItem();
@@ -1157,10 +1280,12 @@
                 }
                 
                 if (gamePaused) {
-                    bgMusic.pause();
-                    showMessage('ПАУЗА', '#94a3b8', gameArea.offsetWidth / 2 - 40, gameArea.offsetHeight / 2);
+                    if (bgMusic) bgMusic.pause();
+                    if (gameArea) {
+                        showMessage('ПАУЗА', '#94a3b8', gameArea.offsetWidth / 2 - 40, gameArea.offsetHeight / 2);
+                    }
                 } else {
-                    if (isSoundOn) bgMusic.play().catch(() => {});
+                    if (isSoundOn && bgMusic) bgMusic.play().catch(() => {});
                 }
             }
             
@@ -1171,7 +1296,7 @@
                 if (itemInterval) clearInterval(itemInterval);
                 
                 fallingItems.forEach(data => {
-                    if (data.element.parentNode) data.element.remove();
+                    if (data.element && data.element.parentNode) data.element.remove();
                 });
                 fallingItems.clear();
                 
@@ -1180,24 +1305,28 @@
                 gameRunning = false;
                 gamePaused = false;
                 
-                startBtn.classList.remove('hidden');
+                if (startBtn) startBtn.classList.remove('hidden');
                 if (pauseIcon && playIcon) {
                     pauseIcon.style.display = 'block';
                     playIcon.style.display = 'none';
                 }
                 
-                heart1.className = 'heart full';
-                heart2.className = 'heart full';
-                heart3.className = 'heart full';
+                if (heart1 && heart2 && heart3) {
+                    heart1.className = 'heart full';
+                    heart2.className = 'heart full';
+                    heart3.className = 'heart full';
+                }
                 
-                gameOverScreen.style.display = 'none';
+                if (gameOverScreen) gameOverScreen.style.display = 'none';
                 
-                updateBagPosition();
+                resetBagPosition();
                 updateUI();
                 
-                bgMusic.pause();
-                bgMusic.currentTime = 0;
-                isMusicPlaying = false;
+                if (bgMusic) {
+                    bgMusic.pause();
+                    bgMusic.currentTime = 0;
+                    isMusicPlaying = false;
+                }
             }
             
             function endGame() {
@@ -1206,15 +1335,17 @@
                 if (gameInterval) clearInterval(gameInterval);
                 if (itemInterval) clearInterval(itemInterval);
                 
-                finalScore.textContent = score;
-                gameOverScreen.style.display = 'flex';
+                if (finalScore) finalScore.textContent = score;
+                if (gameOverScreen) gameOverScreen.style.display = 'flex';
                 
-                bgMusic.pause();
-                isMusicPlaying = false;
+                if (bgMusic) {
+                    bgMusic.pause();
+                    isMusicPlaying = false;
+                }
             }
             
             function moveBag(direction) {
-                if (!gameRunning || gamePaused) return;
+                if (!gameRunning || gamePaused || !burgerBag || !gameArea) return;
                 
                 const bagWidth = burgerBag.offsetWidth;
                 const gameWidth = gameArea.offsetWidth;
@@ -1231,30 +1362,31 @@
             function openInfo(e) {
                 if (e) e.preventDefault();
                 if (gameRunning && !gamePaused) pauseGame(e);
-                infoPanel.classList.add('active');
-                shopPanel.classList.remove('active');
+                if (infoPanel) infoPanel.classList.add('active');
+                if (shopPanel) shopPanel.classList.remove('active');
             }
             
             function openShop(e) {
                 if (e) e.preventDefault();
                 if (gameRunning && !gamePaused) pauseGame(e);
-                shopPanel.classList.add('active');
-                infoPanel.classList.remove('active');
+                if (shopPanel) shopPanel.classList.add('active');
+                if (infoPanel) infoPanel.classList.remove('active');
             }
             
             function closeInfo(e) {
                 if (e) e.preventDefault();
-                infoPanel.classList.remove('active');
+                if (infoPanel) infoPanel.classList.remove('active');
             }
             
             function closeShop(e) {
                 if (e) e.preventDefault();
-                shopPanel.classList.remove('active');
+                if (shopPanel) shopPanel.classList.remove('active');
             }
             
             // ========== СОБЫТИЯ ==========
             function onTouchStart(e) {
-                if (!gameRunning || gamePaused) return;
+                if (!gameRunning || gamePaused || !burgerBag || !gameArea) return;
+                
                 e.preventDefault();
                 
                 const touch = e.touches[0];
@@ -1267,7 +1399,8 @@
             }
             
             function onTouchMove(e) {
-                if (!gameRunning || gamePaused || !isTouching) return;
+                if (!gameRunning || gamePaused || !isTouching || !burgerBag || !gameArea) return;
+                
                 e.preventDefault();
                 
                 const touch = e.touches[0];
@@ -1289,49 +1422,88 @@
             }
             
             function onResize() {
-                if (burgerBag && gameArea) {
+                if (burgerBag && gameArea && isInitialized) {
                     const max = gameArea.offsetWidth - burgerBag.offsetWidth;
                     targetPosition = Math.max(0, Math.min(targetPosition, max));
                     currentPosition = targetPosition;
-                    burgerBag.style.left = `${currentPosition}px`;
+                    burgerBag.style.left = `${Math.round(currentPosition)}px`;
                 }
             }
             
             // ========== ИНИЦИАЛИЗАЦИЯ ==========
             function init() {
-                updateBagPosition();
+                initBagPosition();
+                
+                // Предзагружаем звуки
+                SUCCESS_POOL.forEach(s => { if (s) s.load(); });
+                FAIL_POOL.forEach(s => { if (s) s.load(); });
+                if (bgMusic) bgMusic.load();
+                
                 updateUI();
                 smoothMove();
                 
-                gameArea.addEventListener('touchstart', onTouchStart, { passive: false });
-                gameArea.addEventListener('touchmove', onTouchMove, { passive: false });
-                gameArea.addEventListener('touchend', onTouchEnd);
-                gameArea.addEventListener('touchcancel', onTouchEnd);
+                if (gameArea) {
+                    gameArea.addEventListener('touchstart', onTouchStart, { passive: false });
+                    gameArea.addEventListener('touchmove', onTouchMove, { passive: false });
+                    gameArea.addEventListener('touchend', onTouchEnd);
+                    gameArea.addEventListener('touchcancel', onTouchEnd);
+                }
                 
                 document.addEventListener('keydown', onKeyDown);
                 
-                startBtn.addEventListener('click', startGame);
-                startBtn.addEventListener('touchstart', startGame, { passive: false });
-                pauseBtn.addEventListener('click', pauseGame);
-                pauseBtn.addEventListener('touchstart', pauseGame, { passive: false });
-                soundToggleBtn.addEventListener('click', toggleSound);
-                soundToggleBtn.addEventListener('touchstart', toggleSound, { passive: false });
-                restartBtn.addEventListener('click', resetGame);
-                restartBtn.addEventListener('touchstart', resetGame, { passive: false });
+                if (startBtn) {
+                    startBtn.addEventListener('click', startGame);
+                    startBtn.addEventListener('touchstart', startGame, { passive: false });
+                }
                 
-                infoBtn.addEventListener('click', openInfo);
-                infoBtn.addEventListener('touchstart', openInfo, { passive: false });
-                shopBtn.addEventListener('click', openShop);
-                shopBtn.addEventListener('touchstart', openShop, { passive: false });
-                infoBackBtn.addEventListener('click', closeInfo);
-                infoBackBtn.addEventListener('touchstart', closeInfo, { passive: false });
-                shopBackBtn.addEventListener('click', closeShop);
-                shopBackBtn.addEventListener('touchstart', closeShop, { passive: false });
+                if (pauseBtn) {
+                    pauseBtn.addEventListener('click', pauseGame);
+                    pauseBtn.addEventListener('touchstart', pauseGame, { passive: false });
+                }
+                
+                if (soundToggleBtn) {
+                    soundToggleBtn.addEventListener('click', toggleSound);
+                    soundToggleBtn.addEventListener('touchstart', toggleSound, { passive: false });
+                }
+                
+                if (restartBtn) {
+                    restartBtn.addEventListener('click', resetGame);
+                    restartBtn.addEventListener('touchstart', resetGame, { passive: false });
+                }
+                
+                if (infoBtn) {
+                    infoBtn.addEventListener('click', openInfo);
+                    infoBtn.addEventListener('touchstart', openInfo, { passive: false });
+                }
+                
+                if (shopBtn) {
+                    shopBtn.addEventListener('click', openShop);
+                    shopBtn.addEventListener('touchstart', openShop, { passive: false });
+                }
+                
+                if (infoBackBtn) {
+                    infoBackBtn.addEventListener('click', closeInfo);
+                    infoBackBtn.addEventListener('touchstart', closeInfo, { passive: false });
+                }
+                
+                if (shopBackBtn) {
+                    shopBackBtn.addEventListener('click', closeShop);
+                    shopBackBtn.addEventListener('touchstart', closeShop, { passive: false });
+                }
                 
                 window.addEventListener('resize', onResize);
                 
-                soundOnIcon.style.display = 'block';
-                soundOffIcon.style.display = 'none';
+                if (soundOnIcon && soundOffIcon) {
+                    soundOnIcon.style.display = 'block';
+                    soundOffIcon.style.display = 'none';
+                }
+                
+                // Дополнительная фиксация позиции
+                setTimeout(() => {
+                    if (!isInitialized) {
+                        initBagPosition();
+                    }
+                }, 100);
             }
             
             if (document.readyState === 'loading') {
@@ -1339,6 +1511,12 @@
             } else {
                 init();
             }
+            
+            window.addEventListener('beforeunload', () => {
+                if (gameInterval) clearInterval(gameInterval);
+                if (itemInterval) clearInterval(itemInterval);
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            });
         })();
     </script>
 </body>
