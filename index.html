@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ловец еды - ФИНАЛЬНАЯ ВЕРСИЯ</title>
+    <title>Ловец еды – ФИНАЛ</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-        
+
         html, body {
             width: 100%;
             height: 100%;
@@ -20,7 +20,7 @@
             position: fixed;
             background: #000;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             display: flex;
@@ -28,13 +28,13 @@
             justify-content: center;
             touch-action: none;
         }
-        
+
         .container {
             width: 100vw;
             height: 100vh;
             position: relative;
         }
-        
+
         .game-area {
             position: relative;
             width: 100vw;
@@ -46,7 +46,7 @@
             overflow: hidden;
             touch-action: none;
         }
-        
+
         .game-area::before {
             content: '';
             position: absolute;
@@ -58,12 +58,13 @@
             pointer-events: none;
             z-index: 1;
         }
-        
+
         .game-area > * {
             position: relative;
             z-index: 2;
         }
-        
+
+        /* Верхняя панель с кнопками */
         .top-bar {
             position: absolute;
             top: 15px;
@@ -76,13 +77,14 @@
             z-index: 200;
             pointer-events: none;
         }
-        
+
         .top-bar-left, .top-bar-right {
             display: flex;
-            gap: 15px; /* Увеличено для отдаления от кнопок */
+            gap: 15px;
             pointer-events: auto;
         }
-        
+
+        /* Кнопки без фона и теней */
         .nav-btn, .game-btn, .sound-btn, .back-btn {
             width: 50px;
             height: 50px;
@@ -97,11 +99,11 @@
             box-shadow: none !important;
             filter: none !important;
         }
-        
+
         .nav-btn:active, .game-btn:active, .sound-btn:active, .back-btn:active {
             transform: scale(0.85);
         }
-        
+
         .nav-icon, .btn-icon, .sound-icon, .back-icon {
             width: 50px;
             height: 50px;
@@ -110,8 +112,8 @@
             background: transparent;
             filter: none !important;
         }
-        
-        /* ===== СЕРДЕЧКА - ИДЕАЛЬНОЕ ПОЛОЖЕНИЕ ===== */
+
+        /* Сердечки – большие, без рамки, отодвинуты от кнопок */
         .lives-container {
             position: absolute;
             top: 20px;
@@ -120,44 +122,40 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px; /* Уменьшено с 15px до 8px для приближения друг к другу */
-            height: 50px;
+            gap: 10px;
+            padding: 0 50px;
             z-index: 150;
             pointer-events: none;
-            /* Добавлено для отдаления от кнопок */
-            padding: 0 40px; /* Создает отступы слева и справа */
-            width: auto;
-            min-width: 200px; /* Минимальная ширина для защиты от кнопок */
         }
-        
+
         .heart {
             font-size: 2.8rem;
             line-height: 1;
             transition: all 0.3s ease;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
-            margin: 0;
         }
-        
+
         .heart.full {
             color: #ef4444;
         }
-        
+
         .heart.empty {
             color: #4b5563;
             opacity: 0.2;
             transform: scale(0.8);
         }
-        
+
         .heart-lost {
             animation: heartBreak 0.5s ease forwards;
         }
-        
+
         @keyframes heartBreak {
             0% { transform: scale(1); color: #ef4444; }
             50% { transform: scale(1.5); color: #ef4444; }
             100% { transform: scale(0.8); color: #4b5563; opacity: 0.2; }
         }
-        
+
+        /* Счёт очков – белым по центру */
         .score-container {
             position: absolute;
             top: 85px;
@@ -172,16 +170,17 @@
             align-items: center;
             justify-content: center;
             z-index: 150;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
-        
+
         .score-display {
             font-size: 1.8rem;
             font-weight: bold;
             color: #ffffff;
-            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
-        
+
+        /* Пакет (корзинка) – точно по центру снизу */
         .burger-bag {
             position: absolute;
             bottom: 15px;
@@ -191,16 +190,16 @@
             border: none;
             transition: left 0.04s cubic-bezier(0.2, 0.9, 0.3, 1.1);
             z-index: 10;
-            will-change: left, transform;
         }
-        
+
         .burger-bag img {
             width: 100%;
             height: 100%;
             object-fit: contain;
             filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2));
         }
-        
+
+        /* Падающие предметы */
         .falling-item {
             position: absolute;
             display: flex;
@@ -210,31 +209,21 @@
             width: 65px !important;
             height: 65px !important;
             z-index: 5;
-            will-change: top, transform;
             background: none !important;
             border: none;
         }
-        
+
         .falling-item:not(.bomb-item) {
-            text-shadow: 
-                -3px -3px 0 white,
-                3px -3px 0 white,
-                -3px 3px 0 white,
-                3px 3px 0 white,
-                0 0 10px rgba(0,0,0,0.5);
+            text-shadow: -3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, 0 0 10px rgba(0,0,0,0.5);
         }
-        
+
         .falling-item.bomb-item {
-            text-shadow: 
-                -4px -4px 0 #ff0000,
-                4px -4px 0 #ff0000,
-                -4px 4px 0 #ff0000,
-                4px 4px 0 #ff0000,
-                0 0 15px rgba(255, 0, 0, 0.7) !important;
+            text-shadow: -4px -4px 0 #ff0000, 4px -4px 0 #ff0000, -4px 4px 0 #ff0000, 4px 4px 0 #ff0000, 0 0 15px rgba(255,0,0,0.7) !important;
             font-size: 52px;
             color: #000;
         }
-        
+
+        /* Кнопка СТАРТ */
         .start-btn-large {
             position: absolute;
             top: 50%;
@@ -257,22 +246,23 @@
             z-index: 200;
             text-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
-        
+
         .start-btn-large span {
             font-size: 16px;
             margin-top: 5px;
             font-weight: bold;
         }
-        
+
         .start-btn-large:active {
             transform: translate(-50%, -50%) scale(0.95);
         }
-        
+
         .start-btn-large.hidden {
             display: none;
         }
-        
-        .info-panel {
+
+        /* Панели информации и магазина */
+        .info-panel, .shop-panel {
             position: absolute;
             top: 0;
             left: 0;
@@ -290,11 +280,11 @@
             animation: slideIn 0.3s ease;
             -webkit-overflow-scrolling: touch;
         }
-        
-        .info-panel.active {
+
+        .info-panel.active, .shop-panel.active {
             display: flex;
         }
-        
+
         .info-content {
             width: 100%;
             max-width: 600px;
@@ -302,10 +292,9 @@
             flex-direction: column;
             align-items: center;
             gap: 20px;
-            padding-bottom: 30px;
         }
-        
-        .info-title {
+
+        .info-title, .shop-title {
             font-size: 2rem;
             font-weight: bold;
             color: #fbbf24;
@@ -315,7 +304,7 @@
             align-items: center;
             gap: 10px;
         }
-        
+
         .info-section {
             width: 100%;
             background: rgba(30, 41, 59, 0.6);
@@ -324,7 +313,7 @@
             margin-bottom: 15px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .info-subtitle {
             font-size: 1.3rem;
             font-weight: bold;
@@ -336,13 +325,13 @@
             border-bottom: 1px solid rgba(255,255,255,0.2);
             padding-bottom: 10px;
         }
-        
+
         .info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
-        
+
         .food-item {
             display: flex;
             align-items: center;
@@ -351,27 +340,27 @@
             background: rgba(15, 23, 42, 0.7);
             border-radius: 12px;
         }
-        
+
         .food-emoji {
             font-size: 1.8rem;
         }
-        
+
         .food-desc {
             display: flex;
             flex-direction: column;
         }
-        
+
         .food-name {
             font-size: 0.9rem;
             color: #e2e8f0;
         }
-        
+
         .food-points {
             font-size: 1.1rem;
             font-weight: bold;
             color: #10b981;
         }
-        
+
         .rule-item {
             display: flex;
             align-items: center;
@@ -379,33 +368,33 @@
             padding: 12px 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        
+
         .rule-item:last-child {
             border-bottom: none;
         }
-        
+
         .rule-icon {
             font-size: 1.6rem;
             width: 40px;
             text-align: center;
         }
-        
+
         .rule-text {
             font-size: 0.95rem;
             color: #f1f5f9;
             line-height: 1.4;
         }
-        
+
         .rule-highlight {
             color: #f59e0b;
             font-weight: bold;
         }
-        
+
         .bomb-highlight {
             color: #ef4444;
             font-weight: bold;
         }
-        
+
         .swipe-indicator {
             display: flex;
             align-items: center;
@@ -415,45 +404,12 @@
             margin-top: 10px;
             animation: bounce 2s infinite;
         }
-        
+
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
         }
-        
-        .shop-panel {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 15, 25, 0.97);
-            backdrop-filter: blur(10px);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 80px 25px 40px;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .shop-panel.active {
-            display: flex;
-        }
-        
-        .shop-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #fbbf24;
-            margin-bottom: 30px;
-            text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
+
         .shop-empty {
             text-align: center;
             color: #94a3b8;
@@ -463,23 +419,55 @@
             border-radius: 20px;
             border: 1px dashed rgba(255,255,255,0.2);
         }
-        
+
         .shop-emoji {
             font-size: 3.5rem;
             margin-bottom: 20px;
             display: block;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        
+
         @keyframes slideIn {
             from { transform: translateX(100%); }
             to { transform: translateX(0); }
         }
-        
+
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            padding: 0;
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            filter: none !important;
+            z-index: 1100;
+        }
+
+        .back-btn:active {
+            transform: scale(0.85);
+        }
+
+        .back-icon {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            display: block;
+            background: transparent;
+            filter: none !important;
+        }
+
         .touch-feedback {
             position: absolute;
             width: 80px;
@@ -490,12 +478,12 @@
             z-index: 20;
             animation: touchPulse 0.5s ease-out forwards;
         }
-        
+
         @keyframes touchPulse {
             0% { transform: scale(0.3); opacity: 0.8; }
             100% { transform: scale(2); opacity: 0; }
         }
-        
+
         .item-collected {
             position: absolute;
             color: #ffffff;
@@ -506,31 +494,31 @@
             animation: floatUp 0.8s ease-out forwards;
             text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         }
-        
+
         @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0) scale(1); }
             100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
         }
-        
+
         @keyframes caughtAnimation {
             0% { transform: scale(1); }
             50% { transform: scale(1.4); }
             100% { transform: scale(0); opacity: 0; }
         }
-        
+
         .caught-item {
             animation: caughtAnimation 0.25s ease forwards;
         }
-        
+
         @keyframes missedAnimation {
             0% { opacity: 1; transform: translateY(0) rotate(0deg); }
             100% { opacity: 0; transform: translateY(30px) rotate(10deg) scale(0.5); }
         }
-        
+
         .missed-item {
             animation: missedAnimation 0.5s ease-in forwards;
         }
-        
+
         .game-over {
             position: absolute;
             top: 0;
@@ -548,20 +536,20 @@
             padding: 20px;
             animation: fadeIn 0.3s ease-out;
         }
-        
+
         .game-over h2 {
             font-size: 2.5rem;
             color: #ef4444;
             margin-bottom: 20px;
             text-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
         }
-        
+
         .game-over p {
             font-size: 1.8rem;
             margin-bottom: 30px;
             color: #f8fafc;
         }
-        
+
         .restart-btn {
             background: linear-gradient(to right, #0ea5e9, #0284c7);
             color: white;
@@ -577,91 +565,91 @@
             align-items: center;
             gap: 10px;
         }
-        
+
         .restart-btn:active {
             transform: translateY(5px);
             box-shadow: 0 5px 0 #075985;
         }
-        
+
         @media (orientation: landscape) {
             .burger-bag {
                 bottom: 15px;
                 width: 100px;
                 height: 100px;
             }
-            
+
             .falling-item {
                 font-size: 44px;
                 width: 60px !important;
                 height: 60px !important;
             }
-            
+
             .falling-item.bomb-item {
                 font-size: 48px;
             }
-            
+
             .lives-container {
                 top: 18px;
-                gap: 6px;
-                padding: 0 35px;
+                gap: 8px;
+                padding: 0 45px;
             }
-            
+
             .heart {
                 font-size: 2.6rem;
             }
-            
+
             .score-container {
                 top: 80px;
                 padding: 5px 16px;
             }
-            
+
             .score-display {
                 font-size: 1.6rem;
             }
-            
+
             .nav-btn, .game-btn, .sound-btn, .back-btn {
                 width: 45px;
                 height: 45px;
             }
-            
+
             .nav-icon, .btn-icon, .sound-icon, .back-icon {
                 width: 45px;
                 height: 45px;
             }
-            
+
             .start-btn-large {
                 width: 110px;
                 height: 110px;
                 font-size: 44px;
             }
         }
-        
+
         @media (max-width: 380px) {
             .burger-bag {
                 width: 90px;
                 height: 90px;
                 bottom: 15px;
             }
-            
+
             .nav-btn, .game-btn, .sound-btn, .back-btn {
                 width: 40px;
                 height: 40px;
             }
-            
+
             .nav-icon, .btn-icon, .sound-icon, .back-icon {
                 width: 40px;
                 height: 40px;
             }
-            
+
             .lives-container {
-                gap: 5px;
-                padding: 0 30px;
+                gap: 6px;
+                padding: 0 40px;
             }
-            
+
             .heart {
                 font-size: 2.4rem;
             }
-            
+
             .score-display {
                 font-size: 1.4rem;
             }
@@ -680,7 +668,7 @@
                         <img src="images/icons/info.png" alt="Информация" class="nav-icon">
                     </div>
                 </div>
-                
+
                 <div class="top-bar-right">
                     <div class="sound-btn" id="soundToggleBtn">
                         <img src="images/icons/sound.png" alt="Звук вкл" class="sound-icon" id="soundOnIcon">
@@ -692,68 +680,61 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="lives-container">
                 <span class="heart full" id="heart1">❤️</span>
                 <span class="heart full" id="heart2">❤️</span>
                 <span class="heart full" id="heart3">❤️</span>
             </div>
-            
+
             <div class="score-container">
                 <span class="score-display" id="scoreDisplay">0</span>
             </div>
-            
+
             <div class="start-btn-large" id="startBtn">
                 🍔
                 <span>СТАРТ</span>
             </div>
-            
+
             <div class="burger-bag" id="burgerBag">
                 <img src="images/bag.png" alt="Пакет" id="bagImage">
             </div>
-            
+
+            <!-- Панель информации -->
             <div class="info-panel" id="infoPanel">
                 <div class="back-btn" id="infoBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
                 </div>
-                
                 <div class="info-content">
-                    <div class="info-title">
-                        <span>📋</span> ПРАВИЛА ИГРЫ
-                    </div>
-                    
+                    <div class="info-title"><span>📋</span> ПРАВИЛА ИГРЫ</div>
                     <div class="info-section">
-                        <div class="info-subtitle">
-                            <span>🍽️</span> МЕНЮ
-                        </div>
+                        <div class="info-subtitle"><span>🍽️</span> МЕНЮ</div>
                         <div class="info-grid">
                             <div class="food-item"><span class="food-emoji">🍔</span><div class="food-desc"><span class="food-name">Гамбургер</span><span class="food-points">+10</span></div></div>
                             <div class="food-item"><span class="food-emoji">🍟</span><div class="food-desc"><span class="food-name">Картошка фри</span><span class="food-points">+15</span></div></div>
                             <div class="food-item"><span class="food-emoji">🌭</span><div class="food-desc"><span class="food-name">Хот-дог</span><span class="food-points">+20</span></div></div>
                             <div class="food-item"><span class="food-emoji">🍕</span><div class="food-desc"><span class="food-name">Пицца</span><span class="food-points">+25</span></div></div>
                             <div class="food-item"><span class="food-emoji">🥙</span><div class="food-desc"><span class="food-name">Шаурма</span><span class="food-points">+30</span></div></div>
-                            <div class="food-item"><span class="food-emoji">💣</span><div class="food-desc"><span class="food-name">БОМБА</span><span class="food-points" style="color: #ef4444;">-1 ЖИЗНЬ</span></div></div>
+                            <div class="food-item"><span class="food-emoji">💣</span><div class="food-desc"><span class="food-name">БОМБА</span><span class="food-points" style="color:#ef4444;">-1 ЖИЗНЬ</span></div></div>
                         </div>
                     </div>
-                    
                     <div class="info-section">
                         <div class="info-subtitle"><span>⚙️</span> МЕХАНИКИ</div>
-                        <div class="rule-item"><span class="rule-icon">🎯</span><span class="rule-text"><span class="rule-highlight">Управление:</span> Водите пальцем</span></div>
-                        <div class="rule-item"><span class="rule-icon">❤️</span><span class="rule-text"><span class="rule-highlight">Жизни:</span> 3 сердца. Потеря при пропуске еды или ловле бомбы</span></div>
-                        <div class="rule-item"><span class="rule-icon">📊</span><span class="rule-text"><span class="rule-highlight">Уровень:</span> +100 очков = скорость ↑</span></div>
-                        <div class="rule-item"><span class="rule-icon">💣</span><span class="rule-text"><span class="bomb-highlight">Бомбы:</span> Не ловить! -1 жизнь. При пропуске исчезают</span></div>
+                        <div class="rule-item"><span class="rule-icon">🎯</span><span class="rule-text"><span class="rule-highlight">Управление:</span> водите пальцем</span></div>
+                        <div class="rule-item"><span class="rule-icon">❤️</span><span class="rule-text"><span class="rule-highlight">Жизни:</span> 3 сердца, теряете при пропуске еды или ловле бомбы</span></div>
+                        <div class="rule-item"><span class="rule-icon">📊</span><span class="rule-text"><span class="rule-highlight">Уровень:</span> +200 очков = скорость ↑</span></div>
+                        <div class="rule-item"><span class="rule-icon">💣</span><span class="rule-text"><span class="bomb-highlight">Бомбы:</span> не ловить! При пропуске исчезают</span></div>
                     </div>
-                    
                     <div class="info-section">
                         <div class="info-subtitle"><span>💡</span> СОВЕТЫ</div>
                         <div class="rule-item"><span class="rule-icon">⚠️</span><span class="rule-text">Красная обводка = бомба!</span></div>
                         <div class="rule-item"><span class="rule-icon">🍕</span><span class="rule-text">Пицца и шаурма — самые дорогие</span></div>
                     </div>
-                    
                     <div class="swipe-indicator"><span>👆</span> ЛИСТАЙТЕ <span>👇</span></div>
                 </div>
             </div>
-            
+
+            <!-- Панель магазина -->
             <div class="shop-panel" id="shopPanel">
                 <div class="back-btn" id="shopBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -765,7 +746,8 @@
                     <p style="font-size: 0.9rem; margin-top: 15px;">Скоро здесь появятся улучшения!</p>
                 </div>
             </div>
-            
+
+            <!-- Game Over экран -->
             <div class="game-over" id="gameOver">
                 <h2>GAME OVER</h2>
                 <p><span id="finalScore">0</span> очков</p>
@@ -776,93 +758,67 @@
 
     <script>
         (function() {
-            "use strict";
-            
-            // ========== ПРОСТЫЕ ЗВУКИ - 100% РАБОТА ==========
+            'use strict';
+
+            // ---------- Звуки ----------
             let successSound, failSound, bgMusic;
-            
-            try {
-                successSound = new Audio('sounds/success.mp3');
-                successSound.volume = 0.2;
-                successSound.load();
-            } catch (e) {
-                successSound = { play: () => Promise.resolve(), load: () => {} };
+
+            function initSounds() {
+                try {
+                    successSound = new Audio('sounds/success.mp3');
+                    successSound.volume = 0.2;
+                } catch (e) { successSound = null; }
+
+                try {
+                    failSound = new Audio('sounds/fail.mp3');
+                    failSound.volume = 0.2;
+                } catch (e) { failSound = null; }
+
+                try {
+                    bgMusic = new Audio('sounds/music.mp3');
+                    bgMusic.volume = 0.15;
+                    bgMusic.loop = true;
+                } catch (e) { bgMusic = null; }
             }
-            
-            try {
-                failSound = new Audio('sounds/fail.mp3');
-                failSound.volume = 0.2;
-                failSound.load();
-            } catch (e) {
-                failSound = { play: () => Promise.resolve(), load: () => {} };
-            }
-            
-            try {
-                bgMusic = new Audio('sounds/music.mp3');
-                bgMusic.volume = 0.15;
-                bgMusic.loop = true;
-                bgMusic.load();
-            } catch (e) {
-                bgMusic = { play: () => Promise.resolve(), pause: () => {}, load: () => {} };
-            }
-            
-            let isSoundOn = true;
-            let isMusicPlaying = false;
-            
-            // ПРОСТЕЙШИЕ ФУНКЦИИ - КЛОН НЕ НУЖЕН!
+
             function playSuccess() {
-                if (!isSoundOn || !gameRunning || gamePaused) return;
+                if (!isSoundOn || !gameRunning || gamePaused || !successSound) return;
                 try {
-                    // Создаем НОВЫЙ звук каждый раз - это 100% гарантия!
-                    const sound = new Audio('sounds/success.mp3');
-                    sound.volume = 0.2;
-                    sound.play().catch(() => {});
+                    successSound.cloneNode().play().catch(() => {});
                 } catch (e) {}
             }
-            
+
             function playFail() {
-                if (!isSoundOn || !gameRunning || gamePaused) return;
+                if (!isSoundOn || !gameRunning || gamePaused || !failSound) return;
                 try {
-                    // Создаем НОВЫЙ звук каждый раз - это 100% гарантия!
-                    const sound = new Audio('sounds/fail.mp3');
-                    sound.volume = 0.2;
-                    sound.play().catch(() => {});
+                    failSound.cloneNode().play().catch(() => {});
                 } catch (e) {}
             }
-            
-            // ========== СОСТОЯНИЕ ИГРЫ ==========
+
+            // ---------- Состояние игры ----------
             let score = 0;
             let lives = 3;
             let gameRunning = false;
             let gamePaused = false;
+            let isSoundOn = true;
             let isTouching = false;
-            
+
             let gameInterval = null;
             let itemInterval = null;
-            let animationFrameId = null;
-            
-            const fallingItems = new Map();
-            
-            // ========== КОНСТАНТЫ ==========
-            const FOOD = [
+            let animationFrame = null;
+
+            const items = new Map(); // падающие предметы
+
+            // ---------- Данные о еде (каждый продукт со своими очками) ----------
+            const FOODS = [
                 { emoji: '🍔', points: 10 },
                 { emoji: '🍟', points: 15 },
                 { emoji: '🌭', points: 20 },
                 { emoji: '🍕', points: 25 },
                 { emoji: '🥙', points: 30 }
             ];
-            
-            const BAG_SPEED = 3.5;
-            const ITEM_SIZE = 65;
-            const BOMB_CHANCE = 0.15;
-            
-            const BASE_SPAWN = 2200;
-            const BASE_SPEED = 3.2;
-            const SCORE_STEP = 200;
-            const SPAWN_REDUCTION = 150;
-            const SPEED_INCREASE = 0.25;
-            
-            // ========== DOM ЭЛЕМЕНТЫ ==========
+
+            // ---------- DOM элементы ----------
             const gameArea = document.getElementById('gameArea');
             const burgerBag = document.getElementById('burgerBag');
             const scoreDisplay = document.getElementById('scoreDisplay');
@@ -876,636 +832,477 @@
             const soundOffIcon = document.getElementById('soundOffIcon');
             const restartBtn = document.getElementById('restartBtn');
             const gameOverScreen = document.getElementById('gameOver');
-            const finalScore = document.getElementById('finalScore');
+            const finalScoreSpan = document.getElementById('finalScore');
             const shopBtn = document.getElementById('shopBtn');
             const infoBtn = document.getElementById('infoBtn');
             const infoBackBtn = document.getElementById('infoBackBtn');
             const shopBackBtn = document.getElementById('shopBackBtn');
             const infoPanel = document.getElementById('infoPanel');
             const shopPanel = document.getElementById('shopPanel');
-            
+
             const pauseIcon = document.querySelector('.pause-icon');
             const playIcon = document.querySelector('.play-icon');
-            
-            // ========== ПОЗИЦИЯ ПАКЕТА ==========
-            let targetPosition = 0;
-            let currentPosition = 0;
-            let isInitialized = false;
-            
-            function initBagPosition() {
+
+            // ---------- Позиция корзинки ----------
+            let bagX = 0;
+            let targetX = 0;
+
+            function centerBag() {
                 if (!burgerBag || !gameArea) return;
-                
-                const bagWidth = burgerBag.offsetWidth;
-                const gameWidth = gameArea.offsetWidth;
-                
-                if (bagWidth > 0 && gameWidth > 0) {
-                    targetPosition = Math.round((gameWidth - bagWidth) / 2);
-                    currentPosition = targetPosition;
-                    burgerBag.style.left = `${currentPosition}px`;
-                    isInitialized = true;
+                const bagW = burgerBag.offsetWidth;
+                const gameW = gameArea.offsetWidth;
+                if (bagW > 0 && gameW > 0) {
+                    bagX = (gameW - bagW) / 2;
+                    targetX = bagX;
+                    burgerBag.style.left = bagX + 'px';
                 }
             }
-            
-            function resetBagPosition() {
-                if (!burgerBag || !gameArea || !isInitialized) return;
-                
-                const bagWidth = burgerBag.offsetWidth;
-                const gameWidth = gameArea.offsetWidth;
-                
-                if (bagWidth > 0 && gameWidth > 0) {
-                    targetPosition = Math.round((gameWidth - bagWidth) / 2);
-                    currentPosition = targetPosition;
-                    burgerBag.style.left = `${currentPosition}px`;
-                }
-            }
-            
-            function smoothMove() {
+
+            function moveBagLoop() {
                 if (!burgerBag || !gameArea) {
-                    animationFrameId = requestAnimationFrame(smoothMove);
+                    animationFrame = requestAnimationFrame(moveBagLoop);
                     return;
                 }
-                
                 if (gameRunning && !gamePaused) {
-                    const maxLeft = gameArea.offsetWidth - burgerBag.offsetWidth;
-                    targetPosition = Math.max(0, Math.min(targetPosition, maxLeft));
-                    
-                    const diff = targetPosition - currentPosition;
-                    if (Math.abs(diff) < 0.5) {
-                        currentPosition = targetPosition;
-                    } else {
-                        currentPosition += diff * 0.25;
-                    }
-                    
-                    burgerBag.style.left = `${Math.round(currentPosition)}px`;
+                    const maxX = gameArea.offsetWidth - burgerBag.offsetWidth;
+                    targetX = Math.max(0, Math.min(targetX, maxX));
+                    bagX += (targetX - bagX) * 0.2;
+                    if (Math.abs(targetX - bagX) < 0.1) bagX = targetX;
+                    burgerBag.style.left = Math.round(bagX) + 'px';
                 }
-                
-                animationFrameId = requestAnimationFrame(smoothMove);
+                animationFrame = requestAnimationFrame(moveBagLoop);
             }
-            
-            // ========== UI ==========
+
+            // ---------- UI обновление ----------
             function updateUI() {
                 if (scoreDisplay) scoreDisplay.textContent = score;
-                
-                if (heart1 && heart2 && heart3) {
-                    heart1.className = lives >= 1 ? 'heart full' : 'heart empty';
-                    heart2.className = lives >= 2 ? 'heart full' : 'heart empty';
-                    heart3.className = lives >= 3 ? 'heart full' : 'heart empty';
-                }
+                heart1.className = lives >= 1 ? 'heart full' : 'heart empty';
+                heart2.className = lives >= 2 ? 'heart full' : 'heart empty';
+                heart3.className = lives >= 3 ? 'heart full' : 'heart empty';
             }
-            
-            // ========== РАСЧЕТ СЛОЖНОСТИ ==========
+
+            // ---------- Сложность (скорость растёт с очками) ----------
             function getLevel() {
-                return Math.floor(score / SCORE_STEP);
+                return Math.floor(score / 200);
             }
-            
+
             function getSpawnRate() {
-                const level = getLevel();
-                return Math.max(800, BASE_SPAWN - level * SPAWN_REDUCTION);
+                return Math.max(800, 2200 - getLevel() * 150);
             }
-            
+
             function getFallSpeed() {
-                const level = getLevel();
-                return BASE_SPEED + level * SPEED_INCREASE;
+                return 3.2 + getLevel() * 0.25;
             }
-            
-            // ========== КОЛЛИЗИЯ ==========
-            function checkCollision(itemRect) {
-                if (!burgerBag || !gameArea) return false;
-                
-                const bagRect = burgerBag.getBoundingClientRect();
-                const gameRect = gameArea.getBoundingClientRect();
-                
-                const itemLeft = itemRect.left - gameRect.left;
-                const itemRight = itemRect.right - gameRect.left;
-                const itemTop = itemRect.top - gameRect.top;
-                const itemBottom = itemRect.bottom - gameRect.top;
-                
-                const bagLeft = bagRect.left - gameRect.left;
-                const bagRight = bagRect.right - gameRect.left;
-                const bagTop = bagRect.top - gameRect.top;
-                const bagBottom = bagRect.bottom - gameRect.top;
-                
-                return (itemRight > bagLeft + 8 && 
-                        itemLeft < bagRight - 8 && 
-                        itemBottom > bagTop + 8 && 
-                        itemTop < bagBottom - 8);
+
+            // ---------- Проверка столкновения ----------
+            function checkCollision(rect) {
+                const bag = burgerBag.getBoundingClientRect();
+                const game = gameArea.getBoundingClientRect();
+
+                const itemL = rect.left - game.left;
+                const itemR = rect.right - game.left;
+                const itemT = rect.top - game.top;
+                const itemB = rect.bottom - game.top;
+
+                const bagL = bag.left - game.left;
+                const bagR = bag.right - game.left;
+                const bagT = bag.top - game.top;
+                const bagB = bag.bottom - game.top;
+
+                return itemR > bagL + 5 && itemL < bagR - 5 &&
+                       itemB > bagT + 5 && itemT < bagB - 5;
             }
-            
-            // ========== СОЗДАНИЕ ПРЕДМЕТОВ ==========
+
+            // ---------- Создание падающего предмета ----------
             function createItem() {
-                if (!gameRunning || gamePaused || !gameArea) return;
-                
+                if (!gameRunning || gamePaused) return;
+
+                const isBomb = Math.random() < 0.15;
                 const item = document.createElement('div');
-                item.classList.add('falling-item');
-                
-                const isBomb = Math.random() < BOMB_CHANCE;
-                
+                item.className = 'falling-item' + (isBomb ? ' bomb-item' : '');
+
+                let points;
                 if (isBomb) {
                     item.textContent = '💣';
-                    item.classList.add('bomb-item');
-                    item.style.fontSize = '52px';
+                    points = -1;
                 } else {
-                    const food = FOOD[Math.floor(Math.random() * FOOD.length)];
+                    const food = FOODS[Math.floor(Math.random() * FOODS.length)];
                     item.textContent = food.emoji;
-                    item.style.fontSize = '48px';
+                    points = food.points;
                 }
-                
-                item.style.width = `${ITEM_SIZE}px`;
-                item.style.height = `${ITEM_SIZE}px`;
-                
-                const maxLeft = gameArea.offsetWidth - ITEM_SIZE - 10;
+
+                item.style.width = '65px';
+                item.style.height = '65px';
+                const maxLeft = gameArea.offsetWidth - 75;
                 const left = Math.max(5, Math.floor(Math.random() * maxLeft));
-                
-                item.style.left = `${left}px`;
+                item.style.left = left + 'px';
                 item.style.top = '0px';
-                
+
                 gameArea.appendChild(item);
-                
-                const points = isBomb ? -1 : FOOD[Math.floor(Math.random() * FOOD.length)].points;
-                const id = Date.now() + Math.random().toString();
-                
-                fallingItems.set(id, {
-                    element: item,
+
+                items.set(item, {
                     type: isBomb ? 'bomb' : 'food',
                     points: points,
-                    top: 0,
-                    caught: false,
-                    id
+                    top: 0
                 });
             }
-            
-            // ========== ОБНОВЛЕНИЕ ПРЕДМЕТОВ ==========
+
+            // ---------- Обновление всех предметов (движение, столкновения) ----------
             function updateItems() {
-                if (!gameRunning || gamePaused || !gameArea) return;
-                
+                if (!gameRunning || gamePaused) return;
+
                 const speed = getFallSpeed();
                 const height = gameArea.offsetHeight;
                 const gameRect = gameArea.getBoundingClientRect();
-                
-                for (const [id, data] of fallingItems) {
-                    if (data.caught || !data.element || !data.element.parentNode) {
-                        fallingItems.delete(id);
+
+                for (const [el, data] of items) {
+                    if (!el.parentNode) {
+                        items.delete(el);
                         continue;
                     }
-                    
+
                     data.top += speed;
-                    data.element.style.top = `${data.top}px`;
-                    
+                    el.style.top = data.top + 'px';
+
                     if (data.top > height + 100) {
-                        if (data.element.parentNode) data.element.remove();
-                        fallingItems.delete(id);
+                        el.remove();
+                        items.delete(el);
                         continue;
                     }
-                    
-                    const rect = data.element.getBoundingClientRect();
-                    const collision = checkCollision(rect);
-                    
-                    if (collision && !data.caught) {
-                        data.caught = true;
-                        
+
+                    const rect = el.getBoundingClientRect();
+
+                    // Поймали?
+                    if (checkCollision(rect) && data.top < height - 20) {
+                        // Немедленно удаляем из коллекции, чтобы не обрабатывать повторно
+                        items.delete(el);
+
                         if (data.type === 'bomb') {
-                            lives = Math.max(0, lives - 1);
-                            
-                            let heartToLose = null;
-                            if (lives === 2) heartToLose = heart3;
-                            else if (lives === 1) heartToLose = heart2;
-                            else if (lives === 0) heartToLose = heart1;
-                            
-                            if (heartToLose) {
-                                heartToLose.classList.add('heart-lost');
-                                setTimeout(() => {
-                                    if (heartToLose) {
-                                        heartToLose.classList.remove('heart-lost');
-                                        heartToLose.className = 'heart empty';
-                                    }
-                                }, 300);
-                            }
-                            
+                            lives--;
+                            if (lives === 2) heart3.classList.add('heart-lost');
+                            else if (lives === 1) heart2.classList.add('heart-lost');
+                            else if (lives === 0) heart1.classList.add('heart-lost');
+
                             playFail();
                             showMessage('💣 -1', '#ef4444', rect.left - gameRect.left, rect.top - gameRect.top);
-                            
-                            if (burgerBag) {
-                                burgerBag.style.transform = 'scale(0.95)';
-                                setTimeout(() => {
-                                    if (burgerBag) burgerBag.style.transform = 'scale(1)';
-                                }, 200);
-                            }
+
+                            burgerBag.style.transform = 'scale(0.95)';
+                            setTimeout(() => burgerBag.style.transform = 'scale(1)', 200);
                         } else {
                             score += data.points;
                             playSuccess();
-                            showMessage(`+${data.points}`, '#10b981', rect.left - gameRect.left, rect.top - gameRect.top);
-                            
-                            if (burgerBag) {
-                                burgerBag.style.transform = 'translateY(-5px)';
-                                setTimeout(() => {
-                                    if (burgerBag) burgerBag.style.transform = 'translateY(0)';
-                                }, 200);
-                            }
+                            showMessage('+' + data.points, '#10b981', rect.left - gameRect.left, rect.top - gameRect.top);
+
+                            burgerBag.style.transform = 'translateY(-5px)';
+                            setTimeout(() => burgerBag.style.transform = 'translateY(0)', 200);
                         }
-                        
+
                         updateUI();
-                        
-                        if (data.element) {
-                            data.element.classList.add('caught-item');
-                            setTimeout(() => {
-                                if (data.element && data.element.parentNode) {
-                                    data.element.remove();
-                                    fallingItems.delete(id);
-                                }
-                            }, 250);
-                        }
-                        
+                        el.classList.add('caught-item');
+                        setTimeout(() => {
+                            if (el.parentNode) el.remove();
+                        }, 250);
+
                         if (lives <= 0) {
                             endGame();
                             return;
                         }
-                    } else if (data.top > height - 70 && !data.caught && data.type === 'food') {
-                        data.caught = true;
-                        
-                        lives = Math.max(0, lives - 1);
-                        
-                        let heartToLose = null;
-                        if (lives === 2) heartToLose = heart3;
-                        else if (lives === 1) heartToLose = heart2;
-                        else if (lives === 0) heartToLose = heart1;
-                        
-                        if (heartToLose) {
-                            heartToLose.classList.add('heart-lost');
-                            setTimeout(() => {
-                                if (heartToLose) {
-                                    heartToLose.classList.remove('heart-lost');
-                                    heartToLose.className = 'heart empty';
-                                }
-                            }, 300);
-                        }
-                        
+                        continue;
+                    }
+
+                    // Пропуск еды (достигла низа)
+                    if (data.top > height - 70 && data.type === 'food') {
+                        // Немедленно удаляем из коллекции
+                        items.delete(el);
+
+                        lives--;
+                        if (lives === 2) heart3.classList.add('heart-lost');
+                        else if (lives === 1) heart2.classList.add('heart-lost');
+                        else if (lives === 0) heart1.classList.add('heart-lost');
+
                         playFail();
                         showMessage('😢 ПРОПУСК -1', '#ef4444', rect.left - gameRect.left, height - 80);
-                        
-                        if (data.element) {
-                            data.element.classList.add('missed-item');
-                            setTimeout(() => {
-                                if (data.element && data.element.parentNode) {
-                                    data.element.remove();
-                                    fallingItems.delete(id);
-                                }
-                            }, 500);
-                        }
-                        
+
+                        el.classList.add('missed-item');
+                        setTimeout(() => {
+                            if (el.parentNode) el.remove();
+                        }, 500);
+
                         updateUI();
-                        
+
                         if (lives <= 0) {
                             endGame();
                             return;
                         }
-                    } else if (data.top > height - 70 && !data.caught && data.type === 'bomb') {
-                        if (data.element && data.element.parentNode) {
-                            data.element.remove();
-                            fallingItems.delete(id);
-                        }
+                        continue;
+                    }
+
+                    // Бомба упала – просто исчезает
+                    if (data.top > height - 70 && data.type === 'bomb') {
+                        items.delete(el);
+                        el.remove();
                     }
                 }
             }
-            
-            // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
+
+            // ---------- Вспомогательные функции ----------
             function showMessage(text, color, x, y) {
-                if (!gameArea) return;
                 const msg = document.createElement('div');
-                msg.classList.add('item-collected');
+                msg.className = 'item-collected';
                 msg.textContent = text;
                 msg.style.color = color;
-                msg.style.left = `${x}px`;
-                msg.style.top = `${y}px`;
+                msg.style.left = x + 'px';
+                msg.style.top = y + 'px';
                 gameArea.appendChild(msg);
-                setTimeout(() => {
-                    if (msg.parentNode) msg.remove();
-                }, 800);
+                setTimeout(() => msg.remove(), 800);
             }
-            
-            function createTouchFeedback(x, y) {
-                if (!gameArea) return;
-                const fb = document.createElement('div');
-                fb.classList.add('touch-feedback');
-                fb.style.left = `${x - 40}px`;
-                fb.style.top = `${y - 40}px`;
-                gameArea.appendChild(fb);
-                setTimeout(() => {
-                    if (fb.parentNode) fb.remove();
-                }, 500);
-            }
-            
+
             function toggleSound(e) {
                 if (e) e.preventDefault();
                 isSoundOn = !isSoundOn;
-                
-                if (soundOnIcon && soundOffIcon) {
-                    soundOnIcon.style.display = isSoundOn ? 'block' : 'none';
-                    soundOffIcon.style.display = isSoundOn ? 'none' : 'block';
-                }
-                
+                soundOnIcon.style.display = isSoundOn ? 'block' : 'none';
+                soundOffIcon.style.display = isSoundOn ? 'none' : 'block';
+
                 if (isSoundOn && gameRunning && !gamePaused && bgMusic) {
                     bgMusic.play().catch(() => {});
                 } else if (bgMusic) {
                     bgMusic.pause();
                 }
             }
-            
-            // ========== УПРАВЛЕНИЕ ==========
+
+            // ---------- Управление игрой ----------
             function startGame(e) {
                 if (e) e.preventDefault();
                 if (gameRunning) return;
-                
+
+                // Очистка старых интервалов и предметов
                 if (gameInterval) clearInterval(gameInterval);
                 if (itemInterval) clearInterval(itemInterval);
-                
-                fallingItems.forEach(data => {
-                    if (data.element && data.element.parentNode) data.element.remove();
-                });
-                fallingItems.clear();
-                
+
+                for (const [el] of items) {
+                    if (el.parentNode) el.remove();
+                }
+                items.clear();
+
                 score = 0;
                 lives = 3;
                 gameRunning = true;
                 gamePaused = false;
-                
-                if (startBtn) startBtn.classList.add('hidden');
-                if (pauseIcon && playIcon) {
-                    pauseIcon.style.display = 'block';
-                    playIcon.style.display = 'none';
-                }
-                
-                if (heart1 && heart2 && heart3) {
-                    heart1.className = 'heart full';
-                    heart2.className = 'heart full';
-                    heart3.className = 'heart full';
-                }
-                
-                if (gameOverScreen) gameOverScreen.style.display = 'none';
-                
-                resetBagPosition();
+
+                startBtn.classList.add('hidden');
+                pauseIcon.style.display = 'block';
+                playIcon.style.display = 'none';
+
+                heart1.className = 'heart full';
+                heart2.className = 'heart full';
+                heart3.className = 'heart full';
+
+                gameOverScreen.style.display = 'none';
+
+                centerBag();
                 updateUI();
-                
-                if (isSoundOn && bgMusic && !isMusicPlaying) {
+
+                if (isSoundOn && bgMusic) {
                     bgMusic.play().catch(() => {});
-                    isMusicPlaying = true;
                 }
-                
+
                 itemInterval = setInterval(() => {
                     if (gameRunning && !gamePaused) createItem();
                 }, getSpawnRate());
-                
+
                 gameInterval = setInterval(() => {
                     if (gameRunning && !gamePaused) updateItems();
                 }, 16);
             }
-            
+
             function pauseGame(e) {
                 if (e) e.preventDefault();
                 if (!gameRunning) return;
-                
+
                 gamePaused = !gamePaused;
-                
-                if (pauseIcon && playIcon) {
-                    pauseIcon.style.display = gamePaused ? 'none' : 'block';
-                    playIcon.style.display = gamePaused ? 'block' : 'none';
-                }
-                
+                pauseIcon.style.display = gamePaused ? 'none' : 'block';
+                playIcon.style.display = gamePaused ? 'block' : 'none';
+
                 if (gamePaused) {
                     if (bgMusic) bgMusic.pause();
-                    if (gameArea) {
-                        showMessage('ПАУЗА', '#94a3b8', gameArea.offsetWidth / 2 - 40, gameArea.offsetHeight / 2);
-                    }
+                    showMessage('ПАУЗА', '#94a3b8', gameArea.offsetWidth / 2 - 40, gameArea.offsetHeight / 2);
                 } else {
                     if (isSoundOn && bgMusic) bgMusic.play().catch(() => {});
                 }
             }
-            
+
             function resetGame(e) {
                 if (e) e.preventDefault();
-                
+
                 if (gameInterval) clearInterval(gameInterval);
                 if (itemInterval) clearInterval(itemInterval);
-                
-                fallingItems.forEach(data => {
-                    if (data.element && data.element.parentNode) data.element.remove();
-                });
-                fallingItems.clear();
-                
+
+                for (const [el] of items) {
+                    if (el.parentNode) el.remove();
+                }
+                items.clear();
+
                 score = 0;
                 lives = 3;
                 gameRunning = false;
                 gamePaused = false;
-                
-                if (startBtn) startBtn.classList.remove('hidden');
-                if (pauseIcon && playIcon) {
-                    pauseIcon.style.display = 'block';
-                    playIcon.style.display = 'none';
-                }
-                
-                if (heart1 && heart2 && heart3) {
-                    heart1.className = 'heart full';
-                    heart2.className = 'heart full';
-                    heart3.className = 'heart full';
-                }
-                
-                if (gameOverScreen) gameOverScreen.style.display = 'none';
-                
-                resetBagPosition();
+
+                startBtn.classList.remove('hidden');
+                pauseIcon.style.display = 'block';
+                playIcon.style.display = 'none';
+
+                heart1.className = 'heart full';
+                heart2.className = 'heart full';
+                heart3.className = 'heart full';
+
+                gameOverScreen.style.display = 'none';
+
+                centerBag();
                 updateUI();
-                
+
                 if (bgMusic) {
                     bgMusic.pause();
                     bgMusic.currentTime = 0;
-                    isMusicPlaying = false;
                 }
             }
-            
+
             function endGame() {
                 gameRunning = false;
-                
                 if (gameInterval) clearInterval(gameInterval);
                 if (itemInterval) clearInterval(itemInterval);
-                
-                if (finalScore) finalScore.textContent = score;
-                if (gameOverScreen) gameOverScreen.style.display = 'flex';
-                
-                if (bgMusic) {
-                    bgMusic.pause();
-                    isMusicPlaying = false;
-                }
+                finalScoreSpan.textContent = score;
+                gameOverScreen.style.display = 'flex';
+                if (bgMusic) bgMusic.pause();
             }
-            
-            function moveBag(direction) {
-                if (!gameRunning || gamePaused || !burgerBag || !gameArea) return;
-                
-                const bagWidth = burgerBag.offsetWidth;
-                const gameWidth = gameArea.offsetWidth;
-                const amount = 50 * BAG_SPEED;
-                
-                if (direction === 'left') {
-                    targetPosition = Math.max(0, targetPosition - amount);
-                } else {
-                    targetPosition = Math.min(gameWidth - bagWidth, targetPosition + amount);
-                }
+
+            function moveLeft() {
+                if (!gameRunning || gamePaused) return;
+                targetX -= 50 * 3.5;
+                targetX = Math.max(0, targetX);
             }
-            
-            // ========== НАВИГАЦИЯ ==========
+
+            function moveRight() {
+                if (!gameRunning || gamePaused) return;
+                targetX += 50 * 3.5;
+                const max = gameArea.offsetWidth - burgerBag.offsetWidth;
+                targetX = Math.min(max, targetX);
+            }
+
+            // ---------- Навигация по панелям ----------
             function openInfo(e) {
                 if (e) e.preventDefault();
                 if (gameRunning && !gamePaused) pauseGame(e);
-                if (infoPanel) infoPanel.classList.add('active');
-                if (shopPanel) shopPanel.classList.remove('active');
+                infoPanel.classList.add('active');
+                shopPanel.classList.remove('active');
             }
-            
+
             function openShop(e) {
                 if (e) e.preventDefault();
                 if (gameRunning && !gamePaused) pauseGame(e);
-                if (shopPanel) shopPanel.classList.add('active');
-                if (infoPanel) infoPanel.classList.remove('active');
+                shopPanel.classList.add('active');
+                infoPanel.classList.remove('active');
             }
-            
+
             function closeInfo(e) {
                 if (e) e.preventDefault();
-                if (infoPanel) infoPanel.classList.remove('active');
+                infoPanel.classList.remove('active');
             }
-            
+
             function closeShop(e) {
                 if (e) e.preventDefault();
-                if (shopPanel) shopPanel.classList.remove('active');
+                shopPanel.classList.remove('active');
             }
-            
-            // ========== СОБЫТИЯ ==========
+
+            // ---------- События касания и клавиатуры ----------
             function onTouchStart(e) {
-                if (!gameRunning || gamePaused || !burgerBag || !gameArea) return;
-                
+                if (!gameRunning || gamePaused) return;
                 e.preventDefault();
-                
                 const touch = e.touches[0];
                 const rect = gameArea.getBoundingClientRect();
                 const x = touch.clientX - rect.left;
-                
-                targetPosition = Math.max(0, Math.min(x - burgerBag.offsetWidth / 2, rect.width - burgerBag.offsetWidth));
-                createTouchFeedback(x, touch.clientY - rect.top);
+                targetX = x - burgerBag.offsetWidth / 2;
+                targetX = Math.max(0, Math.min(targetX, rect.width - burgerBag.offsetWidth));
+
+                const fb = document.createElement('div');
+                fb.className = 'touch-feedback';
+                fb.style.left = (x - 40) + 'px';
+                fb.style.top = (touch.clientY - rect.top - 40) + 'px';
+                gameArea.appendChild(fb);
+                setTimeout(() => fb.remove(), 500);
+
                 isTouching = true;
             }
-            
+
             function onTouchMove(e) {
-                if (!gameRunning || gamePaused || !isTouching || !burgerBag || !gameArea) return;
-                
+                if (!gameRunning || gamePaused || !isTouching) return;
                 e.preventDefault();
-                
                 const touch = e.touches[0];
                 const rect = gameArea.getBoundingClientRect();
                 const x = touch.clientX - rect.left;
-                
-                targetPosition = Math.max(0, Math.min(x - burgerBag.offsetWidth / 2, rect.width - burgerBag.offsetWidth));
+                targetX = x - burgerBag.offsetWidth / 2;
+                targetX = Math.max(0, Math.min(targetX, rect.width - burgerBag.offsetWidth));
             }
-            
+
             function onTouchEnd(e) {
                 e.preventDefault();
                 isTouching = false;
             }
-            
+
             function onKeyDown(e) {
                 if (!gameRunning || gamePaused) return;
-                if (e.key === 'ArrowLeft' || e.key === 'a') moveBag('left');
-                if (e.key === 'ArrowRight' || e.key === 'd') moveBag('right');
+                if (e.key === 'ArrowLeft' || e.key === 'a') moveLeft();
+                if (e.key === 'ArrowRight' || e.key === 'd') moveRight();
             }
-            
-            function onResize() {
-                if (burgerBag && gameArea && isInitialized) {
-                    const max = gameArea.offsetWidth - burgerBag.offsetWidth;
-                    targetPosition = Math.max(0, Math.min(targetPosition, max));
-                    currentPosition = targetPosition;
-                    burgerBag.style.left = `${Math.round(currentPosition)}px`;
-                }
-            }
-            
-            // ========== ИНИЦИАЛИЗАЦИЯ ==========
+
+            // ---------- Инициализация ----------
             function init() {
-                initBagPosition();
-                
-                // Предзагружаем звуки
-                if (successSound) successSound.load();
-                if (failSound) failSound.load();
-                if (bgMusic) bgMusic.load();
-                
+                initSounds();
+                centerBag();
                 updateUI();
-                smoothMove();
-                
-                if (gameArea) {
-                    gameArea.addEventListener('touchstart', onTouchStart, { passive: false });
-                    gameArea.addEventListener('touchmove', onTouchMove, { passive: false });
-                    gameArea.addEventListener('touchend', onTouchEnd);
-                    gameArea.addEventListener('touchcancel', onTouchEnd);
-                }
-                
+                moveBagLoop();
+
+                gameArea.addEventListener('touchstart', onTouchStart, { passive: false });
+                gameArea.addEventListener('touchmove', onTouchMove, { passive: false });
+                gameArea.addEventListener('touchend', onTouchEnd);
+                gameArea.addEventListener('touchcancel', onTouchEnd);
+
                 document.addEventListener('keydown', onKeyDown);
-                
-                if (startBtn) {
-                    startBtn.addEventListener('click', startGame);
-                    startBtn.addEventListener('touchstart', startGame, { passive: false });
-                }
-                
-                if (pauseBtn) {
-                    pauseBtn.addEventListener('click', pauseGame);
-                    pauseBtn.addEventListener('touchstart', pauseGame, { passive: false });
-                }
-                
-                if (soundToggleBtn) {
-                    soundToggleBtn.addEventListener('click', toggleSound);
-                    soundToggleBtn.addEventListener('touchstart', toggleSound, { passive: false });
-                }
-                
-                if (restartBtn) {
-                    restartBtn.addEventListener('click', resetGame);
-                    restartBtn.addEventListener('touchstart', resetGame, { passive: false });
-                }
-                
-                if (infoBtn) {
-                    infoBtn.addEventListener('click', openInfo);
-                    infoBtn.addEventListener('touchstart', openInfo, { passive: false });
-                }
-                
-                if (shopBtn) {
-                    shopBtn.addEventListener('click', openShop);
-                    shopBtn.addEventListener('touchstart', openShop, { passive: false });
-                }
-                
-                if (infoBackBtn) {
-                    infoBackBtn.addEventListener('click', closeInfo);
-                    infoBackBtn.addEventListener('touchstart', closeInfo, { passive: false });
-                }
-                
-                if (shopBackBtn) {
-                    shopBackBtn.addEventListener('click', closeShop);
-                    shopBackBtn.addEventListener('touchstart', closeShop, { passive: false });
-                }
-                
-                window.addEventListener('resize', onResize);
-                
-                if (soundOnIcon && soundOffIcon) {
-                    soundOnIcon.style.display = 'block';
-                    soundOffIcon.style.display = 'none';
-                }
-                
-                setTimeout(() => {
-                    if (!isInitialized) {
-                        initBagPosition();
-                    }
-                }, 100);
+
+                startBtn.addEventListener('click', startGame);
+                startBtn.addEventListener('touchstart', startGame, { passive: false });
+                pauseBtn.addEventListener('click', pauseGame);
+                pauseBtn.addEventListener('touchstart', pauseGame, { passive: false });
+                soundToggleBtn.addEventListener('click', toggleSound);
+                soundToggleBtn.addEventListener('touchstart', toggleSound, { passive: false });
+                restartBtn.addEventListener('click', resetGame);
+                restartBtn.addEventListener('touchstart', resetGame, { passive: false });
+
+                infoBtn.addEventListener('click', openInfo);
+                infoBtn.addEventListener('touchstart', openInfo, { passive: false });
+                shopBtn.addEventListener('click', openShop);
+                shopBtn.addEventListener('touchstart', openShop, { passive: false });
+                infoBackBtn.addEventListener('click', closeInfo);
+                infoBackBtn.addEventListener('touchstart', closeInfo, { passive: false });
+                shopBackBtn.addEventListener('click', closeShop);
+                shopBackBtn.addEventListener('touchstart', closeShop, { passive: false });
+
+                window.addEventListener('resize', centerBag);
+
+                soundOnIcon.style.display = 'block';
+                soundOffIcon.style.display = 'none';
             }
-            
+
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
                 init();
             }
-            
+
+            // Очистка при выгрузке страницы
             window.addEventListener('beforeunload', () => {
                 if (gameInterval) clearInterval(gameInterval);
                 if (itemInterval) clearInterval(itemInterval);
-                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                if (animationFrame) cancelAnimationFrame(animationFrame);
             });
         })();
     </script>
