@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ловец еды - АБСОЛЮТНО ИСПРАВЛЕННАЯ ВЕРСИЯ</title>
+    <title>Ловец еды - ФИНАЛ</title>
     <style>
-        /* ===== СБРОС СТИЛЕЙ ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
         }
         
         html, body {
@@ -24,8 +22,7 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -35,13 +32,9 @@
         .container {
             width: 100vw;
             height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
         }
         
-        /* ===== ИГРОВОЕ ПОЛЕ ===== */
         .game-area {
             position: relative;
             width: 100vw;
@@ -50,7 +43,6 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-color: #0f172a;
             overflow: hidden;
             touch-action: none;
         }
@@ -72,7 +64,6 @@
             z-index: 2;
         }
         
-        /* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
         .top-bar {
             position: absolute;
             top: 15px;
@@ -92,7 +83,6 @@
             pointer-events: auto;
         }
         
-        /* ===== КНОПКИ БЕЗ ФОНА И ТЕНЕЙ - 100% ПРОЗРАЧНЫЕ ===== */
         .nav-btn, .game-btn, .sound-btn, .back-btn {
             width: 50px;
             height: 50px;
@@ -101,17 +91,11 @@
             align-items: center;
             cursor: pointer;
             transition: transform 0.2s ease;
-            touch-action: manipulation;
             padding: 0;
             background: none !important;
             border: none !important;
             box-shadow: none !important;
-            outline: none !important;
             filter: none !important;
-            -webkit-filter: none !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            opacity: 1 !important;
         }
         
         .nav-btn:active, .game-btn:active, .sound-btn:active, .back-btn:active {
@@ -123,51 +107,35 @@
             height: 50px;
             object-fit: contain;
             display: block;
-            background: transparent !important;
+            background: transparent;
             filter: none !important;
-            -webkit-filter: none !important;
-            box-shadow: none !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            opacity: 1 !important;
         }
         
-        /* ===== СЧЁТЧИК ЖИЗНЕЙ ===== */
+        /* ===== СЕРДЕЧКА - БОЛЬШЕ И БЕЗ РАМКИ ===== */
         .lives-container {
             position: absolute;
-            top: 15px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(5px);
-            padding: 8px 20px;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 150;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        
-        .hearts-container {
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
         
         .heart {
-            font-size: 1.8rem;
+            font-size: 2.4rem;
+            margin: 0 5px;
             transition: all 0.3s ease;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
         }
         
         .heart.full {
             color: #ef4444;
-            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
         }
         
         .heart.empty {
-            color: #475569;
+            color: #4b5563;
             opacity: 0.3;
             transform: scale(0.8);
         }
@@ -179,10 +147,9 @@
         @keyframes heartBreak {
             0% { transform: scale(1); color: #ef4444; }
             50% { transform: scale(1.5); color: #ef4444; }
-            100% { transform: scale(0.8); color: #475569; opacity: 0.3; }
+            100% { transform: scale(0.8); color: #4b5563; opacity: 0.3; }
         }
         
-        /* ===== СЧЁТЧИК ОЧКОВ ===== */
         .score-container {
             position: absolute;
             top: 85px;
@@ -205,10 +172,8 @@
             font-weight: bold;
             color: #ffffff;
             text-shadow: 0 0 10px rgba(255,255,255,0.5);
-            letter-spacing: 2px;
         }
         
-        /* ===== ПАКЕТ ===== */
         .burger-bag {
             position: absolute;
             bottom: 15px;
@@ -216,7 +181,6 @@
             height: 107px;
             background: none;
             border: none;
-            box-shadow: none;
             transition: left 0.04s cubic-bezier(0.2, 0.9, 0.3, 1.1);
             z-index: 10;
             will-change: left, transform;
@@ -229,7 +193,6 @@
             filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2));
         }
         
-        /* ===== ПАДАЮЩИЕ ПРЕДМЕТЫ ===== */
         .falling-item {
             position: absolute;
             display: flex;
@@ -239,11 +202,9 @@
             width: 65px !important;
             height: 65px !important;
             z-index: 5;
-            transition: transform 0.1s ease-out;
             will-change: top, transform;
             background: none !important;
             border: none;
-            box-shadow: none;
         }
         
         .falling-item:not(.bomb-item) {
@@ -266,7 +227,6 @@
             color: #000;
         }
         
-        /* ===== КНОПКА СТАРТ ===== */
         .start-btn-large {
             position: absolute;
             top: 50%;
@@ -304,7 +264,6 @@
             display: none;
         }
         
-        /* ===== ПАНЕЛЬ ИНФОРМАЦИИ ===== */
         .info-panel {
             position: absolute;
             top: 0;
@@ -454,7 +413,6 @@
             50% { transform: translateY(-5px); }
         }
         
-        /* ===== ПАНЕЛЬ МАГАЗИНА ===== */
         .shop-panel {
             position: absolute;
             top: 0;
@@ -514,7 +472,6 @@
             to { transform: translateX(0); }
         }
         
-        /* ===== ЭФФЕКТЫ ===== */
         .touch-feedback {
             position: absolute;
             width: 80px;
@@ -566,7 +523,6 @@
             animation: missedAnimation 0.5s ease-in forwards;
         }
         
-        /* ===== GAME OVER ===== */
         .game-over {
             position: absolute;
             top: 0;
@@ -619,7 +575,6 @@
             box-shadow: 0 5px 0 #075985;
         }
         
-        /* ===== АДАПТАЦИЯ ===== */
         @media (orientation: landscape) {
             .burger-bag {
                 bottom: 15px;
@@ -638,17 +593,16 @@
             }
             
             .lives-container {
-                top: 12px;
-                padding: 6px 18px;
-            }
-            
-            .score-container {
-                top: 75px;
-                padding: 5px 16px;
+                top: 15px;
             }
             
             .heart {
-                font-size: 1.6rem;
+                font-size: 2.2rem;
+            }
+            
+            .score-container {
+                top: 80px;
+                padding: 5px 16px;
             }
             
             .score-display {
@@ -690,7 +644,7 @@
             }
             
             .heart {
-                font-size: 1.4rem;
+                font-size: 2rem;
             }
             
             .score-display {
@@ -702,7 +656,6 @@
 <body>
     <div class="container">
         <div class="game-area" id="gameArea">
-            <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
             <div class="top-bar">
                 <div class="top-bar-left">
                     <div class="nav-btn" id="shopBtn">
@@ -725,32 +678,25 @@
                 </div>
             </div>
             
-            <!-- СЧЁТЧИК ЖИЗНЕЙ -->
             <div class="lives-container">
-                <div class="hearts-container" id="heartsContainer">
-                    <span class="heart full" id="heart1">❤️</span>
-                    <span class="heart full" id="heart2">❤️</span>
-                    <span class="heart full" id="heart3">❤️</span>
-                </div>
+                <span class="heart full" id="heart1">❤️</span>
+                <span class="heart full" id="heart2">❤️</span>
+                <span class="heart full" id="heart3">❤️</span>
             </div>
             
-            <!-- СЧЁТЧИК ОЧКОВ -->
             <div class="score-container">
                 <span class="score-display" id="scoreDisplay">0</span>
             </div>
             
-            <!-- КНОПКА СТАРТ -->
             <div class="start-btn-large" id="startBtn">
                 🍔
                 <span>СТАРТ</span>
             </div>
             
-            <!-- ПАКЕТ -->
             <div class="burger-bag" id="burgerBag">
                 <img src="images/bag.png" alt="Пакет" id="bagImage">
             </div>
             
-            <!-- ПАНЕЛЬ ИНФОРМАЦИИ -->
             <div class="info-panel" id="infoPanel">
                 <div class="back-btn" id="infoBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -793,7 +739,6 @@
                 </div>
             </div>
             
-            <!-- ПАНЕЛЬ МАГАЗИНА -->
             <div class="shop-panel" id="shopPanel">
                 <div class="back-btn" id="shopBackBtn">
                     <img src="images/icons/back.png" alt="Назад" class="back-icon">
@@ -806,7 +751,6 @@
                 </div>
             </div>
             
-            <!-- GAME OVER -->
             <div class="game-over" id="gameOver">
                 <h2>GAME OVER</h2>
                 <p><span id="finalScore">0</span> очков</p>
@@ -816,879 +760,586 @@
     </div>
 
     <script>
-        // ========== ИСПРАВЛЕНИЕ 1: ЕДИНЫЙ ОБЪЕКТ СОСТОЯНИЯ ==========
-        const GameState = {
-            // Игровые параметры
-            score: 0,
-            lives: 3,
-            gameRunning: false,
-            gamePaused: false,
-            isTouching: false,
-            fallingItems: new Map(),
+        (function() {
+            "use strict";
             
-            // Позиция пакета
-            bagPosition: 0,
-            targetPosition: 0,
-            currentPosition: 0,
+            // ========== ЗВУКИ - ТИШЕ, ПРОЩЕ ==========
+            const successSound = new Audio('sounds/success.mp3');
+            const failSound = new Audio('sounds/fail.mp3');
+            const bgMusic = new Audio('sounds/music.mp3');
             
-            // Интервалы и анимация
-            gameInterval: null,
-            itemInterval: null,
-            animationFrameId: null,
+            // Делаем тише (0.2 = 20% громкости)
+            successSound.volume = 0.2;
+            failSound.volume = 0.2;
+            bgMusic.volume = 0.15;
+            bgMusic.loop = true;
             
-            // Звуки
-            isSoundOn: true,
-            isMusicPlaying: false,
-            bgMusic: null,
+            // ========== СОСТОЯНИЕ ==========
+            let score = 0;
+            let lives = 3;
+            let gameRunning = false;
+            let gamePaused = false;
+            let isTouching = false;
+            let isSoundOn = true;
+            let isMusicPlaying = false;
             
-            // Константы
-            BAG_SPEED_MULTIPLIER: 3.5,
-            BASE_SPAWN_INTERVAL: 2200,
-            SPEED_SCORE_STEP: 200,
-            SMOOTHING_FACTOR: 0.25,
+            let gameInterval = null;
+            let itemInterval = null;
+            let animationFrameId = null;
             
-            // Флаг инициализации
-            isInitialized: false
-        };
-
-        // ========== ИСПРАВЛЕНИЕ 2: КОНСТАНТЫ ЕДЫ ==========
-        const FOOD_CONFIG = {
-            items: [
+            const fallingItems = new Map();
+            
+            // ========== КОНСТАНТЫ ==========
+            const FOOD = [
                 { emoji: '🍔', points: 10 },
                 { emoji: '🍟', points: 15 },
                 { emoji: '🌭', points: 20 },
                 { emoji: '🍕', points: 25 },
                 { emoji: '🥙', points: 30 }
-            ],
-            bomb: { emoji: '💣', points: -1 }
-        };
-
-        // ========== ИСПРАВЛЕНИЕ 3: БЕЗОПАСНОЕ ПОЛУЧЕНИЕ DOM ==========
-        const DOM = {
-            gameArea: document.getElementById('gameArea'),
-            burgerBag: document.getElementById('burgerBag'),
-            scoreDisplay: document.getElementById('scoreDisplay'),
-            heart1: document.getElementById('heart1'),
-            heart2: document.getElementById('heart2'),
-            heart3: document.getElementById('heart3'),
-            startBtn: document.getElementById('startBtn'),
-            pauseBtn: document.getElementById('pauseBtn'),
-            soundToggleBtn: document.getElementById('soundToggleBtn'),
-            soundOnIcon: document.getElementById('soundOnIcon'),
-            soundOffIcon: document.getElementById('soundOffIcon'),
-            restartBtn: document.getElementById('restartBtn'),
-            gameOverScreen: document.getElementById('gameOver'),
-            finalScoreElement: document.getElementById('finalScore'),
-            shopBtn: document.getElementById('shopBtn'),
-            infoBtn: document.getElementById('infoBtn'),
-            infoBackBtn: document.getElementById('infoBackBtn'),
-            shopBackBtn: document.getElementById('shopBackBtn'),
-            infoPanel: document.getElementById('infoPanel'),
-            shopPanel: document.getElementById('shopPanel'),
-            heartsContainer: document.getElementById('heartsContainer')
-        };
-
-        // ========== ИСПРАВЛЕНИЕ 4: ИНИЦИАЛИЗАЦИЯ ИКОНОК ==========
-        DOM.pauseIcon = document.querySelector('.pause-icon');
-        DOM.playIcon = document.querySelector('.play-icon');
-
-        // ========== ИСПРАВЛЕНИЕ 5: ПРОВЕРКА ВСЕХ ЭЛЕМЕНТОВ ==========
-        function validateDOM() {
-            const required = ['gameArea', 'burgerBag', 'scoreDisplay', 'heart1', 'heart2', 'heart3', 'startBtn'];
-            const missing = required.filter(key => !DOM[key]);
+            ];
             
-            if (missing.length > 0) {
-                console.error('КРИТИЧЕСКАЯ ОШИБКА: Отсутствуют элементы:', missing.join(', '));
-                return false;
-            }
-            return true;
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 6: ИНИЦИАЛИЗАЦИЯ ЗВУКОВ ==========
-        function initSounds() {
-            try {
-                GameState.bgMusic = new Audio('sounds/music.mp3');
-                GameState.bgMusic.volume = 0.2;
-                GameState.bgMusic.loop = true;
-                GameState.bgMusic.load();
-            } catch (e) {
-                console.warn('Фоновая музыка не загружена');
-                GameState.bgMusic = {
-                    play: () => Promise.resolve(),
-                    pause: () => {},
-                    load: () => {},
-                    volume: 0.2,
-                    loop: true,
-                    currentTime: 0
-                };
-            }
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 7: ЗВУК УСПЕХА - 100% РАБОТА ==========
-        function playSuccess() {
-            if (!GameState.isSoundOn || !GameState.gameRunning || GameState.gamePaused) return;
+            const BAG_SPEED = 3.5;
+            const ITEM_SIZE = 65;
+            const BAG_SIZE = 107;
+            const BOMB_CHANCE = 0.15;
             
-            try {
-                const sound = new Audio('sounds/success.mp3');
-                sound.volume = 0.3;
-                sound.play().catch(() => {});
-            } catch (e) {}
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 8: ЗВУК НЕУДАЧИ - 100% РАБОТА ==========
-        function playFail() {
-            if (!GameState.isSoundOn || !GameState.gameRunning || GameState.gamePaused) return;
+            // Рост скорости и появления (небольшой)
+            const BASE_SPAWN = 2200;
+            const BASE_SPEED = 3.2;
+            const SCORE_STEP = 200;
+            const SPAWN_REDUCTION = 150;
+            const SPEED_INCREASE = 0.25;
             
-            try {
-                const sound = new Audio('sounds/fail.mp3');
-                sound.volume = 0.35;
-                sound.play().catch(() => {});
-            } catch (e) {}
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 9: ТОГГЛ ЗВУКА - СТАБИЛЬНЫЙ ==========
-        function toggleSound(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
+            // ========== DOM ЭЛЕМЕНТЫ ==========
+            const gameArea = document.getElementById('gameArea');
+            const burgerBag = document.getElementById('burgerBag');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const heart1 = document.getElementById('heart1');
+            const heart2 = document.getElementById('heart2');
+            const heart3 = document.getElementById('heart3');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const soundToggleBtn = document.getElementById('soundToggleBtn');
+            const soundOnIcon = document.getElementById('soundOnIcon');
+            const soundOffIcon = document.getElementById('soundOffIcon');
+            const restartBtn = document.getElementById('restartBtn');
+            const gameOverScreen = document.getElementById('gameOver');
+            const finalScore = document.getElementById('finalScore');
+            const shopBtn = document.getElementById('shopBtn');
+            const infoBtn = document.getElementById('infoBtn');
+            const infoBackBtn = document.getElementById('infoBackBtn');
+            const shopBackBtn = document.getElementById('shopBackBtn');
+            const infoPanel = document.getElementById('infoPanel');
+            const shopPanel = document.getElementById('shopPanel');
+            
+            const pauseIcon = document.querySelector('.pause-icon');
+            const playIcon = document.querySelector('.play-icon');
+            
+            // Позиция пакета
+            let targetPosition = 0;
+            let currentPosition = 0;
+            
+            // ========== ФУНКЦИИ ЗВУКОВ ==========
+            function playSuccess() {
+                if (!isSoundOn || !gameRunning || gamePaused) return;
+                successSound.currentTime = 0;
+                successSound.play().catch(() => {});
             }
             
-            GameState.isSoundOn = !GameState.isSoundOn;
-            
-            if (DOM.soundOnIcon && DOM.soundOffIcon) {
-                DOM.soundOnIcon.style.display = GameState.isSoundOn ? 'block' : 'none';
-                DOM.soundOffIcon.style.display = GameState.isSoundOn ? 'none' : 'block';
+            function playFail() {
+                if (!isSoundOn || !gameRunning || gamePaused) return;
+                failSound.currentTime = 0;
+                failSound.play().catch(() => {});
             }
             
-            if (GameState.isSoundOn) {
-                if (GameState.gameRunning && !GameState.gamePaused && GameState.bgMusic) {
-                    GameState.bgMusic.play().catch(() => {});
-                    GameState.isMusicPlaying = true;
-                }
-            } else {
-                if (GameState.bgMusic) {
-                    GameState.bgMusic.pause();
-                    GameState.isMusicPlaying = false;
-                }
-            }
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 10: ПОЗИЦИЯ ПАКЕТА - ИДЕАЛЬНАЯ ==========
-        function initBagPosition() {
-            if (!DOM.burgerBag || !DOM.gameArea) return;
-            
-            const bagWidth = DOM.burgerBag.offsetWidth;
-            const gameWidth = DOM.gameArea.offsetWidth;
-            
-            if (bagWidth > 0 && gameWidth > 0) {
-                GameState.bagPosition = Math.max(0, (gameWidth / 2) - (bagWidth / 2));
-                GameState.targetPosition = GameState.bagPosition;
-                GameState.currentPosition = GameState.bagPosition;
-                DOM.burgerBag.style.left = `${GameState.currentPosition}px`;
-                DOM.burgerBag.style.bottom = '15px';
-            }
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 11: ПЛАВНОЕ ДВИЖЕНИЕ - БЕЗ ТОРМОЗОВ ==========
-        function smoothMove() {
-            if (!DOM.burgerBag || !DOM.gameArea) {
-                GameState.animationFrameId = requestAnimationFrame(smoothMove);
-                return;
-            }
-            
-            if (GameState.gameRunning && !GameState.gamePaused) {
-                const maxLeft = Math.max(0, DOM.gameArea.offsetWidth - DOM.burgerBag.offsetWidth);
-                GameState.targetPosition = Math.max(0, Math.min(GameState.targetPosition, maxLeft));
+            function toggleSound(e) {
+                if (e) e.preventDefault();
+                isSoundOn = !isSoundOn;
                 
-                const diff = GameState.targetPosition - GameState.currentPosition;
-                if (Math.abs(diff) < 0.1) {
-                    GameState.currentPosition = GameState.targetPosition;
+                soundOnIcon.style.display = isSoundOn ? 'block' : 'none';
+                soundOffIcon.style.display = isSoundOn ? 'none' : 'block';
+                
+                if (isSoundOn && gameRunning && !gamePaused) {
+                    bgMusic.play().catch(() => {});
                 } else {
-                    GameState.currentPosition += diff * GameState.SMOOTHING_FACTOR;
+                    bgMusic.pause();
                 }
-                
-                DOM.burgerBag.style.left = `${GameState.currentPosition}px`;
             }
             
-            GameState.animationFrameId = requestAnimationFrame(smoothMove);
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 12: UI - МГНОВЕННОЕ ОБНОВЛЕНИЕ ==========
-        function updateUI() {
-            if (DOM.scoreDisplay) DOM.scoreDisplay.textContent = GameState.score;
-            updateHearts();
-        }
-        
-        function updateHearts() {
-            if (!DOM.heart1 || !DOM.heart2 || !DOM.heart3) return;
-            
-            DOM.heart1.className = 'heart';
-            DOM.heart2.className = 'heart';
-            DOM.heart3.className = 'heart';
-            
-            DOM.heart1.className = GameState.lives >= 1 ? 'heart full' : 'heart empty';
-            DOM.heart2.className = GameState.lives >= 2 ? 'heart full' : 'heart empty';
-            DOM.heart3.className = GameState.lives >= 3 ? 'heart full' : 'heart empty';
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 13: СЛОЖНОСТЬ - БЕЗ ОШИБОК ==========
-        function getCurrentSpawnRate() {
-            const speedLevel = Math.floor(GameState.score / GameState.SPEED_SCORE_STEP);
-            return Math.round(Math.max(800, GameState.BASE_SPAWN_INTERVAL - speedLevel * 150));
-        }
-        
-        function getCurrentFallSpeed() {
-            return 3.2 + Math.floor(GameState.score / GameState.SPEED_SCORE_STEP) * 0.25;
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 14: КОЛЛИЗИЯ - 100% ТОЧНОСТЬ ==========
-        function checkCollision(itemRect) {
-            if (!DOM.burgerBag || !DOM.gameArea) return false;
-            
-            const bagRect = DOM.burgerBag.getBoundingClientRect();
-            const gameAreaRect = DOM.gameArea.getBoundingClientRect();
-            
-            const itemLeft = itemRect.left - gameAreaRect.left;
-            const itemRight = itemRect.right - gameAreaRect.left;
-            const itemTop = itemRect.top - gameAreaRect.top;
-            const itemBottom = itemRect.bottom - gameAreaRect.top;
-            
-            const bagLeft = bagRect.left - gameAreaRect.left;
-            const bagRight = bagRect.right - gameAreaRect.left;
-            const bagTop = bagRect.top - gameAreaRect.top;
-            const bagBottom = bagRect.bottom - gameAreaRect.top;
-            
-            return (itemRight > bagLeft + 8 && 
-                    itemLeft < bagRight - 8 && 
-                    itemBottom > bagTop + 8 && 
-                    itemTop < bagBottom - 8);
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 15: СОЗДАНИЕ ПРЕДМЕТОВ - БЕЗ ДУБЛЕЙ ==========
-        function createFallingItem() {
-            if (!GameState.gameRunning || GameState.gamePaused || !DOM.gameArea) return;
-            
-            const item = document.createElement('div');
-            item.classList.add('falling-item');
-            
-            const isBomb = Math.random() < 0.15;
-            let points = 0;
-            
-            if (isBomb) {
-                item.textContent = FOOD_CONFIG.bomb.emoji;
-                item.classList.add('bomb-item');
-                item.style.fontSize = '52px';
-                points = FOOD_CONFIG.bomb.points;
-            } else {
-                const foodItem = FOOD_CONFIG.items[Math.floor(Math.random() * FOOD_CONFIG.items.length)];
-                item.textContent = foodItem.emoji;
-                item.style.fontSize = '48px';
-                points = foodItem.points;
+            // ========== ПОЗИЦИЯ ПАКЕТА ==========
+            function updateBagPosition() {
+                if (!burgerBag || !gameArea) return;
+                
+                const bagWidth = burgerBag.offsetWidth;
+                const gameWidth = gameArea.offsetWidth;
+                
+                if (bagWidth > 0 && gameWidth > 0) {
+                    targetPosition = (gameWidth - bagWidth) / 2;
+                    currentPosition = targetPosition;
+                    burgerBag.style.left = `${currentPosition}px`;
+                }
             }
             
-            item.style.width = '65px';
-            item.style.height = '65px';
-            item.style.display = 'flex';
-            item.style.alignItems = 'center';
-            item.style.justifyContent = 'center';
-            item.style.background = 'none';
-            
-            const maxLeft = Math.max(0, DOM.gameArea.offsetWidth - 75);
-            const leftPosition = Math.floor(Math.random() * maxLeft);
-            
-            item.style.left = `${leftPosition}px`;
-            item.style.top = '0px';
-            
-            DOM.gameArea.appendChild(item);
-            
-            const id = `${isBomb ? 'bomb' : 'food'}-${Date.now()}-${Math.random()}`;
-            
-            GameState.fallingItems.set(id, {
-                element: item,
-                type: isBomb ? 'bomb' : 'food',
-                points: points,
-                top: 0,
-                left: leftPosition,
-                caught: false,
-                missed: false,
-                id: id
-            });
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 16: ОБНОВЛЕНИЕ ПРЕДМЕТОВ - ОПТИМИЗИРОВАНО ==========
-        function updateFallingItems() {
-            if (!GameState.gameRunning || GameState.gamePaused || !DOM.gameArea) return;
-            
-            const gameAreaHeight = DOM.gameArea.offsetHeight;
-            const gameAreaRect = DOM.gameArea.getBoundingClientRect();
-            const currentFallSpeed = getCurrentFallSpeed();
-            
-            for (const [id, itemData] of GameState.fallingItems) {
-                if (itemData.caught || itemData.missed) continue;
-                if (!itemData.element || !itemData.element.parentNode) {
-                    GameState.fallingItems.delete(id);
-                    continue;
+            function smoothMove() {
+                if (!burgerBag || !gameArea) {
+                    animationFrameId = requestAnimationFrame(smoothMove);
+                    return;
                 }
                 
-                itemData.top += currentFallSpeed;
-                itemData.element.style.top = `${itemData.top}px`;
-                
-                const itemRect = itemData.element.getBoundingClientRect();
-                
-                if (itemData.top > gameAreaHeight + 50) {
-                    itemData.missed = true;
-                    if (itemData.element.parentNode) itemData.element.remove();
-                    GameState.fallingItems.delete(id);
-                    continue;
-                }
-                
-                const isCollision = checkCollision(itemRect);
-                
-                if (isCollision && !itemData.caught) {
-                    itemData.caught = true;
+                if (gameRunning && !gamePaused) {
+                    const maxLeft = gameArea.offsetWidth - burgerBag.offsetWidth;
+                    targetPosition = Math.max(0, Math.min(targetPosition, maxLeft));
                     
-                    if (itemData.type === 'bomb') {
-                        loseLife();
-                        showMessage('💣 -1', '#ef4444', {
-                            left: itemRect.left - gameAreaRect.left + 20,
-                            top: itemRect.top - gameAreaRect.top
-                        });
-                        playFail();
-                        
-                        if (DOM.burgerBag) {
-                            DOM.burgerBag.style.transform = 'scale(0.95)';
-                            setTimeout(() => {
-                                if (DOM.burgerBag) DOM.burgerBag.style.transform = 'scale(1)';
-                            }, 200);
-                        }
-                    } else {
-                        GameState.score += itemData.points;
-                        showMessage(`+${itemData.points}`, '#ffffff', {
-                            left: itemRect.left - gameAreaRect.left + 20,
-                            top: itemRect.top - gameAreaRect.top
-                        });
-                        playSuccess();
-                        
-                        if (DOM.burgerBag) {
-                            DOM.burgerBag.style.transform = 'translateY(-5px)';
-                            setTimeout(() => {
-                                if (DOM.burgerBag) DOM.burgerBag.style.transform = 'translateY(0)';
-                            }, 200);
-                        }
+                    const diff = targetPosition - currentPosition;
+                    currentPosition += diff * 0.25;
+                    
+                    if (Math.abs(diff) < 0.5) {
+                        currentPosition = targetPosition;
                     }
                     
-                    updateUI();
+                    burgerBag.style.left = `${currentPosition}px`;
+                }
+                
+                animationFrameId = requestAnimationFrame(smoothMove);
+            }
+            
+            // ========== UI ==========
+            function updateUI() {
+                scoreDisplay.textContent = score;
+                
+                heart1.className = lives >= 1 ? 'heart full' : 'heart empty';
+                heart2.className = lives >= 2 ? 'heart full' : 'heart empty';
+                heart3.className = lives >= 3 ? 'heart full' : 'heart empty';
+            }
+            
+            // ========== РАСЧЕТ СЛОЖНОСТИ ==========
+            function getLevel() {
+                return Math.floor(score / SCORE_STEP);
+            }
+            
+            function getSpawnRate() {
+                const level = getLevel();
+                return Math.max(800, BASE_SPAWN - level * SPAWN_REDUCTION);
+            }
+            
+            function getFallSpeed() {
+                const level = getLevel();
+                return BASE_SPEED + level * SPEED_INCREASE;
+            }
+            
+            // ========== КОЛЛИЗИЯ ==========
+            function checkCollision(itemRect) {
+                const bagRect = burgerBag.getBoundingClientRect();
+                const gameRect = gameArea.getBoundingClientRect();
+                
+                const itemLeft = itemRect.left - gameRect.left;
+                const itemRight = itemRect.right - gameRect.left;
+                const itemTop = itemRect.top - gameRect.top;
+                const itemBottom = itemRect.bottom - gameRect.top;
+                
+                const bagLeft = bagRect.left - gameRect.left;
+                const bagRight = bagRect.right - gameRect.left;
+                const bagTop = bagRect.top - gameRect.top;
+                const bagBottom = bagRect.bottom - gameRect.top;
+                
+                return (itemRight > bagLeft + 8 && 
+                        itemLeft < bagRight - 8 && 
+                        itemBottom > bagTop + 8 && 
+                        itemTop < bagBottom - 8);
+            }
+            
+            // ========== СОЗДАНИЕ ПРЕДМЕТОВ ==========
+            function createItem() {
+                if (!gameRunning || gamePaused || !gameArea) return;
+                
+                const item = document.createElement('div');
+                item.classList.add('falling-item');
+                
+                const isBomb = Math.random() < BOMB_CHANCE;
+                
+                if (isBomb) {
+                    item.textContent = '💣';
+                    item.classList.add('bomb-item');
+                    item.style.fontSize = '52px';
+                } else {
+                    const food = FOOD[Math.floor(Math.random() * FOOD.length)];
+                    item.textContent = food.emoji;
+                    item.style.fontSize = '48px';
+                }
+                
+                item.style.width = `${ITEM_SIZE}px`;
+                item.style.height = `${ITEM_SIZE}px`;
+                
+                const maxLeft = gameArea.offsetWidth - ITEM_SIZE - 10;
+                const left = Math.max(5, Math.floor(Math.random() * maxLeft));
+                
+                item.style.left = `${left}px`;
+                item.style.top = '0px';
+                
+                gameArea.appendChild(item);
+                
+                const points = isBomb ? -1 : FOOD[Math.floor(Math.random() * FOOD.length)].points;
+                const id = Date.now() + Math.random().toString();
+                
+                fallingItems.set(id, {
+                    element: item,
+                    type: isBomb ? 'bomb' : 'food',
+                    points: points,
+                    top: 0,
+                    caught: false,
+                    id
+                });
+            }
+            
+            // ========== ОБНОВЛЕНИЕ ПРЕДМЕТОВ ==========
+            function updateItems() {
+                if (!gameRunning || gamePaused || !gameArea) return;
+                
+                const speed = getFallSpeed();
+                const height = gameArea.offsetHeight;
+                const gameRect = gameArea.getBoundingClientRect();
+                
+                for (const [id, data] of fallingItems) {
+                    if (data.caught || !data.element.parentNode) {
+                        fallingItems.delete(id);
+                        continue;
+                    }
                     
-                    if (itemData.element) {
-                        itemData.element.classList.add('caught-item');
+                    data.top += speed;
+                    data.element.style.top = `${data.top}px`;
+                    
+                    if (data.top > height + 100) {
+                        data.element.remove();
+                        fallingItems.delete(id);
+                        continue;
+                    }
+                    
+                    const rect = data.element.getBoundingClientRect();
+                    const collision = checkCollision(rect);
+                    
+                    if (collision && !data.caught) {
+                        data.caught = true;
+                        
+                        if (data.type === 'bomb') {
+                            // Бомба
+                            lives = Math.max(0, lives - 1);
+                            if (lives === 2) heart3.classList.add('heart-lost');
+                            else if (lives === 1) heart2.classList.add('heart-lost');
+                            else if (lives === 0) heart1.classList.add('heart-lost');
+                            
+                            playFail();
+                            showMessage('💣 -1', '#ef4444', rect.left - gameRect.left, rect.top - gameRect.top);
+                            
+                            burgerBag.style.transform = 'scale(0.95)';
+                            setTimeout(() => burgerBag.style.transform = 'scale(1)', 200);
+                        } else {
+                            // Еда
+                            score += data.points;
+                            playSuccess();
+                            showMessage(`+${data.points}`, '#10b981', rect.left - gameRect.left, rect.top - gameRect.top);
+                            
+                            burgerBag.style.transform = 'translateY(-5px)';
+                            setTimeout(() => burgerBag.style.transform = 'translateY(0)', 200);
+                        }
+                        
+                        updateUI();
+                        
+                        data.element.classList.add('caught-item');
                         setTimeout(() => {
-                            if (itemData.element?.parentNode) {
-                                itemData.element.remove();
-                                GameState.fallingItems.delete(id);
+                            if (data.element.parentNode) {
+                                data.element.remove();
+                                fallingItems.delete(id);
                             }
                         }, 250);
-                    }
-                    continue;
-                }
-                
-                if (itemData.top > gameAreaHeight - 70 && !itemData.caught) {
-                    itemData.missed = true;
-                    
-                    if (itemData.type === 'food') {
-                        loseLife();
-                        showMessage('😢 ПРОПУСК -1', '#ef4444', {
-                            left: itemRect.left - gameAreaRect.left + 20,
-                            top: gameAreaHeight - 80
-                        });
-                        playFail();
                         
-                        if (itemData.element) {
-                            itemData.element.classList.add('missed-item');
-                            setTimeout(() => {
-                                if (itemData.element?.parentNode) {
-                                    itemData.element.remove();
-                                    GameState.fallingItems.delete(id);
-                                }
-                            }, 500);
+                        if (lives <= 0) {
+                            endGame();
+                            return;
                         }
-                    } else if (itemData.type === 'bomb') {
-                        if (itemData.element?.parentNode) {
-                            itemData.element.remove();
-                            GameState.fallingItems.delete(id);
+                    } else if (data.top > height - 70 && !data.caught && data.type === 'food') {
+                        // Пропуск еды
+                        data.caught = true;
+                        
+                        lives = Math.max(0, lives - 1);
+                        if (lives === 2) heart3.classList.add('heart-lost');
+                        else if (lives === 1) heart2.classList.add('heart-lost');
+                        else if (lives === 0) heart1.classList.add('heart-lost');
+                        
+                        playFail();
+                        showMessage('😢 ПРОПУСК -1', '#ef4444', rect.left - gameRect.left, height - 80);
+                        
+                        data.element.classList.add('missed-item');
+                        setTimeout(() => {
+                            if (data.element.parentNode) {
+                                data.element.remove();
+                                fallingItems.delete(id);
+                            }
+                        }, 500);
+                        
+                        updateUI();
+                        
+                        if (lives <= 0) {
+                            endGame();
+                            return;
                         }
+                    } else if (data.top > height - 70 && !data.caught && data.type === 'bomb') {
+                        // Бомба упала - просто исчезает
+                        data.element.remove();
+                        fallingItems.delete(id);
                     }
                 }
             }
             
-            if (GameState.lives <= 0) endGame();
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 17: ИНТЕРВАЛ СПАВНА - БЕЗ УТЕЧЕК ==========
-        function updateSpawnInterval() {
-            if (GameState.itemInterval) clearInterval(GameState.itemInterval);
-            GameState.itemInterval = setInterval(() => {
-                if (GameState.gameRunning && !GameState.gamePaused) {
-                    createFallingItem();
+            // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
+            function showMessage(text, color, x, y) {
+                if (!gameArea) return;
+                const msg = document.createElement('div');
+                msg.classList.add('item-collected');
+                msg.textContent = text;
+                msg.style.color = color;
+                msg.style.left = `${x}px`;
+                msg.style.top = `${y}px`;
+                gameArea.appendChild(msg);
+                setTimeout(() => msg.remove(), 800);
+            }
+            
+            function createTouchFeedback(x, y) {
+                if (!gameArea) return;
+                const fb = document.createElement('div');
+                fb.classList.add('touch-feedback');
+                fb.style.left = `${x - 40}px`;
+                fb.style.top = `${y - 40}px`;
+                gameArea.appendChild(fb);
+                setTimeout(() => fb.remove(), 500);
+            }
+            
+            // ========== УПРАВЛЕНИЕ ==========
+            function startGame(e) {
+                if (e) e.preventDefault();
+                if (gameRunning) return;
+                
+                resetGame();
+                
+                gameRunning = true;
+                gamePaused = false;
+                
+                startBtn.classList.add('hidden');
+                if (pauseIcon && playIcon) {
+                    pauseIcon.style.display = 'block';
+                    playIcon.style.display = 'none';
                 }
-            }, getCurrentSpawnRate());
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 18: ПОТЕРЯ ЖИЗНИ - КОРРЕКТНАЯ АНИМАЦИЯ ==========
-        function loseLife() {
-            GameState.lives = Math.max(0, GameState.lives - 1);
-            
-            if (GameState.lives === 2 && DOM.heart3) {
-                DOM.heart3.classList.add('heart-lost');
-                setTimeout(() => {
-                    if (DOM.heart3) DOM.heart3.className = 'heart empty';
-                }, 300);
-            } else if (GameState.lives === 1 && DOM.heart2) {
-                DOM.heart2.classList.add('heart-lost');
-                setTimeout(() => {
-                    if (DOM.heart2) DOM.heart2.className = 'heart empty';
-                }, 300);
-            } else if (GameState.lives === 0 && DOM.heart1) {
-                DOM.heart1.classList.add('heart-lost');
-                setTimeout(() => {
-                    if (DOM.heart1) DOM.heart1.className = 'heart empty';
-                }, 300);
-            }
-            
-            if (DOM.burgerBag) {
-                DOM.burgerBag.style.transform = 'scale(0.9)';
-                setTimeout(() => {
-                    if (DOM.burgerBag) DOM.burgerBag.style.transform = 'scale(1)';
-                }, 400);
-            }
-            
-            updateUI();
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 19: СООБЩЕНИЯ - СТАБИЛЬНЫЕ ==========
-        function showMessage(text, color, position) {
-            if (!DOM.gameArea) return;
-            
-            const message = document.createElement('div');
-            message.classList.add('item-collected');
-            message.textContent = text;
-            message.style.color = color;
-            message.style.left = `${position.left}px`;
-            message.style.top = `${position.top}px`;
-            
-            DOM.gameArea.appendChild(message);
-            
-            setTimeout(() => {
-                if (message.parentNode) message.remove();
-            }, 800);
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 20: ТАЧ-ФИДБЕК - ОПТИМИЗИРОВАН ==========
-        function createTouchFeedback(x, y) {
-            if (!DOM.gameArea) return;
-            
-            const feedback = document.createElement('div');
-            feedback.classList.add('touch-feedback');
-            feedback.style.left = `${x - 40}px`;
-            feedback.style.top = `${y - 40}px`;
-            
-            DOM.gameArea.appendChild(feedback);
-            
-            setTimeout(() => {
-                if (feedback.parentNode) feedback.remove();
-            }, 500);
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 21: СТАРТ ИГРЫ - ПОЛНЫЙ СБРОС ==========
-        function startGame(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            if (GameState.gameRunning) return;
-            
-            resetGame(e);
-            
-            GameState.gameRunning = true;
-            GameState.gamePaused = false;
-            
-            if (DOM.startBtn) DOM.startBtn.classList.add('hidden');
-            if (DOM.pauseIcon && DOM.playIcon) {
-                DOM.pauseIcon.style.display = 'block';
-                DOM.playIcon.style.display = 'none';
-            }
-            
-            if (GameState.isSoundOn && GameState.bgMusic && !GameState.isMusicPlaying) {
-                GameState.bgMusic.play().catch(() => {});
-                GameState.isMusicPlaying = true;
-            }
-            
-            initBagPosition();
-            updateSpawnInterval();
-            
-            if (GameState.gameInterval) clearInterval(GameState.gameInterval);
-            GameState.gameInterval = setInterval(() => {
-                if (GameState.gameRunning && !GameState.gamePaused) {
-                    updateFallingItems();
+                
+                if (isSoundOn && !isMusicPlaying) {
+                    bgMusic.play().catch(() => {});
+                    isMusicPlaying = true;
                 }
-            }, 16);
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 22: ПАУЗА - ИКОНКИ И ЗВУК ==========
-        function pauseGame(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
+                
+                updateBagPosition();
+                
+                itemInterval = setInterval(() => {
+                    if (gameRunning && !gamePaused) createItem();
+                }, getSpawnRate());
+                
+                gameInterval = setInterval(() => {
+                    if (gameRunning && !gamePaused) updateItems();
+                }, 16);
             }
             
-            if (!GameState.gameRunning) return;
-            
-            GameState.gamePaused = !GameState.gamePaused;
-            
-            if (DOM.pauseIcon && DOM.playIcon) {
-                DOM.pauseIcon.style.display = GameState.gamePaused ? 'none' : 'block';
-                DOM.playIcon.style.display = GameState.gamePaused ? 'block' : 'none';
-            }
-            
-            if (GameState.gamePaused) {
-                if (DOM.gameArea) {
-                    showMessage('ПАУЗА', '#94a3b8', {
-                        left: DOM.gameArea.offsetWidth / 2 - 50,
-                        top: DOM.gameArea.offsetHeight / 2
-                    });
+            function pauseGame(e) {
+                if (e) e.preventDefault();
+                if (!gameRunning) return;
+                
+                gamePaused = !gamePaused;
+                
+                if (pauseIcon && playIcon) {
+                    pauseIcon.style.display = gamePaused ? 'none' : 'block';
+                    playIcon.style.display = gamePaused ? 'block' : 'none';
                 }
-                if (GameState.bgMusic) GameState.bgMusic.pause();
-            } else {
-                if (GameState.isSoundOn && GameState.bgMusic && GameState.gameRunning) {
-                    GameState.bgMusic.play().catch(() => {});
+                
+                if (gamePaused) {
+                    bgMusic.pause();
+                    showMessage('ПАУЗА', '#94a3b8', gameArea.offsetWidth / 2 - 40, gameArea.offsetHeight / 2);
+                } else {
+                    if (isSoundOn) bgMusic.play().catch(() => {});
                 }
             }
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 23: СБРОС ИГРЫ - ПОЛНАЯ ОЧИСТКА ==========
-        function resetGame(e) {
-            if (e) {
+            
+            function resetGame(e) {
+                if (e) e.preventDefault();
+                
+                if (gameInterval) clearInterval(gameInterval);
+                if (itemInterval) clearInterval(itemInterval);
+                
+                fallingItems.forEach(data => {
+                    if (data.element.parentNode) data.element.remove();
+                });
+                fallingItems.clear();
+                
+                score = 0;
+                lives = 3;
+                gameRunning = false;
+                gamePaused = false;
+                
+                startBtn.classList.remove('hidden');
+                if (pauseIcon && playIcon) {
+                    pauseIcon.style.display = 'block';
+                    playIcon.style.display = 'none';
+                }
+                
+                heart1.className = 'heart full';
+                heart2.className = 'heart full';
+                heart3.className = 'heart full';
+                
+                gameOverScreen.style.display = 'none';
+                
+                updateBagPosition();
+                updateUI();
+                
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+                isMusicPlaying = false;
+            }
+            
+            function endGame() {
+                gameRunning = false;
+                
+                if (gameInterval) clearInterval(gameInterval);
+                if (itemInterval) clearInterval(itemInterval);
+                
+                finalScore.textContent = score;
+                gameOverScreen.style.display = 'flex';
+                
+                bgMusic.pause();
+                isMusicPlaying = false;
+            }
+            
+            function moveBag(direction) {
+                if (!gameRunning || gamePaused) return;
+                
+                const bagWidth = burgerBag.offsetWidth;
+                const gameWidth = gameArea.offsetWidth;
+                const amount = 50 * BAG_SPEED;
+                
+                if (direction === 'left') {
+                    targetPosition = Math.max(0, targetPosition - amount);
+                } else {
+                    targetPosition = Math.min(gameWidth - bagWidth, targetPosition + amount);
+                }
+            }
+            
+            // ========== НАВИГАЦИЯ ==========
+            function openInfo(e) {
+                if (e) e.preventDefault();
+                if (gameRunning && !gamePaused) pauseGame(e);
+                infoPanel.classList.add('active');
+                shopPanel.classList.remove('active');
+            }
+            
+            function openShop(e) {
+                if (e) e.preventDefault();
+                if (gameRunning && !gamePaused) pauseGame(e);
+                shopPanel.classList.add('active');
+                infoPanel.classList.remove('active');
+            }
+            
+            function closeInfo(e) {
+                if (e) e.preventDefault();
+                infoPanel.classList.remove('active');
+            }
+            
+            function closeShop(e) {
+                if (e) e.preventDefault();
+                shopPanel.classList.remove('active');
+            }
+            
+            // ========== СОБЫТИЯ ==========
+            function onTouchStart(e) {
+                if (!gameRunning || gamePaused) return;
                 e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            if (GameState.gameInterval) clearInterval(GameState.gameInterval);
-            if (GameState.itemInterval) clearInterval(GameState.itemInterval);
-            
-            GameState.gameInterval = null;
-            GameState.itemInterval = null;
-            
-            GameState.fallingItems.clear();
-            
-            if (DOM.gameArea) {
-                document.querySelectorAll('.falling-item, .item-collected, .touch-feedback, .missed-item, .caught-item')
-                    .forEach(item => {
-                        if (item.parentNode) item.remove();
-                    });
-            }
-            
-            GameState.score = 0;
-            GameState.lives = 3;
-            GameState.gameRunning = false;
-            GameState.gamePaused = false;
-            
-            if (DOM.startBtn) DOM.startBtn.classList.remove('hidden');
-            if (DOM.pauseIcon && DOM.playIcon) {
-                DOM.pauseIcon.style.display = 'block';
-                DOM.playIcon.style.display = 'none';
-            }
-            
-            if (DOM.burgerBag && DOM.gameArea) {
-                initBagPosition();
-                DOM.burgerBag.style.transform = 'scale(1)';
-            }
-            
-            if (DOM.heart1 && DOM.heart2 && DOM.heart3) {
-                DOM.heart1.className = 'heart full';
-                DOM.heart2.className = 'heart full';
-                DOM.heart3.className = 'heart full';
-            }
-            
-            if (DOM.gameOverScreen) DOM.gameOverScreen.style.display = 'none';
-            
-            updateUI();
-            
-            if (GameState.bgMusic) {
-                GameState.bgMusic.pause();
-                GameState.bgMusic.currentTime = 0;
-                GameState.isMusicPlaying = false;
-            }
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 24: КОНЕЦ ИГРЫ ==========
-        function endGame() {
-            GameState.gameRunning = false;
-            
-            if (GameState.gameInterval) clearInterval(GameState.gameInterval);
-            if (GameState.itemInterval) clearInterval(GameState.itemInterval);
-            
-            GameState.gameInterval = null;
-            GameState.itemInterval = null;
-            
-            if (DOM.finalScoreElement) DOM.finalScoreElement.textContent = GameState.score;
-            if (DOM.gameOverScreen) DOM.gameOverScreen.style.display = 'flex';
-            
-            if (GameState.bgMusic) {
-                GameState.bgMusic.pause();
-                GameState.bgMusic.currentTime = 0;
-                GameState.isMusicPlaying = false;
-            }
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 25: ДВИЖЕНИЕ ПАКЕТА - ПЛАВНОЕ ==========
-        function moveBag(direction) {
-            if (!GameState.gameRunning || GameState.gamePaused || !DOM.burgerBag || !DOM.gameArea) return;
-            
-            const bagWidth = DOM.burgerBag.offsetWidth;
-            const gameAreaWidth = DOM.gameArea.offsetWidth;
-            const moveAmount = 50 * GameState.BAG_SPEED_MULTIPLIER;
-            
-            if (direction === 'left') {
-                GameState.targetPosition = Math.max(0, GameState.targetPosition - moveAmount);
-            } else {
-                GameState.targetPosition = Math.min(gameAreaWidth - bagWidth, GameState.targetPosition + moveAmount);
-            }
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 26: НАВИГАЦИЯ - БЕЗ ОШИБОК ==========
-        function openInfo(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            if (GameState.gameRunning && !GameState.gamePaused) {
-                pauseGame(e);
-            }
-            
-            if (DOM.infoPanel) DOM.infoPanel.classList.add('active');
-            if (DOM.shopPanel) DOM.shopPanel.classList.remove('active');
-        }
-        
-        function openShop(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            if (GameState.gameRunning && !GameState.gamePaused) {
-                pauseGame(e);
-            }
-            
-            if (DOM.shopPanel) DOM.shopPanel.classList.add('active');
-            if (DOM.infoPanel) DOM.infoPanel.classList.remove('active');
-        }
-        
-        function closeInfo(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            if (DOM.infoPanel) DOM.infoPanel.classList.remove('active');
-        }
-        
-        function closeShop(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            if (DOM.shopPanel) DOM.shopPanel.classList.remove('active');
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 27: ТАЧ-КОНТРОЛЛЕР - СТАБИЛЬНЫЙ ==========
-        function handleTouchStart(e) {
-            if (!GameState.gameRunning || GameState.gamePaused || !DOM.burgerBag || !DOM.gameArea) return;
-            
-            e.preventDefault();
-            GameState.isTouching = true;
-            
-            try {
+                
                 const touch = e.touches[0];
-                const gameAreaRect = DOM.gameArea.getBoundingClientRect();
-                const touchX = touch.clientX - gameAreaRect.left;
-                const bagWidth = DOM.burgerBag.offsetWidth;
+                const rect = gameArea.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
                 
-                GameState.targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
-                createTouchFeedback(touchX, touch.clientY - gameAreaRect.top);
-            } catch (error) {}
-        }
-        
-        function handleTouchMove(e) {
-            if (!GameState.gameRunning || GameState.gamePaused || !GameState.isTouching || !DOM.burgerBag || !DOM.gameArea) return;
+                targetPosition = Math.max(0, Math.min(x - burgerBag.offsetWidth / 2, rect.width - burgerBag.offsetWidth));
+                createTouchFeedback(x, touch.clientY - rect.top);
+                isTouching = true;
+            }
             
-            e.preventDefault();
-            
-            try {
+            function onTouchMove(e) {
+                if (!gameRunning || gamePaused || !isTouching) return;
+                e.preventDefault();
+                
                 const touch = e.touches[0];
-                const gameAreaRect = DOM.gameArea.getBoundingClientRect();
-                const touchX = touch.clientX - gameAreaRect.left;
-                const bagWidth = DOM.burgerBag.offsetWidth;
+                const rect = gameArea.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
                 
-                GameState.targetPosition = Math.max(0, Math.min(touchX - bagWidth / 2, gameAreaRect.width - bagWidth));
-            } catch (error) {}
-        }
-        
-        function handleTouchEnd(e) {
-            e.preventDefault();
-            GameState.isTouching = false;
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 28: ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ - БЕЗ ДУБЛЕЙ ==========
-        function initEventListeners() {
-            if (DOM.gameArea) {
-                DOM.gameArea.removeEventListener('touchstart', handleTouchStart);
-                DOM.gameArea.removeEventListener('touchmove', handleTouchMove);
-                DOM.gameArea.removeEventListener('touchend', handleTouchEnd);
-                DOM.gameArea.removeEventListener('touchcancel', handleTouchEnd);
+                targetPosition = Math.max(0, Math.min(x - burgerBag.offsetWidth / 2, rect.width - burgerBag.offsetWidth));
+            }
+            
+            function onTouchEnd(e) {
+                e.preventDefault();
+                isTouching = false;
+            }
+            
+            function onKeyDown(e) {
+                if (!gameRunning || gamePaused) return;
+                if (e.key === 'ArrowLeft' || e.key === 'a') moveBag('left');
+                if (e.key === 'ArrowRight' || e.key === 'd') moveBag('right');
+            }
+            
+            function onResize() {
+                if (burgerBag && gameArea) {
+                    const max = gameArea.offsetWidth - burgerBag.offsetWidth;
+                    targetPosition = Math.max(0, Math.min(targetPosition, max));
+                    currentPosition = targetPosition;
+                    burgerBag.style.left = `${currentPosition}px`;
+                }
+            }
+            
+            // ========== ИНИЦИАЛИЗАЦИЯ ==========
+            function init() {
+                updateBagPosition();
+                updateUI();
+                smoothMove();
                 
-                DOM.gameArea.addEventListener('touchstart', handleTouchStart, { passive: false });
-                DOM.gameArea.addEventListener('touchmove', handleTouchMove, { passive: false });
-                DOM.gameArea.addEventListener('touchend', handleTouchEnd);
-                DOM.gameArea.addEventListener('touchcancel', handleTouchEnd);
-            }
-
-            document.removeEventListener('keydown', handleKeyDown);
-            document.addEventListener('keydown', handleKeyDown);
-
-            if (DOM.startBtn) {
-                DOM.startBtn.removeEventListener('click', startGame);
-                DOM.startBtn.removeEventListener('touchstart', startGame);
-                DOM.startBtn.addEventListener('click', startGame);
-                DOM.startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(e); }, { passive: false });
-            }
-            
-            if (DOM.pauseBtn) {
-                DOM.pauseBtn.removeEventListener('click', pauseGame);
-                DOM.pauseBtn.removeEventListener('touchstart', pauseGame);
-                DOM.pauseBtn.addEventListener('click', pauseGame);
-                DOM.pauseBtn.addEventListener('touchstart', (e) => { e.preventDefault(); pauseGame(e); }, { passive: false });
-            }
-            
-            if (DOM.restartBtn) {
-                DOM.restartBtn.removeEventListener('click', resetGame);
-                DOM.restartBtn.removeEventListener('touchstart', resetGame);
-                DOM.restartBtn.addEventListener('click', resetGame);
-                DOM.restartBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(e); }, { passive: false });
-            }
-            
-            if (DOM.soundToggleBtn) {
-                DOM.soundToggleBtn.removeEventListener('click', toggleSound);
-                DOM.soundToggleBtn.removeEventListener('touchstart', toggleSound);
-                DOM.soundToggleBtn.addEventListener('click', toggleSound);
-                DOM.soundToggleBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleSound(e); }, { passive: false });
-            }
-
-            if (DOM.infoBtn) {
-                DOM.infoBtn.removeEventListener('click', openInfo);
-                DOM.infoBtn.removeEventListener('touchstart', openInfo);
-                DOM.infoBtn.addEventListener('click', openInfo);
-                DOM.infoBtn.addEventListener('touchstart', (e) => { e.preventDefault(); openInfo(e); }, { passive: false });
+                gameArea.addEventListener('touchstart', onTouchStart, { passive: false });
+                gameArea.addEventListener('touchmove', onTouchMove, { passive: false });
+                gameArea.addEventListener('touchend', onTouchEnd);
+                gameArea.addEventListener('touchcancel', onTouchEnd);
+                
+                document.addEventListener('keydown', onKeyDown);
+                
+                startBtn.addEventListener('click', startGame);
+                startBtn.addEventListener('touchstart', startGame, { passive: false });
+                pauseBtn.addEventListener('click', pauseGame);
+                pauseBtn.addEventListener('touchstart', pauseGame, { passive: false });
+                soundToggleBtn.addEventListener('click', toggleSound);
+                soundToggleBtn.addEventListener('touchstart', toggleSound, { passive: false });
+                restartBtn.addEventListener('click', resetGame);
+                restartBtn.addEventListener('touchstart', resetGame, { passive: false });
+                
+                infoBtn.addEventListener('click', openInfo);
+                infoBtn.addEventListener('touchstart', openInfo, { passive: false });
+                shopBtn.addEventListener('click', openShop);
+                shopBtn.addEventListener('touchstart', openShop, { passive: false });
+                infoBackBtn.addEventListener('click', closeInfo);
+                infoBackBtn.addEventListener('touchstart', closeInfo, { passive: false });
+                shopBackBtn.addEventListener('click', closeShop);
+                shopBackBtn.addEventListener('touchstart', closeShop, { passive: false });
+                
+                window.addEventListener('resize', onResize);
+                
+                soundOnIcon.style.display = 'block';
+                soundOffIcon.style.display = 'none';
             }
             
-            if (DOM.shopBtn) {
-                DOM.shopBtn.removeEventListener('click', openShop);
-                DOM.shopBtn.removeEventListener('touchstart', openShop);
-                DOM.shopBtn.addEventListener('click', openShop);
-                DOM.shopBtn.addEventListener('touchstart', (e) => { e.preventDefault(); openShop(e); }, { passive: false });
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
             }
-            
-            if (DOM.infoBackBtn) {
-                DOM.infoBackBtn.removeEventListener('click', closeInfo);
-                DOM.infoBackBtn.removeEventListener('touchstart', closeInfo);
-                DOM.infoBackBtn.addEventListener('click', closeInfo);
-                DOM.infoBackBtn.addEventListener('touchstart', (e) => { e.preventDefault(); closeInfo(e); }, { passive: false });
-            }
-            
-            if (DOM.shopBackBtn) {
-                DOM.shopBackBtn.removeEventListener('click', closeShop);
-                DOM.shopBackBtn.removeEventListener('touchstart', closeShop);
-                DOM.shopBackBtn.addEventListener('click', closeShop);
-                DOM.shopBackBtn.addEventListener('touchstart', (e) => { e.preventDefault(); closeShop(e); }, { passive: false });
-            }
-
-            window.removeEventListener('resize', handleResize);
-            window.addEventListener('resize', handleResize);
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 29: ОБРАБОТЧИКИ КЛАВИАТУРЫ И РЕСАЙЗА ==========
-        function handleKeyDown(e) {
-            if (!GameState.gameRunning || GameState.gamePaused) return;
-            if (e.key === 'ArrowLeft' || e.key === 'a') moveBag('left');
-            else if (e.key === 'ArrowRight' || e.key === 'd') moveBag('right');
-        }
-
-        function handleResize() {
-            if (DOM.burgerBag && DOM.gameArea) {
-                const bagWidth = DOM.burgerBag.offsetWidth;
-                const gameAreaWidth = DOM.gameArea.offsetWidth;
-                GameState.targetPosition = Math.max(0, Math.min(GameState.targetPosition, gameAreaWidth - bagWidth));
-                GameState.currentPosition = GameState.targetPosition;
-                DOM.burgerBag.style.left = `${GameState.currentPosition}px`;
-            }
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 30: ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ==========
-        function initApp() {
-            if (GameState.isInitialized) return;
-            
-            console.log('🎮 Инициализация игры...');
-            
-            if (!validateDOM()) {
-                console.error('❌ Ошибка инициализации: DOM не готов');
-                return;
-            }
-            
-            initSounds();
-            initBagPosition();
-            smoothMove();
-            updateUI();
-            
-            if (DOM.soundOnIcon && DOM.soundOffIcon) {
-                DOM.soundOnIcon.style.display = 'block';
-                DOM.soundOffIcon.style.display = 'none';
-            }
-            
-            initEventListeners();
-            
-            GameState.isInitialized = true;
-            console.log('✅ Игра готова!');
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 31: ЗАПУСК ПОСЛЕ ЗАГРУЗКИ DOM ==========
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApp);
-        } else {
-            initApp();
-        }
-
-        // ========== ИСПРАВЛЕНИЕ 32: ЗАЩИТА ОТ УТЕЧЕК ПАМЯТИ ==========
-        window.addEventListener('beforeunload', function() {
-            if (GameState.gameInterval) clearInterval(GameState.gameInterval);
-            if (GameState.itemInterval) clearInterval(GameState.itemInterval);
-            if (GameState.animationFrameId) cancelAnimationFrame(GameState.animationFrameId);
-            
-            if (GameState.bgMusic) {
-                GameState.bgMusic.pause();
-                GameState.bgMusic = null;
-            }
-            
-            GameState.fallingItems.clear();
-        });
-
-        // ========== ИСПРАВЛЕНИЕ 33: ФИНАЛЬНАЯ ПРОВЕРКА ==========
-        console.log('🔍 Финальная проверка:');
-        console.log('- Глобальные переменные:', !!GameState);
-        console.log('- DOM элементы:', validateDOM());
-        console.log('- Звуки:', !!GameState.bgMusic);
-        console.log('- Позиция пакета:', GameState.bagPosition);
-        console.log('✨ ВСЕ СИСТЕМЫ ГОТОВЫ');
+        })();
     </script>
 </body>
 </html>
