@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ловец еды - ИСПРАВЛЕННАЯ ВЕРСИЯ</title>
+    <title>Ловец еды - СТАБИЛЬНАЯ ВЕРСИЯ</title>
     <style>
+        /* СТИЛИ БЕЗ ИЗМЕНЕНИЙ - ОСТАВЛЯЕМ КАК ЕСТЬ */
         * {
             margin: 0;
             padding: 0;
@@ -749,19 +750,40 @@
         (function() {
             'use strict';
 
-            // ---------- Звуки ----------
+            // ---------- Звуки с ПУЛОМ (решение проблемы 3-х раз) ----------
             let successSound, failSound, bgMusic;
-
+            
+            // СОЗДАЕМ ПУЛ ЗВУКОВ (5 копий каждого)
+            const successPool = [];
+            const failPool = [];
+            const POOL_SIZE = 8; // Увеличили до 8 для запаса
+            
             function initSounds() {
                 try {
-                    successSound = new Audio('sounds/success.mp3');
-                    successSound.volume = 0.2;
-                } catch (e) { successSound = null; }
-
-                try {
-                    failSound = new Audio('sounds/fail.mp3');
-                    failSound.volume = 0.2;
-                } catch (e) { failSound = null; }
+                    // Создаем базовые звуки
+                    const baseSuccess = new Audio('sounds/success.mp3');
+                    baseSuccess.volume = 0.2;
+                    
+                    const baseFail = new Audio('sounds/fail.mp3');
+                    baseFail.volume = 0.2;
+                    
+                    // Заполняем пулы копиями
+                    for (let i = 0; i < POOL_SIZE; i++) {
+                        const successClone = baseSuccess.cloneNode();
+                        successClone.volume = 0.2;
+                        successPool.push(successClone);
+                        
+                        const failClone = baseFail.cloneNode();
+                        failClone.volume = 0.2;
+                        failPool.push(failClone);
+                    }
+                    
+                    successSound = baseSuccess; // для проверки существования
+                    failSound = baseFail;
+                } catch (e) { 
+                    successSound = null; 
+                    failSound = null;
+                }
 
                 try {
                     bgMusic = new Audio('sounds/music.mp3');
@@ -770,19 +792,28 @@
                 } catch (e) { bgMusic = null; }
             }
 
+            // Индексы для циклического перебора пула
+            let successIndex = 0;
+            let failIndex = 0;
+
             function playSuccess() {
-                // ИСПРАВЛЕНО: проверка на существование звука
                 if (!isSoundOn || !gameRunning || gamePaused || !successSound) return;
                 try {
-                    successSound.cloneNode().play().catch(() => {});
+                    // Берем следующий звук из пула
+                    const sound = successPool[successIndex];
+                    sound.currentTime = 0;
+                    sound.play().catch(() => {});
+                    successIndex = (successIndex + 1) % POOL_SIZE;
                 } catch (e) {}
             }
 
             function playFail() {
-                // ИСПРАВЛЕНО: проверка на существование звука
                 if (!isSoundOn || !gameRunning || gamePaused || !failSound) return;
                 try {
-                    failSound.cloneNode().play().catch(() => {});
+                    const sound = failPool[failIndex];
+                    sound.currentTime = 0;
+                    sound.play().catch(() => {});
+                    failIndex = (failIndex + 1) % POOL_SIZE;
                 } catch (e) {}
             }
 
@@ -855,15 +886,16 @@
                 }
                 
                 const maxX = gameArea.offsetWidth - burgerBag.offsetWidth;
+                
+                // ИСПРАВЛЕНИЕ: Всегда ограничиваем targetX допустимыми пределами
                 targetX = Math.max(0, Math.min(targetX, maxX));
                 
-                // ИСПРАВЛЕНО: пакет двигается только когда игра активна и не на паузе
                 if (gameRunning && !gamePaused) {
                     bagX += (targetX - bagX) * 0.2;
                     if (Math.abs(targetX - bagX) < 0.1) bagX = targetX;
                     burgerBag.style.left = Math.round(bagX) + 'px';
                 } else {
-                    // На паузе или когда игра неактивна - просто фиксируем позицию
+                    // ИСПРАВЛЕНИЕ: На паузе просто фиксируем позицию в допустимых пределах
                     bagX = targetX;
                     burgerBag.style.left = Math.round(bagX) + 'px';
                 }
@@ -923,7 +955,7 @@
                 } else {
                     const food = FOODS[Math.floor(Math.random() * FOODS.length)];
                     item.textContent = food.emoji;
-                    points = food.points; // ИСПРАВЛЕНО: points четко соответствует выбранному продукту
+                    points = food.points;
                 }
 
                 item.style.width = '65px';
@@ -953,7 +985,6 @@
                 setTimeout(() => msg.remove(), 800);
             }
 
-            // ИСПРАВЛЕНО: вынес общую логику потери жизни в отдельную функцию
             function loseLife(rect, gameRect, isMiss, height) {
                 lives--;
                 
@@ -1024,7 +1055,7 @@
 
                             if (lives <= 0) {
                                 endGame();
-                                return; // ИСПРАВЛЕНО: выход из функции после завершения игры
+                                return;
                             }
                         } else {
                             score += data.points;
@@ -1056,7 +1087,7 @@
 
                         if (lives <= 0) {
                             endGame();
-                            return; // ИСПРАВЛЕНО: выход из функции после завершения игры
+                            return;
                         }
                         continue;
                     }
@@ -1074,7 +1105,6 @@
                 soundOnIcon.style.display = isSoundOn ? 'block' : 'none';
                 soundOffIcon.style.display = isSoundOn ? 'none' : 'block';
 
-                // ИСПРАВЛЕНО: музыка запускается только если игра активна
                 if (isSoundOn && gameRunning && !gamePaused && bgMusic) {
                     bgMusic.play().catch(() => {});
                 } else if (bgMusic) {
@@ -1100,7 +1130,6 @@
                 gamePaused = false;
 
                 startBtn.classList.add('hidden');
-                // ИСПРАВЛЕНО: проверка на существование иконок
                 if (pauseIcon) pauseIcon.style.display = 'block';
                 if (playIcon) playIcon.style.display = 'none';
 
@@ -1111,7 +1140,6 @@
                 gameOverScreen.style.display = 'none';
 
                 centerBag();
-                // ИСПРАВЛЕНО: синхронизация targetX после centerBag
                 targetX = bagX;
                 updateUI();
 
@@ -1142,6 +1170,12 @@
                 if (gamePaused) {
                     if (bgMusic) bgMusic.pause();
                     showMessage('ПАУЗА', '#94a3b8', gameArea.offsetWidth / 2 - 40, gameArea.offsetHeight / 2);
+                    
+                    // ИСПРАВЛЕНИЕ: При паузе синхронизируем позицию
+                    const maxX = gameArea.offsetWidth - burgerBag.offsetWidth;
+                    targetX = Math.max(0, Math.min(targetX, maxX));
+                    bagX = targetX;
+                    burgerBag.style.left = Math.round(bagX) + 'px';
                 } else {
                     if (isSoundOn && bgMusic) bgMusic.play().catch(() => {});
                 }
@@ -1176,7 +1210,6 @@
                 gameOverScreen.style.display = 'none';
 
                 centerBag();
-                // ИСПРАВЛЕНО: синхронизация targetX после centerBag
                 targetX = bagX;
                 updateUI();
 
@@ -1211,7 +1244,6 @@
             function openInfo(e) {
                 if (e) e.preventDefault();
                 if (gameRunning && !gamePaused) pauseGame(e);
-                // ИСПРАВЛЕНО: проверка на существование панелей
                 if (infoPanel) infoPanel.classList.add('active');
                 if (shopPanel) shopPanel.classList.remove('active');
             }
@@ -1276,7 +1308,7 @@
             function init() {
                 initSounds();
                 centerBag();
-                targetX = bagX; // ИСПРАВЛЕНО: синхронизация при инициализации
+                targetX = bagX;
                 updateUI();
                 moveBagLoop();
 
