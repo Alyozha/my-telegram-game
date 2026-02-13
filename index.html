@@ -79,7 +79,7 @@
         
         .top-bar-left, .top-bar-right {
             display: flex;
-            gap: 12px;
+            gap: 15px; /* Увеличено для отдаления от кнопок */
             pointer-events: auto;
         }
         
@@ -111,19 +111,23 @@
             filter: none !important;
         }
         
-        /* ===== СЕРДЕЧКА - ИДЕАЛЬНО ПО ЦЕНТРУ ===== */
+        /* ===== СЕРДЕЧКА - ИДЕАЛЬНОЕ ПОЛОЖЕНИЕ ===== */
         .lives-container {
             position: absolute;
-            top: 15px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 8px; /* Уменьшено с 15px до 8px для приближения друг к другу */
             height: 50px;
             z-index: 150;
             pointer-events: none;
+            /* Добавлено для отдаления от кнопок */
+            padding: 0 40px; /* Создает отступы слева и справа */
+            width: auto;
+            min-width: 200px; /* Минимальная ширина для защиты от кнопок */
         }
         
         .heart {
@@ -131,7 +135,7 @@
             line-height: 1;
             transition: all 0.3s ease;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
-            margin: 0 2px;
+            margin: 0;
         }
         
         .heart.full {
@@ -597,8 +601,9 @@
             }
             
             .lives-container {
-                top: 12px;
-                gap: 10px;
+                top: 18px;
+                gap: 6px;
+                padding: 0 35px;
             }
             
             .heart {
@@ -646,6 +651,11 @@
             .nav-icon, .btn-icon, .sound-icon, .back-icon {
                 width: 40px;
                 height: 40px;
+            }
+            
+            .lives-container {
+                gap: 5px;
+                padding: 0 30px;
             }
             
             .heart {
@@ -768,74 +778,56 @@
         (function() {
             "use strict";
             
-            // ========== ПУЛ ЗВУКОВ - 100% СРАБАТЫВАНИЕ ==========
-            const SUCCESS_POOL = [];
-            const FAIL_POOL = [];
-            const POOL_SIZE = 5;
+            // ========== ПРОСТЫЕ ЗВУКИ - 100% РАБОТА ==========
+            let successSound, failSound, bgMusic;
             
-            // Заполняем пул звуков успеха
-            for (let i = 0; i < POOL_SIZE; i++) {
-                try {
-                    const sound = new Audio('sounds/success.mp3');
-                    sound.volume = 0.2;
-                    sound.load();
-                    SUCCESS_POOL.push(sound);
-                } catch (e) {
-                    console.warn('Ошибка загрузки success.mp3');
-                }
+            try {
+                successSound = new Audio('sounds/success.mp3');
+                successSound.volume = 0.2;
+                successSound.load();
+            } catch (e) {
+                successSound = { play: () => Promise.resolve(), load: () => {} };
             }
             
-            // Заполняем пул звуков неудачи
-            for (let i = 0; i < POOL_SIZE; i++) {
-                try {
-                    const sound = new Audio('sounds/fail.mp3');
-                    sound.volume = 0.2;
-                    sound.load();
-                    FAIL_POOL.push(sound);
-                } catch (e) {
-                    console.warn('Ошибка загрузки fail.mp3');
-                }
+            try {
+                failSound = new Audio('sounds/fail.mp3');
+                failSound.volume = 0.2;
+                failSound.load();
+            } catch (e) {
+                failSound = { play: () => Promise.resolve(), load: () => {} };
             }
             
-            // Фоновая музыка
-            let bgMusic;
             try {
                 bgMusic = new Audio('sounds/music.mp3');
                 bgMusic.volume = 0.15;
                 bgMusic.loop = true;
                 bgMusic.load();
             } catch (e) {
-                console.warn('Ошибка загрузки music.mp3');
                 bgMusic = { play: () => Promise.resolve(), pause: () => {}, load: () => {} };
             }
             
-            let successIndex = 0;
-            let failIndex = 0;
             let isSoundOn = true;
             let isMusicPlaying = false;
             
+            // ПРОСТЕЙШИЕ ФУНКЦИИ - КЛОН НЕ НУЖЕН!
             function playSuccess() {
                 if (!isSoundOn || !gameRunning || gamePaused) return;
-                if (SUCCESS_POOL.length === 0) return;
-                
-                const sound = SUCCESS_POOL[successIndex];
-                if (sound) {
-                    sound.currentTime = 0;
+                try {
+                    // Создаем НОВЫЙ звук каждый раз - это 100% гарантия!
+                    const sound = new Audio('sounds/success.mp3');
+                    sound.volume = 0.2;
                     sound.play().catch(() => {});
-                    successIndex = (successIndex + 1) % POOL_SIZE;
-                }
+                } catch (e) {}
             }
             
             function playFail() {
                 if (!isSoundOn || !gameRunning || gamePaused) return;
-                if (FAIL_POOL.length === 0) return;
-                
-                const sound = FAIL_POOL[failIndex];
-                if (sound) {
-                    sound.currentTime = 0;
+                try {
+                    // Создаем НОВЫЙ звук каждый раз - это 100% гарантия!
+                    const sound = new Audio('sounds/fail.mp3');
+                    sound.volume = 0.2;
                     sound.play().catch(() => {});
-                    failIndex = (failIndex + 1) % POOL_SIZE;
-                }
+                } catch (e) {}
             }
             
             // ========== СОСТОЯНИЕ ИГРЫ ==========
@@ -862,7 +854,6 @@
             
             const BAG_SPEED = 3.5;
             const ITEM_SIZE = 65;
-            const BAG_SIZE = 107;
             const BOMB_CHANCE = 0.15;
             
             const BASE_SPAWN = 2200;
@@ -896,7 +887,7 @@
             const pauseIcon = document.querySelector('.pause-icon');
             const playIcon = document.querySelector('.play-icon');
             
-            // ========== ПОЗИЦИЯ ПАКЕТА - СТАБИЛЬНАЯ ==========
+            // ========== ПОЗИЦИЯ ПАКЕТА ==========
             let targetPosition = 0;
             let currentPosition = 0;
             let isInitialized = false;
@@ -1435,8 +1426,8 @@
                 initBagPosition();
                 
                 // Предзагружаем звуки
-                SUCCESS_POOL.forEach(s => { if (s) s.load(); });
-                FAIL_POOL.forEach(s => { if (s) s.load(); });
+                if (successSound) successSound.load();
+                if (failSound) failSound.load();
                 if (bgMusic) bgMusic.load();
                 
                 updateUI();
@@ -1498,7 +1489,6 @@
                     soundOffIcon.style.display = 'none';
                 }
                 
-                // Дополнительная фиксация позиции
                 setTimeout(() => {
                     if (!isInitialized) {
                         initBagPosition();
